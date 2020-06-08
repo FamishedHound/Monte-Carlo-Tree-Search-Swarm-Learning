@@ -5,6 +5,7 @@ import pack_boids.Boid_generic;
 import processing.core.PApplet;
 import processing.core.PVector;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class ZoneDefence implements Cloneable {
     int timer = 0;
     ParameterSimulation param;
     ParameterGatherAndSetter output;
+
 
     public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 

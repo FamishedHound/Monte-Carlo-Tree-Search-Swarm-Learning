@@ -14,10 +14,6 @@ public class InnerSimulation  {
     ArrayList<Boid_generic> attackBoids;
     ArrayList<Boid_generic> simulationClones;
 
-    public void setAii(AI_type ai) {
-        this.ai = ai;
-    }
-
     AI_type ai;
     private int tick =0;
     PApplet parent;

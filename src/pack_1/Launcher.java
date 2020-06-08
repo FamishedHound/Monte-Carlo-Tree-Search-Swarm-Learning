@@ -12,7 +12,7 @@ import java.util.Arrays;
 /*
  * runs the simulation and holds/broadcasts the state
  */
-public class                                                              Launcher extends PApplet {
+public class Launcher extends PApplet {
 
 
 
