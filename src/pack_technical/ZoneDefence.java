@@ -27,6 +27,8 @@ public class ZoneDefence implements Cloneable {
     int DELAY = 200;
     int delay2 = 0;
     Simulation s;
+
+
     CollisionHandler handler;
     PatternHandler pattern;
 
@@ -75,20 +77,6 @@ public class ZoneDefence implements Cloneable {
                 attack = true;
                 writer14.write("I started to attack " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + coutner + "\n");
                 writer14.flush();
-            }
-
-            if (!sim.isSimulating()) {
-                if (timer == 0) {
-                    writer14.write("Updating attack vector " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + coutner + "\n");
-                    writer14.flush();
-                }
-                timer++;
-
-                if (timer >= 3) {
-                    //sim.restartTheSimulation(attackBoids, boids);
-                    //sim.setSimulating(true);
-                    timer = 0;
-                }
             }
         }
 
