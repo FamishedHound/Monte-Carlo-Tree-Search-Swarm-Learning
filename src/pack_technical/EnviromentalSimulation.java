@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 
+//todo move maxTreeDepth to Constants
+
 public class EnviromentalSimulation extends Thread {
     ArrayList<Boid_generic> defenders;
     ArrayList<Boid_generic> attackBoids;
@@ -78,7 +80,9 @@ public class EnviromentalSimulation extends Thread {
         scheme.setup();
 
         for (int i = 0; i < positionInTheList + 1; i++) {
-            if (!scheme.getIterator().hasNext()) {   // the ! is important
+            if (!scheme.getIterator().hasNext()) {
+                // if the end of the list of waypoints has been reached, reassigns the iterator
+                // to scheme so it can begin from the beginning again
                 scheme.setIterator(scheme.getWaypoints().iterator());
             }
             scheme.setCurrWaypoint(scheme.getIterator().next());
@@ -86,6 +90,8 @@ public class EnviromentalSimulation extends Thread {
         startTime = System.nanoTime();
 
         MCT = new Tree(maxTreeDepth);
+        //the PVector would be a random vector, but for the root it is just 0.
+        //TODO: abstract below line to Node constructor if it proves easy
         MCT.root.storeDetails(new PVector(0,0,0), attackBoids);
         new Thread(this).start();
     }

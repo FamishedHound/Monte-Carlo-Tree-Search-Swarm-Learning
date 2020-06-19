@@ -12,7 +12,7 @@ public class Node {
     LinkedList<Node> children;
 
     int timesVisited = 1, depth;
-    double avgEstimatedValue = 0, nodeSimValue = 0, rolloutValue;
+    double avgEstimatedValue = 0, nodeSimValue, rolloutValue;
     double uct = 0;
     String name = "Root";
 
@@ -34,11 +34,11 @@ public class Node {
      * Adds a node to the list of children for the calling parent node.
      * @return
      */
-    public Node addChild(double simulationValue, String name, double cRolloutValue) {
-        Node childNode = new Node(simulationValue, name, this.depth+1, cRolloutValue);
+    public Node addChild(double simulationValue, String name, double childRolloutValue) {
+        Node childNode = new Node(simulationValue, name, this.depth+1, childRolloutValue);
         childNode.parent = this;
         this.children.add(childNode);
-        childNode.backPropagate();
+        childNode.backPropagate(); // this being here rather than main algo loop makes things unclear
         return childNode;
     }
 
@@ -52,6 +52,7 @@ public class Node {
     }
 
     public double calcUCT(int parentVisits) {
+        //why is this 2*sqrt(2) rather than 1/sqrt(2) as standard? more exploration required??
         if (parent != null) {
             return this.avgEstimatedValue + ((2*1.414) * (Math.sqrt(2 * Math.log(parentVisits+1) / (this.timesVisited))));
         } else {

@@ -10,6 +10,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+//TODO: Rename location to currentAttackerLocation
+//TODO: Put the target PVector in Constants file
+//TODO: Find out what MrLeandroVector is for sure and then give it a real name (seems to be just a random vector)
+
+//TODO: Figure out what targetVector is. It seems to only have the local variable theClosest from run() assigned to it
+//and theClosest itself only ever has MrLeandroVector assigned to it.
+
+
+//TODO: seems to be a lot of redundant shared code between InnerSim and EnvSim. Tidy.
+//TODO: change b1 to be defenderBoids
+//TODO: change currentDistance to be currentDistanceToTarget
+//TODO: change theClosetDistance to be closetDistanceToTarget
+//TODO: I think 'cords' are the waypoint co-ordinates. If so change cords to be waypointCoordinates
+//TODO: rename r0acceleration & r0velocity local variables
+
 public class InnerSimulation  {
     ArrayList<Boid_generic> attackBoids;
     ArrayList<Boid_generic> simulationClones;
@@ -26,6 +41,7 @@ public class InnerSimulation  {
     boolean willContinueSimulation;
     Integer nextWaypoint;
     Random randG = new Random();
+    //what does targetVector actually represent
     PVector targetVector = new PVector(0,0);
     PVector MrLeandroVector;
 
@@ -141,13 +157,14 @@ public class InnerSimulation  {
 
 
     public void run1() throws IOException {
+        //redundant if
         if (simulating) {
             willContinueSimulation = true;
             boolean CheckVector = false ;
             PVector sumOfMassCentres = new PVector(0, 0);
             PVector theClosest = new PVector(0,0);
             int counter = 0;
-            float distance = 150;
+            float distance = 150; //distance to target from start?
             theClosetDistance = 2000;
             tick++;
 
@@ -156,7 +173,7 @@ public class InnerSimulation  {
             PVector location = attackBoids.get(0).getLocation();
 
             for (Boid_generic b1 : simulationClones) {
-                //HERE !!!!!!!!!!!!!!!!!!!!!!!!!
+                //For each layer in the MCTS, moves every defender boid one iteration
                 for(int i=0; i < nodeDepth; i++) {
                     b1.move(simulationClones);
                     b1.update();
@@ -172,7 +189,7 @@ public class InnerSimulation  {
 
             velocity.limit(1);
             location.add(velocity.add(acceleration.add(MrLeandroVector)));
-            acceleration.mult(0);
+            acceleration.mult(0); //doesnt seen to affect, maybe because velocity.limit is 1?
 
             currentDistance = Math.abs(PVector.dist(location,new PVector(550,500)));
             if (currentDistance < theClosetDistance && !attackBoids.get(0).isHasFailed()) {
@@ -197,6 +214,7 @@ public class InnerSimulation  {
             }
 
 
+            //I think this is the random rollout from newly expanded node
             if(simulating && !victory) {
                 PVector locationRollOut = new PVector(location.x, location.y);
                 PVector rOacceleration = attackBoids.get(0).getAcceleration();

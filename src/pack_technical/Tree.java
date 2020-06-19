@@ -1,6 +1,7 @@
 package pack_technical;
 
 public class Tree {
+    //root.depth is always 0
     Node root;
     int maxTreeDepth;
     int maxNodeChildren = 12;

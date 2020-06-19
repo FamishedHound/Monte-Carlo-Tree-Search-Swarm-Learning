@@ -16,6 +16,9 @@ import processing.core.PApplet;
 
 import processing.core.PVector;
 
+//TODO: move maxspeed to Constants
+//TODO: Identify other constant-esque stuff in here and move those to Constants too.
+
 // the generic boid class holds functions common to all boid types
 public class Boid_generic {
 

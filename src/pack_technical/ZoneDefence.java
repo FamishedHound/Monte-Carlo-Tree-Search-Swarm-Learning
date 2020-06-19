@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 
+//TODO: rename delay2
+
 public class ZoneDefence implements Cloneable {
     private static GameManager manager;
 
@@ -65,6 +67,7 @@ public class ZoneDefence implements Cloneable {
 
     public void run() throws IOException {
         if (pattern.isOnce()) {
+            //after sim constructor has completed is the point where the MCTS is running.
             sim = new EnviromentalSimulation(40, 70, 70, 2.0f, 1.2f, 0.9f, "", boids, parent, pattern.getImg().getNewpoints(), attackBoids, handler);
             param = new ParameterSimulation(parent, boids, pattern.getImg().getNewpoints(), sim.getSimulator());
             pattern.setOnce(false);
