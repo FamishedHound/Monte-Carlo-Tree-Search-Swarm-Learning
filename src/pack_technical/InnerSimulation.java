@@ -219,6 +219,8 @@ public class InnerSimulation  {
                 PVector locationRollOut = new PVector(location.x, location.y);
                 PVector rOacceleration = attackBoids.get(0).getAcceleration();
                 PVector rOvelocity = attackBoids.get(0).getVelocity();
+                //avgReward is more like instantaneous reward rather than an average reward?
+
                 avgReward = 0;
                 for(int j=0; j<1000; j++){
                     locationRollOut.add(rOvelocity.add(rOacceleration.add(MrLeandroVector)));
@@ -249,6 +251,8 @@ public class InnerSimulation  {
                     PVector accelerationB = b.getAcceleration();
                     PVector velocityB = b.getVelocity();
                     PVector locationB = b.getLocation();
+
+                    //this function doesn't do anything, probs deprecated
                     b.run(simulationClones, true, true);
 
                     velocityB.limit(1);

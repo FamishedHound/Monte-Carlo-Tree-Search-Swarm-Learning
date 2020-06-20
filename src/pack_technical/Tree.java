@@ -6,6 +6,7 @@ public class Tree {
     int maxTreeDepth;
     int maxNodeChildren = 12;
 
+
     public Tree(int maxTreeDepth) {
         this.root = new Node(0, "ROOT", 0, 0);
         this.maxTreeDepth = maxTreeDepth;
