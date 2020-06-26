@@ -135,17 +135,10 @@ public class FlockManager {
 
 	// used in creating an imaginary universe in which the real_boids are not real
 	public void import_imaginary_boids(ArrayList<Boid_generic> boids_in, AI_internal_model internal_model) {
-		PVector vect_in = new PVector(0, 0);
 		for (Boid_generic b : boids_in) {
-
-			vect_in = new PVector(b.getLocation_history().x, b.getLocation_history().y);
-			Boid_imaginary b2 = new Boid_imaginary(parent, vect_in.x, vect_in.y, b.getTeam(), b);
-
-			vect_in = new PVector(b.getVelocity_history().x, b.getVelocity_history().y);
-			b2.setVelocity(new PVector(vect_in.x, vect_in.y));
-
-			vect_in = new PVector(b.getAcceleration_history().x, b.getAcceleration_history().y);
-			b2.setAcceleration(new PVector(vect_in.x, vect_in.y));
+			Boid_imaginary b2 = new Boid_imaginary(parent, b.getLocationHistory().x, b.getLocationHistory().y, b.getTeam(), b);
+			b2.setVelocity(b.getVelocityHistory().x, b.getVelocityHistory().y);
+			b2.setAcceleration(b.getAccelerationHistory().x, b.getAccelerationHistory().y);
 			b2.setAi(internal_model.get_ai_team(b.getTeam()));
 			b2.setAngle(b.getAngle_history());
 			b2.setTeam(b.getTeam());
@@ -171,7 +164,7 @@ public class FlockManager {
 			dist_record = dist;
 		}
 		for (Boid_generic b : real_boids) {
-			dist = mouse_pos.dist(b.getLocation_history());
+			dist = mouse_pos.dist(b.getLocationHistory());
 			if (b instanceof Boid_standard) // if it is real
 				if ((dist < dist_record) && dist < select_dist) {
 					final_b = b;
