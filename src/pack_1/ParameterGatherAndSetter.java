@@ -48,6 +48,7 @@ public class ParameterGatherAndSetter {
         this.y=Float.parseFloat(args[1]);
         this.counter=Integer.parseInt(args[2]);
         amountOfBoids=Integer.parseInt(args[4]);
+        Constants.setParamsFromProgramArgs(args);
 
         System.out.println("SMARTPP1-LR OLD WAYPOINTS");
 
