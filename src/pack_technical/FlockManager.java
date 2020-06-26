@@ -137,8 +137,8 @@ public class FlockManager {
 	public void import_imaginary_boids(ArrayList<Boid_generic> boids_in, AI_internal_model internal_model) {
 		for (Boid_generic b : boids_in) {
 			Boid_imaginary b2 = new Boid_imaginary(parent, b.getLocationHistory().x, b.getLocationHistory().y, b.getTeam(), b);
-			b2.setVelocity(b.getVelocityHistory().x, b.getVelocityHistory().y);
-			b2.setAcceleration(b.getAccelerationHistory().x, b.getAccelerationHistory().y);
+			b2.setVelocity(b.getVelocityHistory());
+			b2.setAcceleration(b.getAccelerationHistory());
 			b2.setAi(internal_model.get_ai_team(b.getTeam()));
 			b2.setAngle(b.getAngle_history());
 			b2.setTeam(b.getTeam());

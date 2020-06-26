@@ -376,10 +376,6 @@ public class Boid_generic {
 		return acceleration; // only accesses 'future'
 	}
 
-	public void setAcceleration(float x, float y) {
-		this.acceleration = new PVector(x, y); // only accesses 'future'
-	}
-
 	public void setAcceleration(PVector acceleration) {
 		this.acceleration = acceleration.copy(); // only accesses 'future'
 	}
@@ -481,10 +477,6 @@ public class Boid_generic {
 		this.velocity = velocity.copy();
 	}
 
-	public void setVelocity(float x, float y) {
-		this.velocity = new PVector(x, y);
-	}
-
 	public void setLocation_history(ArrayList<PVector> location_history) {
 		location_history.clear();
 		this.location_history = location_history;
@@ -503,10 +495,10 @@ public class Boid_generic {
 		this.angle = angle;
 	}
 
-	public void setStationary(float x, float y) {
-		this.setLocation(x, y);
-		this.setVelocity(0f, 0f);
-		this.setAcceleration(0f, 0f);
+	public void setStationary() {
+		this.setLocation(this.getLocation());
+		this.velocity.mult(0);
+		this.velocity.mult(0);
 	}
 
 	public void setVelocity_history(ArrayList<PVector> velocity_history) {
@@ -517,9 +509,6 @@ public class Boid_generic {
 		this.location = location.copy();
 	}
 
-	public void setLocation(float x, float y) {
-		this.location = new PVector(x, y);
-	}
 
 	public ArrayList<Float> getHeading_history() {
 		return heading_history;
