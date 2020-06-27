@@ -77,7 +77,7 @@ public class DisplayManager {
 		parent.noFill();
 		parent.stroke(GREYCOLOUR, TRANSPARENTALPHA);
 		parent.pushMatrix();
-		parent.translate(b.getLocation_history().x, b.getLocation_history().y);
+		parent.translate(b.getLocationHistory().x, b.getLocationHistory().y);
 		parent.rotate(parent.frameCount / 35);
 		parent.rect(-HOVERVISUALRADIUS, -HOVERVISUALRADIUS, 2 * HOVERVISUALRADIUS, 2 * HOVERVISUALRADIUS);
 		parent.popMatrix();
@@ -87,7 +87,7 @@ public class DisplayManager {
 		parent.noFill();
 		parent.stroke(GREYCOLOUR, TRANSPARENTALPHA);
 		parent.pushMatrix();
-		parent.translate(b.getLocation_history().x, b.getLocation_history().y);
+		parent.translate(b.getLocationHistory().x, b.getLocationHistory().y);
 		parent.rotate(parent.frameCount / 35);
 		parent.rect(-SELECTVISUALRADIUS, -SELECTVISUALRADIUS, 2 * SELECTVISUALRADIUS, 2 * SELECTVISUALRADIUS);
 		parent.popMatrix();

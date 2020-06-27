@@ -16,8 +16,6 @@ import processing.core.PApplet;
 
 import processing.core.PVector;
 
-//TODO: move maxspeed to Constants
-//TODO: Identify other constant-esque stuff in here and move those to Constants too.
 
 // the generic boid class holds functions common to all boid types
 public class Boid_generic {
@@ -379,7 +377,7 @@ public class Boid_generic {
 	}
 
 	public void setAcceleration(PVector acceleration) {
-		this.acceleration = new PVector(acceleration.x, acceleration.y); // only accesses 'future'
+		this.acceleration = acceleration.copy(); // only accesses 'future'
 	}
 
 	public Color getFillcol() {
@@ -390,7 +388,7 @@ public class Boid_generic {
 		return linecol;
 	}
 
-	public PVector getVelocity_history() {
+	public PVector getVelocityHistory() {
 		if (velocity_history.size() > 0)
 			return new PVector(velocity_history.get(0).x, velocity_history.get(0).y);
 		else
@@ -404,14 +402,14 @@ public class Boid_generic {
 			return angle;
 	}
 
-	public PVector getLocation_history() {
+	public PVector getLocationHistory() {
 		if (location_history.size() > 0)
 			return new PVector(location_history.get(0).x, location_history.get(0).y);
 		else
 			return location;
 	}
 
-	public PVector getAcceleration_history() {
+	public PVector getAccelerationHistory() {
 		if (acceleration_history.size() > 0)
 			return new PVector(acceleration_history.get(0).x, acceleration_history.get(0).y);
 		else
@@ -476,7 +474,7 @@ public class Boid_generic {
 	}
 
 	public void setVelocity(PVector velocity) {
-		this.velocity = new PVector(velocity.x, velocity.y);
+		this.velocity = velocity.copy();
 	}
 
 	public void setLocation_history(ArrayList<PVector> location_history) {
@@ -497,13 +495,20 @@ public class Boid_generic {
 		this.angle = angle;
 	}
 
+	public void setStationary() {
+		this.setLocation(this.getLocation());
+		this.velocity.mult(0);
+		this.velocity.mult(0);
+	}
+
 	public void setVelocity_history(ArrayList<PVector> velocity_history) {
 		this.velocity_history = velocity_history;
 	}
 
 	public void setLocation(PVector location) {
-		this.location = new PVector(location.x, location.y);
+		this.location = location.copy();
 	}
+
 
 	public ArrayList<Float> getHeading_history() {
 		return heading_history;

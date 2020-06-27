@@ -81,13 +81,11 @@ public class ZoneDefence implements Cloneable {
             }
         }
 
-        for (Boid_generic be1 : attackBoids) {
+        for (Boid_generic attackBoid : attackBoids) {
             coutner++;
             if (coutner >= DELAY / 8 && coutner <= DELAY * 2) {
-                if (!attack) be1.setToMove(false);
-                be1.setLocation(new PVector(be1.getLocation().x, be1.getLocation().y));
-                be1.setVelocity(new PVector(0, 0));
-                be1.setAcceleration(new PVector(0, 0));
+                if (!attack) attackBoid.setToMove(false);
+                attackBoid.setStationary();
                 delay2++;
             }
 
@@ -105,10 +103,10 @@ public class ZoneDefence implements Cloneable {
 
             // ATACK MODE
             if (attack) {
-                be1.setToMove(true);
-                PVector acceleration = be1.getAcceleration();
-                PVector velocity = be1.getVelocity();
-                PVector location = be1.getLocation();
+                attackBoid.setToMove(true);
+                PVector acceleration = attackBoid.getAcceleration();
+                PVector velocity = attackBoid.getVelocity();
+                PVector location = attackBoid.getLocation();
                 velocity.limit(1);
 
                 //System.out.println("Asking for target vector!");
@@ -118,26 +116,21 @@ public class ZoneDefence implements Cloneable {
                 location.add(velocity.add(acceleration.add(attackVector)));
                 acceleration.mult(0);
             } else if (!attack) {
-                be1.setLocation(new PVector(be1.getLocation().x, be1.getLocation().y));
-                be1.setVelocity(new PVector(0, 0));
-                be1.setAcceleration(new PVector(0, 0));
+                attackBoid.setStationary();
             }
         }
 
-        for (Boid_generic be : boids) {
+        for (Boid_generic defenderBoid : boids) {
             if (defend) {
-                PVector acceleration = be.getAcceleration();
-                PVector velocity = be.getVelocity();
+                PVector acceleration = defenderBoid.getAcceleration();
+                PVector velocity = defenderBoid.getVelocity();
                 //PVector velocity = new PVector(0,0);
-                PVector location = be.getLocation();
+                PVector location = defenderBoid.getLocation();
                 velocity.limit(1);
-                location.add(velocity.add(patrolling.patrol(be.getLocation(), be)));
+                location.add(velocity.add(patrolling.patrol(defenderBoid.getLocation(), defenderBoid)));
                 acceleration.mult(0);
             } else {
-                PVector location = be.getLocation();
-                be.setLocation(location);
-                be.setVelocity(new PVector(0, 0));
-                be.setAcceleration(new PVector(0, 0));
+                defenderBoid.setStationary();
             }
         }
         output.iterations++;
