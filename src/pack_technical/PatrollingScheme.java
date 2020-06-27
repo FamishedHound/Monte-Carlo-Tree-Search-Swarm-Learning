@@ -62,9 +62,6 @@ public class PatrollingScheme {
         currWaypoint = iterator.next();
 
         currentPosition = 0;
-        //iteratorA =waypoints.iterator();
-        //currWaypointA=new PVector(550,500);
-
     }
     public void copy(){
 
@@ -96,21 +93,8 @@ public class PatrollingScheme {
 
         currWaypoint = waypoints.get(currentPosition);//iterator.next();
 
-        PVector targer = PVector.sub(currWaypoint,b.getLocation());
-        targer.setMag(waypointforce); // was 0.03
-        return targer;
-
-
-
-    }
-
-    public PVector attacking(PVector location, Boid_generic b){
-        if(currWaypointA!=new PVector(550,500) && PVector.dist(b.getLocation(),currWaypointA)<=10){
-            currWaypointA=new PVector(550,500);
-
-        }
-        PVector targer = PVector.sub(currWaypointA,b.getLocation());
-        targer.setMag(0.09f);
-        return targer;
+        PVector target = PVector.sub(currWaypoint,b.getLocation());
+        target.setMag(waypointforce); // was 0.03
+        return target;
     }
 }

@@ -1,11 +1,11 @@
 package pack_technical;
 
+import pack_1.Constants;
 import pack_1.ParameterGatherAndSetter;
 import pack_boids.Boid_generic;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -28,8 +28,6 @@ public class ZoneDefence implements Cloneable {
     boolean flag = true;
     int DELAY = 200;
     int delay2 = 0;
-    Simulation s;
-
 
     CollisionHandler handler;
     PatternHandler pattern;
@@ -60,7 +58,7 @@ public class ZoneDefence implements Cloneable {
         pattern = new PatternHandler();
         this.output = output;
         waypoints.addAll(output.returnDifficulty());
-        patrolling.getWaypointsA().add(new PVector(550, 500));
+        patrolling.getWaypointsA().add(Constants.TARGET.copy());
         patrolling.setup();
     }
 
@@ -142,7 +140,7 @@ public class ZoneDefence implements Cloneable {
         PVector target = new PVector(0, 0, 0);
 
         for (Boid_generic b2 : boids) {
-            target = PVector.sub(new PVector(550, 500), b1.getLocation());
+            target = PVector.sub(Constants.TARGET, b1.getLocation());
             if (boidType == 1) target.setMag((float) 0.09);
             if (boidType == 2) target.setMag((float) 0.01);
         }

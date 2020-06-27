@@ -4,11 +4,8 @@ import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_technical.CollisionHandler;
 import pack_technical.GameManager;
-import pack_technical.ZoneDefence;
 import processing.core.PVector;
 
-import java.awt.*;
-import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -48,6 +45,7 @@ public class ParameterGatherAndSetter {
         this.y=Float.parseFloat(args[1]);
         this.counter=Integer.parseInt(args[2]);
         amountOfBoids=Integer.parseInt(args[4]);
+        Constants.setParamsFromProgramArgs(args);
 
         System.out.println("SMARTPP1-LR OLD WAYPOINTS");
 
@@ -116,7 +114,7 @@ public class ParameterGatherAndSetter {
             generateEndingStatement(1);
             System.out.println("Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a victory");
             System.exit(0);
-            
+
             if(Math.round((System.nanoTime()-startTime)/1000000000)==300){//timeout after 300 s
                 generateEndingStatement(2);
                 System.out.println("Timeout");

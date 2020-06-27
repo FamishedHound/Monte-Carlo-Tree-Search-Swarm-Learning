@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import pack_1.Constants;
+
 public class PatternHandler {
     public ArrayList<PatternEntry> getObservations() {
         return observations;
@@ -53,21 +55,19 @@ public class PatternHandler {
             img.getPoints().add(new int[]{(int)MiddleOfTheMass.x,(int)MiddleOfTheMass.y});
             observations.add(new PatternEntry(MiddleOfTheMass));
         }
-
-
     }
 
-    public int  analyze() throws IOException {
+    public int analyze() throws IOException {
 
         if (observations.size() >= 150) observations.clear();
         if (observations.size() < 150 && observations.size() > 50) {
             PatternEntry circle = observations.get(0);
-            PVector base = new PVector(550,500);
+            PatternEntry base = new PatternEntry(Constants.TARGET);
             float exact = PVector.dist(circle.getRadius(), new PVector(150, 500));
 
             for (PatternEntry entry : observations) {
 
-                float error = Math.abs(entry.difference(new PatternEntry(base)) / circle.difference(new PatternEntry(base)));
+                float error = Math.abs(entry.difference(base) / circle.difference(base));
 
                 //System.out.println(entry.difference(new PatternEntry(base)) + "   " + exact);
                 //System.out.println(error + " " + (ERROR));
@@ -82,7 +82,7 @@ public class PatternHandler {
             if(observations.size()==100) {
                 img.drawPattern();
                 //img.clearMe();
-                radius = circle.difference(new PatternEntry(base));
+                radius = circle.difference(base);
                 once=true;
                 return 1;
             }

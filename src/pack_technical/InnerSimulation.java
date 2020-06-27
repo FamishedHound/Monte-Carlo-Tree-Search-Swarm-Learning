@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import pack_1.Constants;
+import pack_1.Utility;
+
 //TODO: Rename location to currentAttackerLocation
 //TODO: Put the target PVector in Constants file
 //TODO: Find out what MrLeandroVector is for sure and then give it a real name (seems to be just a random vector)
@@ -183,15 +186,18 @@ public class InnerSimulation  {
                 }
             }
 
-            if((PVector.dist(location,new PVector(550,500))<=10 || PVector.dist(attackBoids.get(0).getLocation(),location)>=distance /*location.x-50<=0*/) && !attackBoids.get(0).isHasFailed()){
-                willContinueSimulation = false;                                                                         //Hit target (WIN)
+            if((Utility.distSq(location, Constants.TARGET) <= Constants.HIT_DISTANCE_SQ || Utility.distSq(attackBoids.get(0).getLocation(), location) >= distance * distance)
+                && !attackBoids.get(0).isHasFailed() ){
+                willContinueSimulation = false; //Hit target (WIN)
             }
 
             velocity.limit(1);
             location.add(velocity.add(acceleration.add(MrLeandroVector)));
             acceleration.mult(0); //doesnt seen to affect, maybe because velocity.limit is 1?
 
-            currentDistance = Math.abs(PVector.dist(location,new PVector(550,500)));
+            // TODO - Could replace this dist with distSq, but that will change all of the currentDistance etc. vars to be currentDistanceSq
+            currentDistance = PVector.dist(location, Constants.TARGET);
+
             if (currentDistance < theClosetDistance && !attackBoids.get(0).isHasFailed()) {
                 theClosest = MrLeandroVector;
                 theClosetDistance = currentDistance;
@@ -228,10 +234,10 @@ public class InnerSimulation  {
                     //float rand2 = randG.nextFloat() * 1;
                     //locationRollOut.add(rOvelocity.add(rOacceleration.add(new PVector(-1+2*rand, -1+2*rand2))));
 
-                    if(Math.abs(PVector.dist(locationRollOut, new PVector(550,500))) < 20){
+                    if(Utility.distSq(locationRollOut, Constants.TARGET) < 20 * 20) {
                         avgReward = 1;
                         break;
-                    }else{
+                    } else {
                         for (Boid_generic b1 : simulationClones) {
                             if (Math.abs(PVector.dist(b1.getLocation(), locationRollOut)) < 16) {  // was 3
                                 avgReward = -1;
