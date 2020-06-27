@@ -28,6 +28,8 @@ import java.util.Random;
 public class InnerSimulation  {
     ArrayList<Boid_generic> attackBoids;
     ArrayList<Boid_generic> simulationClones;
+    storeDetails defend;
+    storeDetails attack;
 
     AI_type ai;
     private int tick =0;
@@ -70,8 +72,8 @@ public class InnerSimulation  {
         attackBoids.clear();
         simulationClones.clear();
 
-        this.attackBoids=copyTheStateOfAttackBoids(attackBoidss);
-        this.simulationClones = copyTheStateOfAttackBoids(defenders);
+        this.attackBoids= attack.copyTheStateOfAttackBoids(attackBoidss,parent);
+        this.simulationClones = defend.copyTheStateOfAttackBoids(defenders,parent);
 
         scheme.setWaypointforce(ai.getWayPointForce());
         for(Boid_generic g : simulationClones){
@@ -115,8 +117,10 @@ public class InnerSimulation  {
         this.parent=parent;
         this.cords= new ArrayList<>(cords);
         this.parent=parent;
-        this.attackBoids=copyTheStateOfAttackBoids(attackers);
-        this.simulationClones=copyTheStateOfAttackBoids(defenders);
+        attack = new storeDetails();
+        this.attackBoids= attack.copyTheStateOfAttackBoids(attackers,parent);
+        defend = new storeDetails();
+        this.simulationClones=defend.copyTheStateOfAttackBoids(defenders,parent);
         this.handler=handler;
         this.nodeDepth = nodeDepth;
         scheme = new PatrollingScheme(ai.getWayPointForce());
@@ -271,19 +275,19 @@ public class InnerSimulation  {
         }
     }
 
-    public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids) {
-        ArrayList<Boid_generic> boidListClone = new ArrayList<>();
+//     public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids) {
+//         ArrayList<Boid_generic> boidListClone = new ArrayList<>();
 
-        for(Boid_generic boid : boids){
-            Boid_generic bi = new Boid_standard(parent,boid.getLocation().x,boid.getLocation().y,6,10);
-            bi.setAi(ai);
-            bi.setAcceleration(boid.getAcceleration());
-            bi.setVelocity(boid.getVelocity());
-            bi.setLocation(boid.getLocation());
-            boidListClone.add(bi);
-        }
-        return boidListClone;
-    }
+//         for(Boid_generic boid : boids){
+//             Boid_generic bi = new Boid_standard(parent,boid.getLocation().x,boid.getLocation().y,6,10);
+//             bi.setAi(ai);
+//             bi.setAcceleration(boid.getAcceleration());
+//             bi.setVelocity(boid.getVelocity());
+//             bi.setLocation(boid.getLocation());
+//             boidListClone.add(bi);
+//         }
+//         return boidListClone;
+//     }
 
     public ArrayList<Boid_generic> getSimulationClones(){ return simulationClones; }
 
