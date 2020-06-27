@@ -5,7 +5,6 @@ import processing.event.MouseEvent;
 import pack_AI.AI_manager;
 import pack_technical.*;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -13,9 +12,6 @@ import java.util.Arrays;
  * runs the simulation and holds/broadcasts the state
  */
 public class Launcher extends PApplet {
-
-
-
 
 	boolean toBeDisplayed = true;
 	static boolean sim_paused = false;
@@ -38,13 +34,9 @@ public class Launcher extends PApplet {
 	public DisplayManager display_sys; // created later with fonts
 	public static GameManager game_sys;
 	public IOManager IO_sys;
-	public static OutputWriter file_sys;
 	private BaseManager base;
 	private CollisionHandler collision;
 	private ParameterGatherAndSetter empiricBoy;
-
-
-
 
 	private ZoneDefence zone;
 	public ZoneDefence getZone() {
@@ -56,7 +48,7 @@ public class Launcher extends PApplet {
 	static int run_moment= (int) System.currentTimeMillis()%100; // helps identify each files name
 
 	public static void main(String[] args) {
-		System.out.println("args" + Arrays.toString(args));
+		System.out.println("args: " + Arrays.toString(args));
 		String[] pass = new String[args.length];
 		for(int i=0;i<args.length;i++){
 			pass[i]=args[i];
@@ -86,7 +78,6 @@ public class Launcher extends PApplet {
 		game_sys = new GameManager(this, flock, display_sys);
 		IO_sys = new IOManager(this, flock, display_sys, game_sys,this);
 
-		//file_sys = new OutputWriter();
 		base = new BaseManager(this);
 		collision = new CollisionHandler(game_sys);
 
@@ -158,10 +149,6 @@ public class Launcher extends PApplet {
 
 	public ParticleManager getParticle_sys() {
 		return particle_sys;
-	}
-
-	public static OutputWriter getFile_sys() {
-		return file_sys;
 	}
 
 	public DisplayManager getDisplay_sys() {
@@ -260,7 +247,6 @@ public class Launcher extends PApplet {
 	}
 
 	public static void quit(int code) {
-		file_sys.close();
 		System.out.println("Program has terminated");
 		System.exit(code);
 	}

@@ -5,6 +5,9 @@ import processing.core.PVector;
 
 import java.util.ArrayList;
 
+import pack_1.Constants;
+import pack_1.Utility;
+
 public class CollisionHandler {
     private static   GameManager manager;
     ArrayList<Boid_generic> team1;
@@ -68,9 +71,8 @@ public class CollisionHandler {
 //                    b2.getVelocity().add(v2);
 //                   // System.out.println(b2.getVelocity() + " after2");
                     lose=true;
-                } else if(PVector.dist(b2.getLocation(),new PVector(550,500f))<=10){
+                } else if(Utility.distSq(b2.getLocation(), Constants.TARGET) <= Constants.HIT_DISTANCE_SQ) {
                     victory=true;
-
                 }
             }
         }

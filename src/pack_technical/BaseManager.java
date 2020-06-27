@@ -6,6 +6,8 @@ import processing.core.PApplet;
 import java.awt.*;
 import java.util.Random;
 
+import pack_1.Constants;
+
 public class BaseManager {
     private PApplet app;
 
@@ -25,7 +27,7 @@ public class BaseManager {
         */
         // target not needed if circle is back
         app.fill(255,0,0);
-        app.rect(550,500f,10f,10f);
+        app.rect(Constants.TARGET.x, Constants.TARGET.y,10f,10f);
 
         // different edges Triangle
         app.fill(105,105,105);
