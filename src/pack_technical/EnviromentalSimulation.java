@@ -22,7 +22,8 @@ import java.util.*;
 public class EnviromentalSimulation extends Thread {
     ArrayList<Boid_generic> defenders;
     ArrayList<Boid_generic> attackBoids;
-
+    storeDetails defend;
+    storeDetails attack;
     Tree MCT;
 
     AI_type simulator;
@@ -52,8 +53,10 @@ public class EnviromentalSimulation extends Thread {
 
         simulator = new AI_type(randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
 
-        defenders = copyTheStateOfAttackBoids(defenders);
-        this.attackBoids = copyTheStateOfAttackBoids(attackers);
+        defend = new storeDetails();
+        defenders = defend.copyTheStateOfAttackBoids(defenders,parent);
+        attack = new storeDetails();
+        this.attackBoids = attack.copyTheStateOfAttackBoids(attackers,parent);
 
         this.flock = new FlockManager(parent, true, true);
         this.scheme = new PatrollingScheme(simulator.getWayPointForce());
@@ -139,8 +142,8 @@ public class EnviromentalSimulation extends Thread {
 
 
     public void updateBoids(ArrayList<Boid_generic> defenders, ArrayList<Boid_generic> attacker) {
-        this.defenders = copyTheStateOfAttackBoids(defenders);
-        this.attackBoids = copyTheStateOfAttackBoids(attacker);
+        this.defenders = defend.copyTheStateOfAttackBoids(defenders,parent);
+        this.attackBoids = attack.copyTheStateOfAttackBoids(attacker,parent);
     }
 
 
@@ -184,16 +187,16 @@ public class EnviromentalSimulation extends Thread {
     }
 
 
-    public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids) {
-        ArrayList<Boid_generic> boidListClone = new ArrayList<>();
+//     public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids) {
+//         ArrayList<Boid_generic> boidListClone = new ArrayList<>();
 
-        for (Boid_generic boid : boids) {
-            Boid_generic bi = new Boid_standard(parent, boid.getLocation().x, boid.getLocation().y, 6, 10);
-            bi.setAcceleration(boid.getAcceleration());
-            bi.setVelocity(boid.getVelocity());
-            bi.setLocation(boid.getLocation());
-            boidListClone.add(bi);
-        }
-        return boidListClone;
-    }
+//         for (Boid_generic boid : boids) {
+//             Boid_generic bi = new Boid_standard(parent, boid.getLocation().x, boid.getLocation().y, 6, 10);
+//             bi.setAcceleration(boid.getAcceleration());
+//             bi.setVelocity(boid.getVelocity());
+//             bi.setLocation(boid.getLocation());
+//             boidListClone.add(bi);
+//         }
+//         return boidListClone;
+//     }
 }
