@@ -67,7 +67,6 @@ public class Boid_generic {
 	boolean hasFailed=false;
 	// create a boid (application,angle,x_position,y_position)
 	public Boid_generic(PApplet p, float x, float y, int t,int id) {
-
 		this.id = id;
 		parent = p;
 		team = t;
@@ -89,6 +88,23 @@ public class Boid_generic {
 		acceleration_history.clear();
 		location_history.clear();
 		heading_history.clear();
+	}
+
+	public Boid_generic(PApplet p, Boid_generic boid_generic) {
+		this.parent = p;
+		this.id = boid_generic.getId();
+		this.team = boid_generic.getTeam();
+		this.fillcol = boid_generic.getFillcol();
+		this.linecol = boid_generic.getLinecol();
+		this.setLocation(boid_generic.getLocation());
+		this.firerange = boid_generic.getFirerange();
+		this.fireangle = boid_generic.getFireangle();
+		this.reload_time = boid_generic.getReload_time();
+		this.size = boid_generic.getSize();
+		this.current_reload = boid_generic.getCurrent_reload();
+		this.location = boid_generic.location.copy();
+		this.velocity = boid_generic.velocity.copy();
+		this.acceleration = boid_generic.acceleration.copy();
 	}
 
 	public void on_death() {

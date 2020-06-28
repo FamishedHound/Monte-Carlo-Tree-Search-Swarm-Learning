@@ -30,6 +30,15 @@ public class Boid_standard extends Boid_generic {
 		machine_learner = new AI_machine_learner(parent, this); // perfect model;
 	}
 
+	public Boid_standard(PApplet p, Boid_generic boid_generic) {
+		super(p, boid_generic);
+		this.ai = AI_manager.get_team_ai(boid_generic.getTeam());
+		this.angle = boid_generic.getAngle(); // degrees
+		this.internal_model = new AI_internal_model(false, this); // perfect model;
+		this.machine_learner = new AI_machine_learner(parent, this); // perfect model;
+	}
+
+
 	// Method to update location
 	protected void attempt_future() {
 		if (Launcher.getFlock().get_boid_count() > 0) {
