@@ -30,7 +30,7 @@ import pack_1.Utility;
 public class InnerSimulation extends Simulation {
     private int tick =0;
     ArrayList<int[]> historyOfMovement = new ArrayList<>();
-    PatrollingScheme scheme ;
+    //PatrollingScheme scheme ;
     boolean victory = false;
 
     boolean willContinueSimulation;
@@ -69,10 +69,10 @@ public class InnerSimulation extends Simulation {
         this.defenderBoids =copyStateOfBoids(defenders);
         this.collisionHandler = collisionHandler;
         this.nodeDepth = nodeDepth;
-        scheme = new PatrollingScheme(ai.getWayPointForce());
+        patrollingScheme = new PatrollingScheme(ai.getWayPointForce());
 
         for(int[] cord : cords){
-            scheme.getWaypoints().add(new PVector(cord[0],cord[1]));
+            patrollingScheme.getWaypoints().add(new PVector(cord[0],cord[1]));
         }
 
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
@@ -83,9 +83,9 @@ public class InnerSimulation extends Simulation {
         int counter = 0;
         int positionInTheList = 0;
 
-        for(int i=0;i<scheme.getWaypoints().size();i++) {
-            PVector checkpoint = scheme.getWaypoints().get(i);
-            PVector nextCheckPoint = scheme.getWaypoints().get((i+1)%scheme.getWaypoints().size());
+        for(int i=0;i<patrollingScheme.getWaypoints().size();i++) {
+            PVector checkpoint = patrollingScheme.getWaypoints().get(i);
+            PVector nextCheckPoint = patrollingScheme.getWaypoints().get((i+1)%patrollingScheme.getWaypoints().size());
             float distanceSq = Utility.distSq(defenderBoids.get(0).getLocation(), checkpoint);
 
             if (distanceSq < shortestDistanceSq) {
@@ -100,10 +100,10 @@ public class InnerSimulation extends Simulation {
         if (shortestVectorAngle < nextToShortestVectorAngle) {
             nextWaypoint = positionInTheList;
         }else{
-            nextWaypoint = (positionInTheList + 1) % scheme.getWaypoints().size();
+            nextWaypoint = (positionInTheList + 1) % patrollingScheme.getWaypoints().size();
         }
 
-        scheme.currentPosition = nextWaypoint;
+        patrollingScheme.currentPosition = nextWaypoint;
         createSimulationsAndRandomVectors();
     }
 
@@ -211,7 +211,7 @@ public class InnerSimulation extends Simulation {
                     b.run(defenderBoids, true, true);
 
                     velocityB.limit(1);
-                    locationB.add(velocityB.add(accelerationB.add(scheme.patrol(b.getLocation(), b)/*patrolling.patrol(be.getLocation(),be)*/)));
+                    locationB.add(velocityB.add(accelerationB.add(patrollingScheme.patrol(b.getLocation(), b)/*patrolling.patrol(be.getLocation(),be)*/)));
                     accelerationB.mult(0);
 
                     sumOfMassCentres = PVector.add(sumOfMassCentres, b.getLocation());

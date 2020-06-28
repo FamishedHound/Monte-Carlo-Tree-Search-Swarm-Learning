@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class EnviromentalSimulation extends Simulation implements Runnable {
     Tree MCT;
 
-    AI_type simulator;
-    PatrollingScheme scheme;
+    //AI_type simulator;
+    //PatrollingScheme scheme;
     ArrayList<int[]> cords;
 
     FlockManager flock;
@@ -27,16 +27,12 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
     CollisionHandler handler;
 
-    public AI_type getSimulator() {
-        return simulator;
-    }
-
     public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
         this.handler = handler;
         this.cords = cords;
         this.defenderBoids = defenders;
 
-        simulator = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
+        this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
 
         defenders = copyStateOfBoids(defenders);
         this.attackBoids = copyStateOfBoids(attackers);
@@ -44,18 +40,18 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
         this.flock = new FlockManager(true, true);
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
         for (Boid_generic g : defenders) {
-            g.setAi(simulator);
+            g.setAi(this.ai_type);
         }
 
         for (int[] cord : cords) {
-            scheme.getWaypoints().add(new PVector(cord[0], cord[1]));
+            this.patrollingScheme.getWaypoints().add(new PVector(cord[0], cord[1]));
         }
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         // TODO - Magic numbers!!
         float shortestDistanceSq = 3000 * 3000;
         int counter = 0;
         int positionInTheList = 0;
-        for (PVector checkpoint : scheme.getWaypoints()) {
+        for (PVector checkpoint : this.patrollingScheme.getWaypoints()) {
             float distanceSq = Utility.distSq(defenders.get(0).getLocation(), checkpoint);
             counter++;
             if (distanceSq < shortestDistanceSq) {
@@ -64,15 +60,15 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             }
         }
 
-        scheme.setup();
+        patrollingScheme.setup();
 
         for (int i = 0; i < positionInTheList + 1; i++) {
-            if (!scheme.getIterator().hasNext()) {
+            if (!patrollingScheme.getIterator().hasNext()) {
                 // if the end of the list of waypoints has been reached, reassigns the iterator
-                // to scheme so it can begin from the beginning again
-                scheme.setIterator(scheme.getWaypoints().iterator());
+                // to patrollingScheme so it can begin from the beginning again
+                patrollingScheme.setIterator(patrollingScheme.getWaypoints().iterator());
             }
-            scheme.setCurrWaypoint(scheme.getIterator().next());
+            patrollingScheme.setCurrWaypoint(patrollingScheme.getIterator().next());
         }
         startTime = System.nanoTime();
 
@@ -85,7 +81,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
 
     public void setAiToInnerSimulation(AI_type t) {
-        simulator = t;
+        ai_type = t;
     }
 
 

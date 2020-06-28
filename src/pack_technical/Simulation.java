@@ -30,6 +30,10 @@ public abstract class Simulation {
         return boidListClone;
     }
 
+    public AI_type getSimulator() {
+        return ai_type;
+    }
+
 
 
 }
