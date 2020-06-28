@@ -204,7 +204,7 @@ public class ParameterSimulation extends Thread{
                 }
             }
             if (entry.getKey() == 1) {
-           //     System.out.println("defenders " + Arrays.toString(entry.getValue().toArray()));
+           //     System.out.println("defenderBoids " + Arrays.toString(entry.getValue().toArray()));
                 generatePopulationAndMapsForPoints(entry.getValue());
             }
         }
@@ -637,9 +637,9 @@ public class ParameterSimulation extends Thread{
         int numFrames = 20;
 
 
-//                observations.put(1, copyTheStateOfAttackBoids(defenders,1)); //initial state
+//                observations.put(1, copyTheStateOfAttackBoids(defenderBoids,1)); //initial state
 //
-//                observations.put(2, copyTheStateOfAttackBoids(defenders,2));//end state
+//                observations.put(2, copyTheStateOfAttackBoids(defenderBoids,2));//end state
         if(stack.size()<numFrames){
             stack.add(copyTheStateOfAttackBoids(defenders,0));
 
