@@ -2,6 +2,9 @@ package pack_boids;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import pack_1.Launcher;
 import pack_1.Utility;
@@ -9,8 +12,11 @@ import pack_AI.AI_internal_model;
 import pack_AI.AI_type;
 import pack_technical.GameManager;
 import pack_technical.ParameterHandler;
+import pack_technical.PatternHandler;
+import processing.core.PApplet;
 
 import processing.core.PVector;
+
 
 // the generic boid class holds functions common to all boid types
 public abstract class Boid_generic {
@@ -46,23 +52,23 @@ public abstract class Boid_generic {
         return moveable;
     }
 
-    boolean moveable = true;
-    public int getId() {
-        return id;
-    }
-    public void setToMove(boolean b){
-        moveable=b;
-    }
-    private int id;
-    AI_type ai;
-    ParameterHandler pHandler = new ParameterHandler();
-    public boolean isHasFailed() {
-        return hasFailed;
-    }
+	boolean moveable = true;
+	public int getId() {
+		return id;
+	}
+	public void setToMove(boolean b){
+		moveable=b;
+	}
+	private int id;
+	AI_type ai;
+	ParameterHandler pHandler = new ParameterHandler();
+	public boolean isHasFailed() {
+		return hasFailed;
+	}
 
-    public void setHasFailed(boolean hasFailed) {
-        this.hasFailed = hasFailed;
-    }
+	public void setHasFailed(boolean hasFailed) {
+		this.hasFailed = hasFailed;
+	}
 
     boolean hasFailed=false;
     // create a boid (application,angle,x_position,y_position)
@@ -87,27 +93,44 @@ public abstract class Boid_generic {
         acceleration_history.clear();
         location_history.clear();
         heading_history.clear();
-    }
+	}
 
-    public void record_acceleration() {
-        acceleration_history.add(new PVector(this.acceleration.x, this.acceleration.y));
-        if (acceleration_history.size() > Launcher.getHISTORYLENGTH()) {
-            acceleration_history.remove(0);
-        }
-    }
+	public Boid_generic(Boid_generic boid_generic) {
+		this.id = boid_generic.getId();
+		this.team = boid_generic.getTeam();
+		this.fillcol = boid_generic.getFillcol();
+		this.linecol = boid_generic.getLinecol();
+		this.setLocation(boid_generic.getLocation());
+		this.firerange = boid_generic.getFirerange();
+		this.fireangle = boid_generic.getFireangle();
+		this.reload_time = boid_generic.getReload_time();
+		this.size = boid_generic.getSize();
+		this.current_reload = boid_generic.getCurrent_reload();
+		this.location = boid_generic.location.copy();
+		this.velocity = boid_generic.velocity.copy();
+		this.acceleration = boid_generic.acceleration.copy();
+	}
 
-    public void record_history() { // done seperatley because of end of step reset
-        velocity_history.add(new PVector(this.velocity.x, this.velocity.y));
-        location_history.add(new PVector(this.location.x, this.location.y));
-        heading_history.add(velocity.heading());
-        angle_history.add(angle);
-        if (location_history.size() > Launcher.getHISTORYLENGTH()) {
-            velocity_history.remove(0);
-            location_history.remove(0);
-            heading_history.remove(0);
-            angle_history.remove(0);
-        }
-    }
+	public void record_acceleration() {
+		acceleration_history.add(new PVector(this.acceleration.x, this.acceleration.y));
+		if (acceleration_history.size() > Launcher.getHISTORYLENGTH()) {
+			acceleration_history.remove(0);
+		}
+	}
+
+	public void record_history() { // done seperatley because of end of step reset
+		velocity_history.add(new PVector(this.velocity.x, this.velocity.y));
+		location_history.add(new PVector(this.location.x, this.location.y));
+		heading_history.add(velocity.heading());
+		angle_history.add(angle);
+		if (location_history.size() > Launcher.getHISTORYLENGTH()) {
+			velocity_history.remove(0);
+			location_history.remove(0);
+			heading_history.remove(0);
+			angle_history.remove(0);
+
+		}
+	}
 
     // TODO this can be removed maybe. The boids should not be artifically limited by the limits of the window
     void move_borders(boolean wrap) {
@@ -150,31 +173,30 @@ public abstract class Boid_generic {
             acceleration.add(sep);
             acceleration.add(ali);
             acceleration.add(coh);
-        }
+		}
+	}
 
-    }
+	public void update() {
+		// Update velocity
+		velocity.add(acceleration);
+		// Limit speed
+		velocity.limit(maxspeed);
+		location.add(velocity);
+		// Reset accelertion to 0 each cycle
+		acceleration.mult(0);
+	}
 
-    public void update() {
-        // Update velocity
-        velocity.add(acceleration);
-        // Limit speed
-        velocity.limit(maxspeed);
-        location.add(velocity);
-        // Reset accelertion to 0 each cycle
-        acceleration.mult(0);
-    }
-
-    // A method that calculates and applies a steering force towards a target
-    // STEER = DESIRED MINUS VELOCITY
-    PVector seek(PVector target) {
-        PVector desired = PVector.sub(target, location); // A vector pointing from the location to the target
-        // Scale to maximum speed
-        desired.setMag(maxspeed);
-        // Steering = Desired minus Velocity
-        PVector steer = PVector.sub(desired, velocity);
-        steer.limit(maxsteer); // Limit to maximum steering force
-        return steer;
-    }
+	// A method that calculates and applies a steering force towards a target
+	// STEER = DESIRED MINUS VELOCITY
+	PVector seek(PVector target) {
+		PVector desired = PVector.sub(target, location); // A vector pointing from the location to the target
+		// Scale to maximum speed
+		desired.setMag(maxspeed);
+		// Steering = Desired minus Velocity
+		PVector steer = PVector.sub(desired, velocity);
+		steer.limit(maxsteer); // Limit to maximum steering force
+		return steer;
+	}
 
     synchronized void render_trails(int type, boolean simulation) { // all boids draw trails
         if(!simulation) {
@@ -304,192 +326,193 @@ public abstract class Boid_generic {
         }
     }
 
-    void reload() {
-        current_reload--;
-        if (current_reload <= 0 && !canfire) {
-            canfire = true;
-            current_reload = reload_time;
-        }
-    }
+	void reload() {
+		current_reload--;
+		if (current_reload <= 0 && !canfire) {
+			canfire = true;
+			current_reload = reload_time;
+		}
+	}
 
-    public void kill() {
-        alive = false;
-    }
+	public void kill() {
+		alive = false;
+	}
 
-    public double get_size() {
-        return size;
-    }
+	public double get_size() {
+		return size;
+	}
 
-    public boolean get_alive() {
-        return alive;
-    }
+	public boolean get_alive() {
+		return alive;
+	}
 
-    public Color get_colour() {
-        return fillcol;
-    }
+	public Color get_colour() {
+		return fillcol;
+	}
 
-    public PVector get_future_location() {
-        return location;
-    }
+	public PVector get_future_location() {
+		return location;
+	}
 
     public AI_type getAi() {
         return ai;
     }
 
-    public void setAi(AI_type ai) {
-        this.ai = ai;
-    }
+	public void setAi(AI_type ai) {
+		this.ai = ai;
+	}
 
-    public void setTeam(int team) {
-        this.team = team;
-    }
+	public void setTeam(int team) {
+		this.team = team;
+	}
 
-    public PVector getAcceleration() {
-        return acceleration; // only accesses 'future'
-    }
+	public PVector getAcceleration() {
+		return acceleration; // only accesses 'future'
+	}
 
-    public void setAcceleration(PVector acceleration) {
-        this.acceleration = acceleration.copy(); // only accesses 'future'
-    }
+	public void setAcceleration(PVector acceleration) {
+		this.acceleration = acceleration.copy(); // only accesses 'future'
+	}
 
-    public Color getFillcol() {
-        return fillcol;
-    }
+	public Color getFillcol() {
+		return fillcol;
+	}
 
-    public Color getLinecol() {
-        return linecol;
-    }
+	public Color getLinecol() {
+		return linecol;
+	}
 
-    public PVector getVelocityHistory() {
-        if (velocity_history.size() > 0)
-            return new PVector(velocity_history.get(0).x, velocity_history.get(0).y);
-        else
-            return velocity;
-    }
+	public PVector getVelocityHistory() {
+		if (velocity_history.size() > 0)
+			return new PVector(velocity_history.get(0).x, velocity_history.get(0).y);
+		else
+			return velocity;
+	}
 
-    public Double getAngle_history() {
-        if (angle_history.size() > 0)
-            return angle_history.get(0);
-        else
-            return angle;
-    }
+	public Double getAngle_history() {
+		if (angle_history.size() > 0)
+			return angle_history.get(0);
+		else
+			return angle;
+	}
 
-    public PVector getLocationHistory() {
-        if (location_history.size() > 0)
-            return new PVector(location_history.get(0).x, location_history.get(0).y);
-        else
-            return location;
-    }
+	public PVector getLocationHistory() {
+		if (location_history.size() > 0)
+			return new PVector(location_history.get(0).x, location_history.get(0).y);
+		else
+			return location;
+	}
 
-    public PVector getAccelerationHistory() {
-        if (acceleration_history.size() > 0)
-            return new PVector(acceleration_history.get(0).x, acceleration_history.get(0).y);
-        else
-            return acceleration;
-    }
+	public PVector getAccelerationHistory() {
+		if (acceleration_history.size() > 0)
+			return new PVector(acceleration_history.get(0).x, acceleration_history.get(0).y);
+		else
+			return acceleration;
+	}
 
-    public ArrayList<PVector> getLocation_history_full() {
-        return location_history;
-    }
+	public ArrayList<PVector> getLocation_history_full() {
+		return location_history;
 
-    public PVector getLocation() {
-        return location;
-    }
+	}
 
-    public PVector getVelocity() {
-        return velocity;
-    }
+	public PVector getLocation() {
+		return location;
+	}
 
-    public float getSize() {
-        return size;
-    }
+	public PVector getVelocity() {
+		return velocity;
+	}
 
-    public float getmaxsteer() {
-        return maxsteer;
-    }
+	public float getSize() {
+		return size;
+	}
 
-    public float getMaxspeed() {
-        return maxspeed;
-    }
+	public float getmaxsteer() {
+		return maxsteer;
+	}
 
-    public double getAngle() {
-        return angle;
-    }
+	public float getMaxspeed() {
+		return maxspeed;
+	}
 
-    public float getFireangle() {
-        return fireangle;
-    }
+	public double getAngle() {
+		return angle;
+	}
 
-    public float getFirerange() {
-        return firerange;
-    }
+	public float getFireangle() {
+		return fireangle;
+	}
 
-    public int getReload_time() {
-        return reload_time;
-    }
+	public float getFirerange() {
+		return firerange;
+	}
 
-    public boolean isAlive() {
-        return alive;
-    }
+	public int getReload_time() {
+		return reload_time;
+	}
 
-    public boolean isCanfire() {
-        return canfire;
-    }
+	public boolean isAlive() {
+		return alive;
+	}
 
-    public int getCurrent_reload() {
-        return current_reload;
-    }
+	public boolean isCanfire() {
+		return canfire;
+	}
 
-    public void setVelocity(PVector velocity) {
-        this.velocity = velocity.copy();
-    }
+	public int getCurrent_reload() {
+		return current_reload;
+	}
 
-    public void setLocation_history(ArrayList<PVector> location_history) {
-        location_history.clear();
-        this.location_history = location_history;
-    }
+	public void setVelocity(PVector velocity) {
+		this.velocity = velocity.copy();
+	}
 
-    public void setHeading_history(ArrayList<Float> heading_history) {
-        heading_history.clear();
-        this.heading_history = heading_history;
-    }
+	public void setLocation_history(ArrayList<PVector> location_history) {
+		location_history.clear();
+		this.location_history = location_history;
+	}
 
-    public void setAlive(boolean alive) {
-        this.alive = alive;
-    }
+	public void setHeading_history(ArrayList<Float> heading_history) {
+		heading_history.clear();
+		this.heading_history = heading_history;
+	}
 
-    public void setAngle(double angle) {
-        this.angle = angle;
-    }
+	public void setAlive(boolean alive) {
+		this.alive = alive;
+	}
 
-    public void setStationary() {
-        this.setLocation(this.getLocation());
-        this.velocity.mult(0);
-        this.velocity.mult(0);
-    }
+	public void setAngle(double angle) {
+		this.angle = angle;
+	}
 
-    public void setVelocity_history(ArrayList<PVector> velocity_history) {
-        this.velocity_history = velocity_history;
-    }
+	public void setStationary() {
+		this.setLocation(this.getLocation());
+		this.velocity.mult(0);
+		this.velocity.mult(0);
+	}
 
-    public void setLocation(PVector location) {
-        this.location = location.copy();
-    }
+	public void setVelocity_history(ArrayList<PVector> velocity_history) {
+		this.velocity_history = velocity_history;
+	}
 
-    public ArrayList<Float> getHeading_history() {
-        return heading_history;
-    }
+	public void setLocation(PVector location) {
+		this.location = location.copy();
+	}
 
-    public AI_internal_model getInternal_model() {
-        // only used by standard boid, abstracted away
-        return null;
-    }
+	public ArrayList<Float> getHeading_history() {
+		return heading_history;
+	}
 
-    public boolean Isalone() {
-        return isalone;
-    }
+	public AI_internal_model getInternal_model() {
+		// only used by standard boid, abstracted away
+		return null;
+	}
 
-    public int getTeam() {
-        return team;
-    }
+	public boolean Isalone() {
+		return isalone;
+	}
+
+	public int getTeam() {
+		return team;
+	}
 }

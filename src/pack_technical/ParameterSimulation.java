@@ -201,7 +201,6 @@ public class ParameterSimulation extends Thread{
                     counter++;
                 }
             } else if (entry.getKey() == 1) {
-           //     System.out.println("defenders " + Arrays.toString(entry.getValue().toArray()));
                 generatePopulationAndMapsForPoints(entry.getValue());
             }
         }
