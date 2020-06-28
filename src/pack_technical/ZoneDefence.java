@@ -59,7 +59,7 @@ public class ZoneDefence implements Cloneable {
     }
 
 
-    public void run() throws IOException {
+    public void run() {
         if (pattern.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
             sim = new EnviromentalSimulation(40, 70, 70, 2.0f, 1.2f, 0.9f, "", boids, pattern.getImg().getNewpoints(), attackBoids, handler);
@@ -110,7 +110,7 @@ public class ZoneDefence implements Cloneable {
 
                 location.add(velocity.add(acceleration.add(attackVector)));
                 acceleration.mult(0);
-            } else if (!attack) {
+            } else {
                 attackBoid.setStationary();
             }
         }

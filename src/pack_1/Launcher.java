@@ -103,12 +103,7 @@ public class Launcher extends PApplet {
             empiricBoy.gather();
             flock.run(simspeed);
             IO_sys.run();
-            //particle_sys.draw();
-            try {
-                zone.run();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            zone.run();
             display_sys.draw();
         } else {
             //zone.simulate();

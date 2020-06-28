@@ -2,6 +2,8 @@ package pack_technical;
 
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoint;
+
+import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.Boid_generic;
@@ -131,9 +133,8 @@ public class ParameterSimulation extends Thread{
         // scheme.getWaypoints().add(new PVector(550,485));
 
 
-        //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS _____________________________________________________________
-        PVector theClosestOne = new PVector(2000, 2000);
-        float shortestDistance = 3000;
+        //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
+        float shortestDistanceSq = 3000 * 3000;
         int counter = 0;
         int positionInTheList = 0;
         float shortestVectorAngle=0;
@@ -142,11 +143,11 @@ public class ParameterSimulation extends Thread{
             PVector checkpoint = scheme.getWaypoints().get(i);
             PVector nextCheckPoint = scheme.getWaypoints().get((i+1)%scheme.getWaypoints().size());
 
-            float distance = PVector.dist(observations.get(1).get(0).getLocation(), checkpoint);
+            float distanceSq = Utility.distSq(observations.get(1).get(0).getLocation(), checkpoint);
 
             // System.out.println(distance);
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
+            if (distanceSq < shortestDistanceSq) {
+                shortestDistanceSq = distanceSq;
                 positionInTheList = counter;
                 shortestVectorAngle = PVector.angleBetween(observations.get(1).get(0).getLocation(), checkpoint);
                 nextToShortestVectorAngle = PVector.angleBetween(observations.get(1).get(0).getLocation(), nextCheckPoint);
@@ -161,7 +162,6 @@ public class ParameterSimulation extends Thread{
         else{
             nextWaypoint = (positionInTheList + 1) % scheme.getWaypoints().size();
         }
-
 
         scheme.currentPosition = nextWaypoint;
     }
@@ -191,8 +191,7 @@ public class ParameterSimulation extends Thread{
         frameCount=0;
     }
 
-
-
+    // TODO - in what way does this calculate distances?
     public void calculateDistance(){
         for (Map.Entry<Integer, ArrayList<Boid_generic>> entry : observations.entrySet()) {
             if (entry.getKey() == 2) {
@@ -200,10 +199,8 @@ public class ParameterSimulation extends Thread{
                 for (Boid_generic def : entry.getValue()) {
                     endPositions.put(counter, def.getLocation());
                     counter++;
-
                 }
-            }
-            if (entry.getKey() == 1) {
+            } else if (entry.getKey() == 1) {
            //     System.out.println("defenders " + Arrays.toString(entry.getValue().toArray()));
                 generatePopulationAndMapsForPoints(entry.getValue());
             }
@@ -496,12 +493,10 @@ public class ParameterSimulation extends Thread{
     public void learnTheErrors(Map<Integer,ArrayList<WeightedObservedPoint>> map,int mode,ArrayList<Boid_generic> defenders ){
 
         calculateDistance();
-      //  System.out.println("3");
         PatrollingScheme schemeCopy = new PatrollingScheme(currentAi.getWayPointForce());
         for(PVector k : scheme.getWaypoints()){
             schemeCopy.getWaypoints().add(new PVector(k.x,k.y));
         }
-        //float values[] = {19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40};
 
         float values[] = new float[howManyErrors];
 
@@ -518,206 +513,110 @@ public class ParameterSimulation extends Thread{
 
         for(int j=0;j<howManyErrors;j++) {
             schemeCopy.currentPosition = nextWaypoint;
-        //    System.out.println("j " + j);
             float xValue =0;
-            if (mode == 1)
-            {
+            if (mode == 1) {
                 xValue = randFloat(AI_manager.neighbourhoodSeparation_lower_bound,AI_manager.neighbourhoodSeparation_upper_bound);
-            }
-            else if(mode>1 && mode <=3){
-                /*if (j == 0) {
-                    xValue = 19;
-                }
-                else if (j == howManyErrors - 1) {
-                    xValue = 101;
-                }
-                else
-                    xValue = randFloat(20,100) ;*/
+            } else if(mode>1 && mode <=3){
                 xValue = randFloat(AI_manager.getNeighbourhoodLowerBound(),AI_manager.getNeighbourhoodUpperBound());
-                //xValue = values[j];
-            }else if (mode==7) {
-                xValue=randFloat(0.01f,0.1f);
-               // System.out.println("my random " + xValue);
-            }else {
+            } else if (mode==7) {
+                xValue = randFloat(0.01f,0.1f);
+            } else {
                 xValue = randFloat(0.01f,5);
             }
             AI_type sepAi = currentAi;
-            int save = frameCount;
             ArrayList<Boid_generic> simulationBoids = copyTheStateOfAttackBoids(defenders,0);
             switch (mode) {
                 case 1:
                     sepAi = new AI_type( xValue, currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
-                  //  System.out.println("cSepPop " + Arrays.toString(cSepPop.toArray()));
-                   // simulationBoids = cSepPop;
                     break;
                 case 2:
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(),  xValue, currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
-                   // simulationBoids = cAliPop;
                     break;
                 case 3:
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(),  xValue,currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
-                   // simulationBoids=cCohPop;
                     break;
                 case 4:
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), (float) xValue, currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
-                  //  simulationBoids=cSepWPop;
                     break;
                 case 5:
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), currentAi.getSep_weight(), (float) xValue, currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
-                   // simulationBoids=cAliWPop;
-
                     break;
                 case 6:
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), (float) xValue,currentAi.getWayPointForce(), ":(");
-                  //  simulationBoids=cCohWPop;
                     break;
                 case 7:
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),xValue, ":(");
-                    //  simulationBoids=cCohWPop;
-                    //frameCount=40;
                     break;
             }
 
-
-            //sepAi = new AI_type(xValue, 70, 70, 2.0f, 1.2f, 0.9f,0.04f, "test");
-            //sepAi = new AI_type(xValue, 70, 70, 2.0f, 1.2f, 0.9f,0.04f, "test");
-
-            int numberOfBoidsErrors=0;
-          //  System.out.println("simulation " + Arrays.toString(simulationBoids.toArray()));
-            //ArrayList<Boid_generic> simulationBoids = copyTheStateOfAttackBoids(observations.get(1),0);
-             //test
             for (int i = 0; i < frameCount; i++) {
-                                //   System.out.println(" before i " + i);
+                int counter=0;
+                for (Boid_generic def : simulationBoids) {
+                    def.setAi(sepAi);
+                    PVector acceleration =def.getAcceleration();
+                    PVector velocity = def.getVelocity();
+                    PVector location = def.getLocation();
+                    def.run(simulationBoids, true, true); //Alex Part where he applies all forces
 
-                                int counter=0;
-                                for (Boid_generic def : simulationBoids) {
-                                    // System.out.println(" after counter " + counter);
+                    velocity.limit(1);
+                    //My force
+                    location.add(velocity.add(acceleration.add(schemeCopy.patrol(def.getLocation(), def)/*patrolling.patrol(be.getLocation(),be)*/)));
+                    if(i==frameCount-1) {
+                        WeightedObservedPoint point = new WeightedObservedPoint(1, xValue, (double) PVector.dist(endPositions.get(counter), location));
+                        map.get(counter).add(point);
+                    }
 
-
-                                    def.setAi(sepAi);
-                                    PVector acceleration =def.getAcceleration();
-                                    PVector velocity = def.getVelocity();
-                                    PVector location = def.getLocation();
-                                    def.run(simulationBoids, true, true); //Alex Part where he applies all forces
-
-
-                                    velocity.limit(1);
-                                    //My force
-                                    location.add(velocity.add(acceleration.add(schemeCopy.patrol(def.getLocation(), def)/*patrolling.patrol(be.getLocation(),be)*/)));
-                            if(i==frameCount-1) {
-                                //if(mode==7)
-                               // System.out.println("error " + (double)PVector.dist(endPositions.get(counter), location));
-
-                                        WeightedObservedPoint point = new WeightedObservedPoint(1, xValue, (double) PVector.dist(endPositions.get(counter), location));
-
-
-
-                                map.get(counter).add(point);
-                            }
-
-                            acceleration.mult(0);
-                            counter++;
-
-                        }
-
+                    acceleration.mult(0);
+                    counter++;
+                }
             }
-
         }
-
     }
 
-    public void calculateErrors(){
-
-    }
-
-    public int observe(ArrayList<Boid_generic> defenders){
-
-        ArrayList<Boid_generic>  initialState = new ArrayList<>();
-
+    public int observe(ArrayList<Boid_generic> defenders) {
         int numFrames = 20;
-
-
-//                observations.put(1, copyTheStateOfAttackBoids(defenders,1)); //initial state
-//
-//                observations.put(2, copyTheStateOfAttackBoids(defenders,2));//end state
-        if(stack.size()<numFrames){
+        if(stack.size()<numFrames) {
             stack.add(copyTheStateOfAttackBoids(defenders,0));
-
-
-
             end = (end + 1) % numFrames;
-        }
-
-        else
-        {
-            //stack.remove(0);
+        } else {
             begin = (begin + 1) % numFrames;
-
-            initialState = copyTheStateOfAttackBoids(stack.get(begin),0);
-
-            //oldBegin = begin;
-//
+            copyTheStateOfAttackBoids(stack.get(begin),0);
             end = (end + 1) % numFrames;
-
             stack.set(end,copyTheStateOfAttackBoids(defenders,0));
-//
         }
-
-
 
         if(stack.size()== numFrames && once) {
             frameCount=numFrames;
-            ArrayList<Boid_generic>   initialStateForCalculation = stack.get(begin);
-            ArrayList<Boid_generic>  endStateForCalculation = stack.get(end);
-            //System.out.println("   " + initialStateForCalculation.size() + endStateForCalculation.size());
+            ArrayList<Boid_generic> initialStateForCalculation = stack.get(begin);
+            ArrayList<Boid_generic> endStateForCalculation = stack.get(end);
             observations.put(1, initialStateForCalculation); //initial state
-//
             observations.put(2, endStateForCalculation);//end state
             observing = false;
             new Thread(this).start();
-            //System.out.println("thread started");
-
             once=false;
         }
 
-
-        //10
-        //0.1
-        //0.01
-        //0.02
-
-        if ( observations.size()==0  &&!once) {
-            // observing=true;
+        if(observations.size()==0  && !once) {
             k++;
-            //System.out.println(k);
             once=true;
-
-            /*if(learningRate>=0.5){
-                learningRate+=2;
-                learningRateParameters+=0.5;
-            } else {
-                learningRate+=0.5;
-            }*/
             return 1;
-
         }
 
         return 0;
-
     }
+
+    // TODO - In what way does this update AI? Surely it gets AI.
     public AI_type updateAi(){
         return currentAi;
     }
 
     public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids,int mode) {
         ArrayList<Boid_generic> boidListClone = new ArrayList<>();
-        //System.out.println(boids);
 
         for(Boid_generic boid : boids){
             //nadaj im tutaj acceleration velocity etc..
             Boid_generic bi = new Boid_standard(boid.getLocation().x,boid.getLocation().y,6,10);
             bi.setAi(currentAi);
-
 
             bi.setAcceleration(boid.getAcceleration());
             bi.setVelocity(boid.getVelocity());
@@ -729,9 +628,7 @@ public class ParameterSimulation extends Thread{
             }
             boidListClone.add(bi);
         }
-
         return boidListClone;
-
     }
 
 }

@@ -39,6 +39,7 @@ public class Boid_standard extends Boid_generic {
         }
     }
 
+    @Override
     public void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation) {
         if (!Launcher.isSim_paused()) {
             isalone = true; // is boid uninteracted with?
@@ -51,10 +52,6 @@ public class Boid_standard extends Boid_generic {
         }
         if (!simulation) {
             if(real_step) {
-                if (Launcher.isSim_drawtrails()) {
-                    render_trails(2,simulation);
-                    render_perfect_future();
-                }
                 render();
                 if (Launcher.getPredict_state() != Launcher.predictStates.NONE && (Launcher.getPredict_state() == Launcher.predictStates.ALL || GameManager.getSelected_boid() == this)) {
                     attempt_future();
@@ -64,8 +61,12 @@ public class Boid_standard extends Boid_generic {
         }
     }
 
-    public AI_internal_model getInternal_model() {
-        return internal_model;
+    @Override
+    protected void render() {
+        if (Launcher.isSim_drawtrails()) {
+            render_trails(2, false);
+        }
+        render_perfect_future();
     }
 
     void render_perfect_future() {
@@ -83,6 +84,9 @@ public class Boid_standard extends Boid_generic {
         Launcher.applet.popMatrix();
     }
 
+    public AI_internal_model getInternal_model() {
+        return internal_model;
+    }
     public void setAi(AI_type ai) {
         this.ai = ai;
     }

@@ -1,6 +1,8 @@
 package pack_technical;
 
 import pack_1.Launcher;
+import pack_1.Utility;
+
 import java.util.ArrayList;
 import pack_AI.AI_internal_model;
 import pack_boids.Boid_imaginary;
@@ -15,12 +17,6 @@ import processing.core.PVector;
  * nearest boid.
  */
 public class FlockManager {
-
-    public ArrayList<Boid_generic> getBoids() {
-        return boids;
-    }
-
-    ArrayList<Boid_generic> boids; // the list of boids that loads real or imaginary
 
     public ArrayList<Boid_generic> getReal_boids() {
         return real_boids;
@@ -51,49 +47,39 @@ public class FlockManager {
 
     }
 
-    public void reset() {
-        if (real)
-            real_boids.clear();
-        else
-            imaginary_boids.clear();
-    }
-
     public void run(int steps) {
-        if (real)
-            boids = real_boids;
-        else
-            boids = imaginary_boids;
+        ArrayList<Boid_generic> boids = get_all_boids();
+
         for (Boid_generic b : boids) {
             if (!b.get_alive()) {
                 remove_boid(b);
                 break;
             }
         }
+
         for (int step = 0; step < steps; step++) {
             // first run camera that does not interfere with the flock
             if (camera_boid != null)
-                if (step == 0)
-                    camera_boid.run(true,simulation);
-                else
-                    camera_boid.run(false,simulation);
+                camera_boid.run(null, (step == 0), simulation);
             for (Boid_generic b : boids) {
                 if (b instanceof Boid_standard) { // if real
-                    if (step == 0) // only render on step 0
-                        b.run(boids, true,simulation);
-                    else
-                        b.run(boids, false,simulation);
+                    b.run(boids, (step == 0), simulation);
                 } else { // if imaginary
-                    if (step == steps - 1) // only render on last step
-                        b.run(boids, true,simulation); // should be true
-                    else
-                        b.run(boids, false,simulation);
+                    b.run(boids, (step == steps - 1), simulation);
                 }
             }
         }
     }
 
+    public ArrayList<Boid_generic> get_all_boids() {
+        return (real ? real_boids : imaginary_boids);
+    }
+
+    public int get_boid_count() {
+        return get_all_boids().size();
+    }
+
     public Boid_generic remove_boid(Boid_generic b) {
-        b.on_death();
         get_all_boids().remove(b);
         return b;
     }
@@ -102,6 +88,10 @@ public class FlockManager {
         // give the boid the ai derived from the team
         get_all_boids().add(b);
         return b;
+    }
+
+    public void reset() {
+        get_all_boids().clear();
     }
 
     // used in creating an imaginary universe in which the real_boids are not real
@@ -117,33 +107,26 @@ public class FlockManager {
         }
     }
 
-    public ArrayList<Boid_generic> get_all_boids() {
-        return (real ? real_boids : imaginary_boids);
-    }
-
-    public int get_boid_count() {
-        return get_all_boids().size();
-    }
-
-    public Boid_generic get_nearest_boid(int select_dist) {
-        PVector mouse_pos = new PVector(Launcher.applet.mouseX, Launcher.applet.mouseY);
-        Boid_generic final_b = null;
-        float dist_record = Integer.MAX_VALUE;
+    public Boid_generic get_nearest_boid(float selectDist) {
+        PVector mousePos = new PVector(Launcher.applet.mouseX, Launcher.applet.mouseY);
+        Boid_generic nearestBoid = null;
+        float selectDistSq = selectDist * selectDist;
+        float distRecordSq = Float.MAX_VALUE;
         // attempt select camera first, this is not part of the flock
-        float dist = mouse_pos.dist(camera_boid.getLocation());
-        if ((dist < dist_record) && dist < select_dist) {
-            final_b = camera_boid;
-            dist_record = dist;
+        float distSq = Utility.distSq(mousePos, camera_boid.getLocation());
+        if ((distSq < distRecordSq) && (distSq < selectDistSq)) {
+            nearestBoid = camera_boid;
+            distRecordSq = distSq;
         }
         for (Boid_generic b : real_boids) {
-            dist = mouse_pos.dist(b.getLocationHistory());
-            if (b instanceof Boid_standard) // if it is real
-                if ((dist < dist_record) && dist < select_dist) {
-                    final_b = b;
-                    dist_record = dist;
-                }
+            if(!(b instanceof Boid_standard)) continue; // Only consider if it is a real boid
+            distSq = Utility.distSq(mousePos, b.getLocationHistory());
+            if ((distSq < distRecordSq) && (distSq < selectDistSq)) {
+                nearestBoid = b;
+                distRecordSq = distSq;
+            }
         }
-        return final_b;
+        return nearestBoid;
     }
 
     public Boid_observer getCamera_boid() {

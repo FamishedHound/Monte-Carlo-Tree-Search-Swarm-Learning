@@ -13,9 +13,7 @@ public class PatternEntry {
     }
 
     public float difference(PatternEntry other){
-        float diff = PVector.dist(radius,other.getRadius());
-
-        return diff;
+        return PVector.dist(radius,other.getRadius());
     }
 
 }

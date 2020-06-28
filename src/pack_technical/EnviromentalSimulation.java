@@ -1,21 +1,15 @@
 package pack_technical;
 
-import pack_1.Launcher;
+import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.Boid_generic;
 import pack_boids.Boid_standard;
-import processing.core.PApplet;
 import processing.core.PVector;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 //todo move maxTreeDepth to Constants
 
@@ -42,13 +36,12 @@ public class EnviromentalSimulation extends Thread {
         return simulator;
     }
 
-    // TODO why does this throw IOException?
-    public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) throws IOException {
+    public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
         this.handler = handler;
         this.cords = cords;
         this.defenders = defenders;
 
-        simulator = new AI_type(randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
+        simulator = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
 
         defenders = copyTheStateOfAttackBoids(defenders);
         this.attackBoids = copyTheStateOfAttackBoids(attackers);
@@ -63,14 +56,15 @@ public class EnviromentalSimulation extends Thread {
             scheme.getWaypoints().add(new PVector(cord[0], cord[1]));
         }
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
-        float shortestDistance = 3000;
+        // TODO - Magic numbers!!
+        float shortestDistanceSq = 3000 * 3000;
         int counter = 0;
         int positionInTheList = 0;
         for (PVector checkpoint : scheme.getWaypoints()) {
-            float distance = PVector.dist(defenders.get(0).getLocation(), checkpoint);
+            float distanceSq = Utility.distSq(defenders.get(0).getLocation(), checkpoint);
             counter++;
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
+            if (distanceSq < shortestDistanceSq) {
+                shortestDistanceSq = distanceSq;
                 positionInTheList = counter;
             }
         }
@@ -103,14 +97,6 @@ public class EnviromentalSimulation extends Thread {
     public boolean isSimulating() {
         return true;
     }
-
-
-    public static float randFloat(float min, float max) {
-        Random rand = new Random();
-        float result = rand.nextFloat() * (max - min) + min;
-        return result;
-    }
-
 
     public PVector reutrnTargetVecotr() {
         Node bestSim = MCT.bestAvgVal();

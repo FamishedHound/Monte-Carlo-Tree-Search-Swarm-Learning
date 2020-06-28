@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import pack_1.Launcher;
+import pack_1.Utility;
 import pack_AI.AI_internal_model;
 import pack_AI.AI_type;
 import pack_technical.GameManager;
@@ -12,7 +13,7 @@ import pack_technical.ParameterHandler;
 import processing.core.PVector;
 
 // the generic boid class holds functions common to all boid types
-public class Boid_generic {
+public abstract class Boid_generic {
 
     Color fillcol, linecol; // not in generic boid because not all boid suse the same colours
     ArrayList<PVector> velocity_history = new ArrayList<PVector>();
@@ -34,6 +35,12 @@ public class Boid_generic {
     boolean canfire = false; // is able to fire laser?
     boolean isalone = true;
     int current_reload; // current reload progress
+
+    // if real_step is true all normal actions will happen, otherwise
+    // rendering is disabled, this is for 'in-mind simulation'
+    public abstract void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation);
+    // TODO boids shouldn't really render themselves
+    protected abstract void render();
 
     public boolean isMoveable() {
         return moveable;
@@ -60,10 +67,9 @@ public class Boid_generic {
     boolean hasFailed=false;
     // create a boid (application,angle,x_position,y_position)
     protected Boid_generic(float x, float y, int t,int id) {
-
         this.id = id;
         team = t;
-        // graphics //
+        // graphics
         fillcol = GameManager.get_team_colour(t);
         linecol = new Color(245, 245, 245);
         // for in head simulations
@@ -83,11 +89,6 @@ public class Boid_generic {
         heading_history.clear();
     }
 
-    public void on_death() {
-        // generic boid has no features
-
-    }
-
     public void record_acceleration() {
         acceleration_history.add(new PVector(this.acceleration.x, this.acceleration.y));
         if (acceleration_history.size() > Launcher.getHISTORYLENGTH()) {
@@ -101,18 +102,11 @@ public class Boid_generic {
         heading_history.add(velocity.heading());
         angle_history.add(angle);
         if (location_history.size() > Launcher.getHISTORYLENGTH()) {
-        velocity_history.remove(0);
-        location_history.remove(0);
-        heading_history.remove(0);
-        angle_history.remove(0);
-
+            velocity_history.remove(0);
+            location_history.remove(0);
+            heading_history.remove(0);
+            angle_history.remove(0);
         }
-    }
-
-    // if real_step is true all normal actions will happen, otherwise
-    // rendering is disabled, this is for 'in-mind simulation'
-    public void run(ArrayList<Boid_generic> boids, boolean real_step,boolean simulation) {
-        System.out.println("handled by specific boids");
     }
 
     // TODO this can be removed maybe. The boids should not be artifically limited by the limits of the window
@@ -153,9 +147,9 @@ public class Boid_generic {
         //System.out.println(" here" + sep + " " + ali + " " + coh);
         // Add the force vectors to acceleration
         if(moveable) {
-        acceleration.add(sep);
-        acceleration.add(ali);
-        acceleration.add(coh);
+            acceleration.add(sep);
+            acceleration.add(ali);
+            acceleration.add(coh);
         }
 
     }
@@ -182,60 +176,51 @@ public class Boid_generic {
         return steer;
     }
 
-
-	void render_perfect_future() {
-		// abstract
-	}
-
-	public void render() {
-		// abstract, handles by individuals
-	}
-
-    synchronized void render_trails(int type,boolean simulation) { // all boids draw trails
+    synchronized void render_trails(int type, boolean simulation) { // all boids draw trails
         if(!simulation) {
-        prev_vertex = new PVector(location.x, location.y);
-        if (location_history.size() > 0) {
-            switch (type) {
-            default:
-                break;
-            case 1: // periodic dots
-                int index = 0;
-                Launcher.applet.stroke(fillcol.getRGB());
-                for (PVector vect : location_history) {
-                prev_vertex = vect;
-                index++;
-                if ((index + Launcher.applet.frameCount) % 5 == 0)
-                    Launcher.applet.point(vect.x, vect.y);
-                }
-                break;// smooth curves
-            case 2:
-                Launcher.applet.noFill();
-                Launcher.applet.beginShape();
-                for (PVector vect : location_history) {
-                    if (vect.dist(prev_vertex) > 200) {
-                        prev_vertex = new PVector(vect.x, vect.y);
+            prev_vertex = location.copy();
+            if (location_history.size() > 0) {
+                switch (type) {
+                    case 1: // periodic dots
+                        int index = 0;
+                        Launcher.applet.stroke(fillcol.getRGB());
+                        for (PVector vect : location_history) {
+                            prev_vertex = vect;
+                            index++;
+                            if ((index + Launcher.applet.frameCount) % 5 == 0)
+                                Launcher.applet.point(vect.x, vect.y);
+                        }
+                        break;// smooth curves
+                    case 2:
+                        Launcher.applet.noFill();
+                        Launcher.applet.beginShape();
+                        for (PVector vect : location_history) {
+                            if (Utility.distSq(vect, prev_vertex) > 200*200) {
+                                prev_vertex = vect.copy();
+                                Launcher.applet.endShape();
+                                return;
+                            } else {
+                                Launcher.applet.stroke(fillcol.getRGB(), 75); // set colour and opacity;
+                                Launcher.applet.vertex(vect.x, vect.y);
+                                prev_vertex = new PVector(vect.x, vect.y);
+                            }
+                        }
                         Launcher.applet.endShape();
-                        return;
-                    } else {
-                        Launcher.applet.stroke(fillcol.getRGB(), 75); // set colour and opacity;
-                        Launcher.applet.vertex(vect.x, vect.y);
-                        prev_vertex = new PVector(vect.x, vect.y);
-                    }
+                        break;
+                    case 3: // direct line
+                        if (location_history.size() > 0) {
+                            Launcher.applet.noFill();
+                            Launcher.applet.stroke(fillcol.getRGB(), 75); // set colour and opacity;
+                            if (Utility.distSq(location_history.get(0), location_history.get(location_history.size() - 1)) < 200 * 200)
+                                Launcher.applet.line(location_history.get(0).x, location_history.get(0).y,
+                                    location_history.get(location_history.size() - 1).x,
+                                    location_history.get(location_history.size() - 1).y);
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                Launcher.applet.endShape();
-                break;
-            case 3: // direct line
-                if (location_history.size() > 0) {
-                    Launcher.applet.noFill();
-                    Launcher.applet.stroke(fillcol.getRGB(), 75); // set colour and opacity;
-                    if (location_history.get(0).dist(location_history.get(location_history.size() - 1)) < 200)
-                        Launcher.applet.line(location_history.get(0).x, location_history.get(0).y,
-                            location_history.get(location_history.size() - 1).x,
-                            location_history.get(location_history.size() - 1).y);
-                }
-                break;
             }
-        }
         }
     }
 
@@ -246,15 +231,15 @@ public class Boid_generic {
         int count = 0;
         // For every boid in the system, check if it's too close
         for (Boid_generic other : boids) {
-            float d = PVector.dist(location, other.location);
+            float d = Utility.distSq(location, other.location);
             // If the distance is greater than 0 and less than an arbitrary amount (0 when
             // you are yourself)
-            if ((d > 0) && (d < ai.getSep_neighbourhood_size())) {
+            if ((d > 0) && (d < ai.getSep_neighbourhood_size() * ai.getSep_neighbourhood_size())) {
                 isalone = false;
                 // Calculate vector pointing away from neighbor
                 PVector diff = PVector.sub(location, other.location);
                 diff.normalize();
-                diff.div(d); // Weight by distance
+                diff.div((float)Math.sqrt(d)); // Weight by distance
                 steer.add(diff);
                 count++; // Keep track of how many
             }
@@ -279,8 +264,8 @@ public class Boid_generic {
         PVector sum = new PVector(0, 0);
         int count = 0;
         for (Boid_generic other : boids) {
-            float d = PVector.dist(location, other.location);
-            if ((d > 0) && (d < ai.getAli_neighbourhood_size())) {
+            float d = Utility.distSq(location, other.location);
+            if ((d > 0) && (d < ai.getAli_neighbourhood_size() * ai.getAli_neighbourhood_size())) {
                 isalone = false;
                 sum.add(other.velocity);
                 count++;
@@ -304,8 +289,8 @@ public class Boid_generic {
         PVector sum = new PVector(0, 0); // Start with empty vector to accumulate all locations
         int count = 0;
         for (Boid_generic other : boids) {
-            float d = PVector.dist(location, other.location);
-            if ((d > 0) && (d < ai.getCoh_neighbourhood_size())) {
+            float d = Utility.distSq(location, other.location);
+            if ((d > 0) && (d < ai.getCoh_neighbourhood_size() * ai.getCoh_neighbourhood_size())) {
                 isalone = false;
                 sum.add(other.location); // Add location
                 count++;
@@ -345,10 +330,6 @@ public class Boid_generic {
 
     public PVector get_future_location() {
         return location;
-    }
-
-    public int observed_team() {
-        return team;
     }
 
     public AI_type getAi() {
@@ -494,7 +475,6 @@ public class Boid_generic {
     public void setLocation(PVector location) {
         this.location = location.copy();
     }
-
 
     public ArrayList<Float> getHeading_history() {
         return heading_history;

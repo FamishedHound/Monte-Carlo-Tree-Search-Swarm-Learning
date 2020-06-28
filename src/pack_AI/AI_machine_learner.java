@@ -96,16 +96,6 @@ public class  AI_machine_learner {
 
     }
 
-    // TODO Should this be drawing? Actually I think this isn't used
-    void draw_error_bars(Boid_imaginary b, int observer_t) {
-        Launcher.applet.stroke(30);
-        if (Math.hypot(points[0][0] - points[1][0], points[0][1] - points[1][1]) < Launcher.applet.height / 2)
-            Launcher.applet.line(points[0][0], points[0][1], points[1][0], points[1][1]);
-        Launcher.applet.textSize(10);
-        Launcher.applet.fill(b.get_colour().getRGB());
-        Launcher.applet.text("e:" + error, points[0][0] + 10, points[0][1] - 10);
-    }
-
     private void update_estimates(int observed_t) {
         double[] derivatives = { derivative_sw, derivative_aw, derivative_cw, derivative_sns, derivative_ans,
                 derivative_cns };
@@ -157,7 +147,7 @@ public class  AI_machine_learner {
         coeff_sns[observed_t] = fitter.fit(obs_sns[observed_t].toList());
         coeff_ans[observed_t] = fitter.fit(obs_ans[observed_t].toList());
         coeff_cns[observed_t] = fitter.fit(obs_cns[observed_t].toList());
-        if (OutputWriter.isOutput_to_file()) { 
+        if (OutputWriter.isOutput_to_file()) {
             String data = coeff_sw[observed_t][4] + "," + coeff_sw[observed_t][3] + "," + coeff_sw[observed_t][2] + ","
                     + coeff_sw[observed_t][1] + "," + coeff_sw[observed_t][0];
             OutputWriter.output_perspective(parent_boid.getTeam(), observed_t, data, "poly_sw");
@@ -192,7 +182,6 @@ public class  AI_machine_learner {
 
     int max_distance(Boid_imaginary b) {
         return (int) ((b.getOriginal().getMaxspeed() * 2) * Launcher.getHISTORYLENGTH());
-
     }
 
     private double create_new_term(int exponent, double coeffs, double param_x) {

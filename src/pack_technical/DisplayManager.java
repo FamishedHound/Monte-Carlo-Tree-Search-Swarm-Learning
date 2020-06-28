@@ -177,26 +177,26 @@ public class DisplayManager {
         }
         // on the right
         parent.textAlign(PConstants.RIGHT);
+
         parent.text("Mouse Wheel - accelerates or decelerates time", parent.width - borderoffset - 70,
                 parent.height - 170);
         parent.text("(" + Launcher.getSimspeed() + ")", parent.width - borderoffset, parent.height - 170);
+
         parent.text("' l ' key  - changes machine learning settings", parent.width - borderoffset - 70,
                 parent.height - 150);
         parent.text("(" + Launcher.getPredict_state() + ")", parent.width - borderoffset, parent.height - 150);
+
         parent.text("' r ' key -  resets the simulation, clearing all boids", parent.width - borderoffset - 70,
                 parent.height - 130);
         parent.text("(" + flock_ref.get_boid_count() + ")", parent.width - borderoffset, parent.height - 130);
+
         parent.text("' f ' key -  toggles the display of future location", parent.width - borderoffset - 70,
                 parent.height - 110);
-        if (Launcher.isSim_drawtrails())
-            parent.text("(ON)", parent.width - borderoffset, parent.height - 110);
-        else
-            parent.text("(OFF)", parent.width - borderoffset, parent.height - 110);
+        parent.text("(" + (Launcher.isSim_drawtrails() ? "ON" : "OFF") + ")", parent.width - borderoffset, parent.height - 110);
+
         parent.text("Space Bar -  pauses the simulation", parent.width - borderoffset - 70, parent.height - 90);
-        if (Launcher.isSim_paused())
-            parent.text("(RUNNING)", parent.width - borderoffset, parent.height - 90);
-        else
-            parent.text("(PAUSED)", parent.width - borderoffset, parent.height - 90);
+        parent.text("(" + (Launcher.isSim_paused() ? "RUNNING" : "PAUSED") + ")", parent.width - borderoffset, parent.height - 90);
+
         parent.text("Left Mouse - selects a boid to view additional options", parent.width - borderoffset,
                 parent.height - 70);
         parent.text("Right Mouse - spawn a flock of boids at the position", parent.width - borderoffset,

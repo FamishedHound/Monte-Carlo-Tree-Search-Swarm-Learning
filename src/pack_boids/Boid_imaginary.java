@@ -22,7 +22,8 @@ public class Boid_imaginary extends Boid_generic {
         return original;
     }
 
-    public void run(ArrayList<Boid_generic> boids, boolean real_step,boolean simulation) {
+    @Override
+    public void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation) {
         if (boids.get(0).isMoveable()) {
             record_history();
             isalone = true; // is boid uninteracted with?
@@ -36,6 +37,8 @@ public class Boid_imaginary extends Boid_generic {
         }
     }
 
+    // TODO - Boids shouldn't render. They don't apriori know anything about the applet
+    @Override
     public void render() {
         Launcher.applet.fill(fillcol.getRGB());
         Launcher.applet.stroke(linecol.getRGB());

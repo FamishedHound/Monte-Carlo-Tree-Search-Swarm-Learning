@@ -68,49 +68,6 @@ public class InnerSimulation  {
         MrLeandroVector = new PVector(-1+2*rand, -1+2*rand2);
         MrLeandroVector.setMag(0.1f);
     }
-    public void restartTheSimulation(ArrayList<Boid_generic> attackBoidss,ArrayList<Boid_generic> defenders ) {
-        attackBoids.clear();
-        simulationClones.clear();
-
-        this.attackBoids=copyTheStateOfAttackBoids(attackBoidss);
-        this.simulationClones = copyTheStateOfAttackBoids(defenders);
-
-        scheme.setWaypointforce(ai.getWayPointForce());
-        for(Boid_generic g : simulationClones){
-            g.setAi(ai);
-        }
-        scheme.restartIterator();
-
-        float shortestDistance = 3000;
-        float shortestVectorAngle=0;
-        float nextToShortestVectorAngle=0;
-        int counter = 0;
-        int positionInTheList = 0;
-
-        for(int i=0;i<scheme.getWaypoints().size();i++) {
-            PVector checkpoint = scheme.getWaypoints().get(i);
-            PVector nextCheckPoint = scheme.getWaypoints().get((i+1)%scheme.getWaypoints().size());
-            float distance = PVector.dist(simulationClones.get(0).getLocation(), checkpoint);
-
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
-                positionInTheList = counter;
-                shortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), checkpoint);
-                nextToShortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), nextCheckPoint);
-            }
-            counter++;
-        }
-
-        if (shortestVectorAngle < nextToShortestVectorAngle) {
-            nextWaypoint = positionInTheList;
-        }else{
-            nextWaypoint = (positionInTheList + 1) % scheme.getWaypoints().size();
-        }
-
-        scheme.currentPosition = nextWaypoint;
-        createSimulationsAndRandomVectors();
-    }
-
 
     public InnerSimulation(AI_type ai, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers,CollisionHandler handler, int nodeDepth) throws IOException {
         this.ai = ai;
@@ -126,19 +83,22 @@ public class InnerSimulation  {
         }
 
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
-        float shortestDistance = 3000;
-        int counter = 0;
-        int positionInTheList = 0;
+        // TODO - Magic numbers!!
+        float shortestDistanceSq = 3000 * 3000;
         float shortestVectorAngle=0;
         float nextToShortestVectorAngle=0;
+        int counter = 0;
+        int positionInTheList = 0;
+
         for(int i=0;i<scheme.getWaypoints().size();i++) {
             PVector checkpoint = scheme.getWaypoints().get(i);
             PVector nextCheckPoint = scheme.getWaypoints().get((i+1)%scheme.getWaypoints().size());
-            float distance = PVector.dist(simulationClones.get(0).getLocation(), checkpoint);
+            float distanceSq = Utility.distSq(simulationClones.get(0).getLocation(), checkpoint);
 
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
+            if (distanceSq < shortestDistanceSq) {
+                shortestDistanceSq = distanceSq;
                 positionInTheList = counter;
+                // TODO - If these are expensive, they could be moved out of the loop
                 shortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), checkpoint);
                 nextToShortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), nextCheckPoint);
             }
@@ -178,7 +138,7 @@ public class InnerSimulation  {
                     b1.move(simulationClones);
                     b1.update();
                 }
-                if (Math.abs(PVector.dist(b1.getLocation(), location)) < 10) {  // was 3
+                if (Utility.distSq(b1.getLocation(), location) < Constants.HIT_DISTANCE_SQ) {  // was 3
                     attackBoids.get(0).setHasFailed(true);                                                              //Has collided with a swarm agent
                 }
             }
