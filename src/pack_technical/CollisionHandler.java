@@ -9,9 +9,9 @@ import pack_1.Constants;
 import pack_1.Utility;
 
 public class CollisionHandler {
-    private static   GameManager manager;
     ArrayList<Boid_generic> team1;
     ArrayList<Boid_generic> team2;
+    // TODO Can this be removed?
     private final float mass=5;
 
     public boolean isLose() {
@@ -26,13 +26,13 @@ public class CollisionHandler {
 
     private boolean victory=false;
 
-    public CollisionHandler(GameManager g){
-        this.manager=g;
-         team1 = manager.get_team(0);
-         team2 = manager.get_team(1);
+    public CollisionHandler(){
+        team1 = GameManager.get_team(0);
+        team2 = GameManager.get_team(1);
     }
 
     public boolean doesCollide(Boid_generic boid1,Boid_generic boid2){
+        // TODO Use distSq, and remove usage of magic number
         float d = PVector.dist(boid1.getLocation(),boid2.getLocation() );
         if(d<6){  //
          //   System.out.println("I COLLIDE" + boid1.getId());
@@ -76,9 +76,5 @@ public class CollisionHandler {
                 }
             }
         }
-
-
-
     }
-
 }

@@ -6,7 +6,6 @@ import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.Boid_generic;
 import pack_boids.Boid_standard;
-import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.*;
@@ -17,7 +16,6 @@ public class ParameterSimulation extends Thread{
     private ArrayList<int[]> pattern;
     private AI_type currentAi;
     private Random rand = new Random();
-    private PApplet parent;
     private PatrollingScheme scheme ;
     private Map<Integer,ArrayList<Boid_generic>> observations = new HashMap<>();
     int frameCount=0;
@@ -71,16 +69,12 @@ public class ParameterSimulation extends Thread{
     int oldBegin=0;
     private ArrayList<PVector> endingLocation = new ArrayList<>();
 
-    public ParameterSimulation(PApplet parent , ArrayList<Boid_generic> defenders , ArrayList<int[]> pattern, AI_type currentAi){
-    this.parent=parent;
-    this.currentAi=currentAi;
-    this.scheme= new PatrollingScheme(currentAi.getWayPointForce());
-    this.pattern=pattern;
-
-
-//        scheme.getWaypoints().add(new PVector(550,535));
-//        scheme.getWaypoints().add(new PVector(550,485));
-
+    public ParameterSimulation(ArrayList<Boid_generic> defenders , ArrayList<int[]> pattern, AI_type currentAi) {
+        this.currentAi=currentAi;
+        this.scheme= new PatrollingScheme(currentAi.getWayPointForce());
+        this.pattern=pattern;
+        //scheme.getWaypoints().add(new PVector(550,535));
+        //scheme.getWaypoints().add(new PVector(550,485));
     }
 
 
@@ -721,7 +715,7 @@ public class ParameterSimulation extends Thread{
 
         for(Boid_generic boid : boids){
             //nadaj im tutaj acceleration velocity etc..
-            Boid_generic bi = new Boid_standard(parent,boid.getLocation().x,boid.getLocation().y,6,10);
+            Boid_generic bi = new Boid_standard(boid.getLocation().x,boid.getLocation().y,6,10);
             bi.setAi(currentAi);
 
 

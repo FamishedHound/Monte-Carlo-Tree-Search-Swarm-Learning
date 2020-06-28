@@ -33,8 +33,7 @@ public class InnerSimulation  {
     ArrayList<Boid_generic> simulationClones;
 
     AI_type ai;
-    private int tick =0;
-    PApplet parent;
+    private int tick = 0;
     CollisionHandler handler;
     ArrayList<int[]> cords ;
     ArrayList<int[]> historyOfMovement = new ArrayList<>();
@@ -113,11 +112,9 @@ public class InnerSimulation  {
     }
 
 
-    public InnerSimulation(AI_type ai, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers,CollisionHandler handler,PApplet parent, int nodeDepth) throws IOException {
+    public InnerSimulation(AI_type ai, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers,CollisionHandler handler, int nodeDepth) throws IOException {
         this.ai = ai;
-        this.parent=parent;
         this.cords= new ArrayList<>(cords);
-        this.parent=parent;
         this.attackBoids=copyTheStateOfAttackBoids(attackers);
         this.simulationClones=copyTheStateOfAttackBoids(defenders);
         this.handler=handler;
@@ -281,7 +278,7 @@ public class InnerSimulation  {
         ArrayList<Boid_generic> boidListClone = new ArrayList<>();
 
         for(Boid_generic boid : boids){
-            Boid_generic bi = new Boid_standard(parent,boid.getLocation().x,boid.getLocation().y,6,10);
+            Boid_generic bi = new Boid_standard(boid.getLocation().x, boid.getLocation().y,6,10);
             bi.setAi(ai);
             bi.setAcceleration(boid.getAcceleration());
             bi.setVelocity(boid.getVelocity());

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 //TODO: rename delay2
 
 public class ZoneDefence implements Cloneable {
-    private static GameManager manager;
 
     public ArrayList<Boid_generic> getBoids() {
         return boids;
@@ -23,8 +22,7 @@ public class ZoneDefence implements Cloneable {
     private boolean defend = true;
     private ArrayList<Boid_generic> boids;
     private ArrayList<Boid_generic> attackBoids;
-    private PApplet parent;
-    static int coutner = 0;
+    static int counter = 0;
     boolean flag = true;
     int DELAY = 200;
     int delay2 = 0;
@@ -48,13 +46,11 @@ public class ZoneDefence implements Cloneable {
 
     public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 
-    public ZoneDefence(BaseManager b, GameManager g, PApplet p, CollisionHandler collision, FlockManager flock, ParameterGatherAndSetter output) throws IOException {
+    public ZoneDefence(CollisionHandler collision, FlockManager flock, ParameterGatherAndSetter output) throws IOException {
         this.flock = flock;
         this.handler = collision;
-        this.parent = p;
-        this.manager = g;
-        boids = manager.get_team(0);
-        attackBoids = manager.get_team(1);
+        boids = GameManager.get_team(0);
+        attackBoids = GameManager.get_team(1);
         pattern = new PatternHandler();
         this.output = output;
         waypoints.addAll(output.returnDifficulty());
@@ -66,8 +62,8 @@ public class ZoneDefence implements Cloneable {
     public void run() throws IOException {
         if (pattern.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
-            sim = new EnviromentalSimulation(40, 70, 70, 2.0f, 1.2f, 0.9f, "", boids, parent, pattern.getImg().getNewpoints(), attackBoids, handler);
-            param = new ParameterSimulation(parent, boids, pattern.getImg().getNewpoints(), sim.getSimulator());
+            sim = new EnviromentalSimulation(40, 70, 70, 2.0f, 1.2f, 0.9f, "", boids, pattern.getImg().getNewpoints(), attackBoids, handler);
+            param = new ParameterSimulation(boids, pattern.getImg().getNewpoints(), sim.getSimulator());
             pattern.setOnce(false);
         }
 
@@ -76,24 +72,23 @@ public class ZoneDefence implements Cloneable {
                 sim.setAiToInnerSimulation(param.updateAi());
                 output.sendParameters(param.updateAi());
                 attack = true;
-                writer14.write("I started to attack " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + coutner + "\n");
+                writer14.write("I started to attack " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + counter + "\n");
                 writer14.flush();
             }
         }
 
         for (Boid_generic attackBoid : attackBoids) {
-            coutner++;
-            if (coutner >= DELAY / 8 && coutner <= DELAY * 2) {
+            counter++;
+            if (counter >= DELAY / 8 && counter <= DELAY * 2) {
                 if (!attack) attackBoid.setToMove(false);
                 attackBoid.setStationary();
                 delay2++;
             }
 
             if (delay2 >= 200) {
-                pattern.newObservation(boids, coutner);
+                pattern.newObservation(boids, counter);
                 if (attackBoids != null && flag && pattern.analyze() == 1) {
-                    circumfence = (float) (3.14 * 2 * pattern.getRadius());
-                    System.out.println(attackBoids);
+                    circumfence = (float) (Math.PI * 2 * pattern.getRadius());
                     time = (circumfence / boids.get(0).getVelocity().mag());
                     System.out.println(boids.get(0).getVelocity().mag() + "   " + circumfence + "   " + time + "  " + (float) startTime);
                     flag = false;
@@ -135,16 +130,4 @@ public class ZoneDefence implements Cloneable {
         }
         output.iterations++;
     }
-
-    public PVector attack(Boid_generic b1, int boidType) {
-        PVector target = new PVector(0, 0, 0);
-
-        for (Boid_generic b2 : boids) {
-            target = PVector.sub(Constants.TARGET, b1.getLocation());
-            if (boidType == 1) target.setMag((float) 0.09);
-            if (boidType == 2) target.setMag((float) 0.01);
-        }
-        return target;
-    }
-
 }

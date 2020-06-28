@@ -1,12 +1,12 @@
 package pack_technical;
 
+import pack_1.Launcher;
 import java.util.ArrayList;
 import pack_AI.AI_internal_model;
 import pack_boids.Boid_imaginary;
 import pack_boids.Boid_observer;
 import pack_boids.Boid_standard;
 import pack_boids.Boid_generic;
-import processing.core.PApplet;
 import processing.core.PVector;
 
 /*
@@ -16,170 +16,142 @@ import processing.core.PVector;
  */
 public class FlockManager {
 
-	public ArrayList<Boid_generic> getBoids() {
-		return boids;
-	}
+    public ArrayList<Boid_generic> getBoids() {
+        return boids;
+    }
 
-	ArrayList<Boid_generic> boids; // the list of boids that loads real or imaginary
+    ArrayList<Boid_generic> boids; // the list of boids that loads real or imaginary
 
-	public ArrayList<Boid_generic> getReal_boids() {
-		return real_boids;
-	}
+    public ArrayList<Boid_generic> getReal_boids() {
+        return real_boids;
+    }
 
-	ArrayList<Boid_generic> real_boids; // An ArrayList for all the real_boids
-	ArrayList<Boid_generic> imaginary_boids; // An ArrayList for all the real_boids
-	Boid_observer camera_boid;
-	PApplet parent;
-	boolean real;
-	boolean simulation=false;
+    ArrayList<Boid_generic> real_boids; // An ArrayList for all the real_boids
+    ArrayList<Boid_generic> imaginary_boids; // An ArrayList for all the real_boids
+    Boid_observer camera_boid;
+    boolean real;
+    boolean simulation=false;
 
-	public FlockManager(PApplet parent, boolean real) {
-		this.real = real;
-		this.parent = parent;
-		if (real) {
-			camera_boid = new Boid_observer(parent, (float) parent.width / 2, (float) parent.height / 2,
-					GameManager.getTeam_number() + 1);
-			// camera is the final team
-			real_boids = new ArrayList<Boid_generic>(); // Initialize the ArrayList
-			real_boids.clear();
-		} else {
-			imaginary_boids = new ArrayList<Boid_generic>(); // Initialize the ArrayList
-			imaginary_boids.clear();
-		}
+    public FlockManager(boolean real) {
+        this(real, false);
+    }
 
-	}
+    public FlockManager(boolean real,boolean simulation) {
+        this.real = real;
+        this.simulation=simulation;
+        if (real) {
+            if(!simulation)
+                camera_boid = new Boid_observer((float) Launcher.applet.width / 2, (float) Launcher.applet.height / 2,
+                    GameManager.getTeam_number() + 1);
+            // camera is the final team
+            real_boids = new ArrayList<Boid_generic>(); // Initialize the ArrayList
+        } else {
+            imaginary_boids = new ArrayList<Boid_generic>(); // Initialize the ArrayList
+        }
 
-	public FlockManager(PApplet parent, boolean real,boolean simulation) {
-		this.real = real;
-		this.parent = parent;
-		this.simulation=simulation;
-		if (real) {
-			if(!simulation)
-			camera_boid = new Boid_observer(parent, (float) parent.width / 2, (float) parent.height / 2,
-					GameManager.getTeam_number() + 1);
-			// camera is the final team
-			real_boids = new ArrayList<Boid_generic>(); // Initialize the ArrayList
-			real_boids.clear();
-		} else {
-			imaginary_boids = new ArrayList<Boid_generic>(); // Initialize the ArrayList
-			imaginary_boids.clear();
-		}
+    }
 
-	}
+    public void reset() {
+        if (real)
+            real_boids.clear();
+        else
+            imaginary_boids.clear();
+    }
 
-	public void reset() {
-		if (real)
-			real_boids.clear();
-		else
-			imaginary_boids.clear();
-	}
+    public void run(int steps) {
+        if (real)
+            boids = real_boids;
+        else
+            boids = imaginary_boids;
+        for (Boid_generic b : boids) {
+            if (!b.get_alive()) {
+                remove_boid(b);
+                break;
+            }
+        }
+        for (int step = 0; step < steps; step++) {
+            // first run camera that does not interfere with the flock
+            if (camera_boid != null)
+                if (step == 0)
+                    camera_boid.run(true,simulation);
+                else
+                    camera_boid.run(false,simulation);
+            for (Boid_generic b : boids) {
+                if (b instanceof Boid_standard) { // if real
+                    if (step == 0) // only render on step 0
+                        b.run(boids, true,simulation);
+                    else
+                        b.run(boids, false,simulation);
+                } else { // if imaginary
+                    if (step == steps - 1) // only render on last step
+                        b.run(boids, true,simulation); // should be true
+                    else
+                        b.run(boids, false,simulation);
+                }
+            }
+        }
+    }
 
-	public void run(int steps) {
-		if (real)
-			boids = real_boids;
-		else
-			boids = imaginary_boids;
-		for (Boid_generic b : boids) {
-			if (!b.get_alive()) {
-				remove_boid(b);
-				break;
-			}
-		}
-		for (int step = 0; step < steps; step++) {
-			// first rune camera that does not interfere with the flock
-			if (camera_boid != null)
-				if (step == 0)
-					camera_boid.run(true,simulation);
-				else
-					camera_boid.run(false,simulation);
-			for (Boid_generic b : boids) {
-				if (b instanceof Boid_standard) { // if real
-					if (step == 0) // only render on step 0
-						b.run(boids, true,simulation);
-					else
-						b.run(boids, false,simulation);
-				} else { // if imaginary
-					if (step == steps - 1) // only render on last step
-						b.run(boids, true,simulation); // should be true
-					else
-						b.run(boids, false,simulation);
-				}
-			}
-		}
-	}
+    public Boid_generic remove_boid(Boid_generic b) {
+        b.on_death();
+        get_all_boids().remove(b);
+        return b;
+    }
 
-	public Boid_generic remove_boid(Boid_generic b) {
-		b.on_death();
-		if (real)
-			real_boids.remove(b);
-		else
-			imaginary_boids.remove(b);
-		return b;
-	}
+    public Boid_generic add_boid(Boid_generic b) {
+        // give the boid the ai derived from the team
+        get_all_boids().add(b);
+        return b;
+    }
 
-	public Boid_generic add_boid(Boid_generic b) {
-		// give the boid the ai derived from the team
-		if (real)
-			real_boids.add(b);
-		else
-			imaginary_boids.add(b);
-		return b;
-	}
+    // used in creating an imaginary universe in which the real_boids are not real
+    public void import_imaginary_boids(ArrayList<Boid_generic> boids_in, AI_internal_model internal_model) {
+        for (Boid_generic b : boids_in) {
+            Boid_imaginary b2 = new Boid_imaginary(b.getLocationHistory().x, b.getLocationHistory().y, b.getTeam(), b);
+            b2.setVelocity(b.getVelocityHistory());
+            b2.setAcceleration(b.getAccelerationHistory());
+            b2.setAi(internal_model.get_ai_team(b.getTeam()));
+            b2.setAngle(b.getAngle_history());
+            b2.setTeam(b.getTeam());
+            add_boid(b2);
+        }
+    }
 
-	public int get_boid_count() {
-		if (real)
-			return real_boids.size();
-		else
-			return imaginary_boids.size();
-	}
+    public ArrayList<Boid_generic> get_all_boids() {
+        return (real ? real_boids : imaginary_boids);
+    }
 
-	// used in creating an imaginary universe in which the real_boids are not real
-	public void import_imaginary_boids(ArrayList<Boid_generic> boids_in, AI_internal_model internal_model) {
-		for (Boid_generic b : boids_in) {
-			Boid_imaginary b2 = new Boid_imaginary(parent, b.getLocationHistory().x, b.getLocationHistory().y, b.getTeam(), b);
-			b2.setVelocity(b.getVelocityHistory());
-			b2.setAcceleration(b.getAccelerationHistory());
-			b2.setAi(internal_model.get_ai_team(b.getTeam()));
-			b2.setAngle(b.getAngle_history());
-			b2.setTeam(b.getTeam());
-			add_boid(b2);
-		}
-	}
+    public int get_boid_count() {
+        return get_all_boids().size();
+    }
 
-	public ArrayList<Boid_generic> get_all_boids() {
-		if (real)
-			return real_boids;
-		else
-			return imaginary_boids;
-	}
+    public Boid_generic get_nearest_boid(int select_dist) {
+        PVector mouse_pos = new PVector(Launcher.applet.mouseX, Launcher.applet.mouseY);
+        Boid_generic final_b = null;
+        float dist_record = Integer.MAX_VALUE;
+        // attempt select camera first, this is not part of the flock
+        float dist = mouse_pos.dist(camera_boid.getLocation());
+        if ((dist < dist_record) && dist < select_dist) {
+            final_b = camera_boid;
+            dist_record = dist;
+        }
+        for (Boid_generic b : real_boids) {
+            dist = mouse_pos.dist(b.getLocationHistory());
+            if (b instanceof Boid_standard) // if it is real
+                if ((dist < dist_record) && dist < select_dist) {
+                    final_b = b;
+                    dist_record = dist;
+                }
+        }
+        return final_b;
+    }
 
-	public Boid_generic get_nearest_boid(int select_dist) {
-		PVector mouse_pos = new PVector(parent.mouseX, parent.mouseY);
-		Boid_generic final_b = null;
-		float dist_record = Integer.MAX_VALUE;
-		// attempt select camera first, this is not part of the flock
-		float dist = mouse_pos.dist(camera_boid.getLocation());
-		if ((dist < dist_record) && dist < select_dist) {
-			final_b = camera_boid;
-			dist_record = dist;
-		}
-		for (Boid_generic b : real_boids) {
-			dist = mouse_pos.dist(b.getLocationHistory());
-			if (b instanceof Boid_standard) // if it is real
-				if ((dist < dist_record) && dist < select_dist) {
-					final_b = b;
-					dist_record = dist;
-				}
-		}
-		return final_b;
-	}
+    public Boid_observer getCamera_boid() {
+        return camera_boid;
+    }
 
-	public Boid_observer getCamera_boid() {
-		return camera_boid;
-	}
-
-	public void setCamera_boid(Boid_observer camera_boid) {
-		this.camera_boid = camera_boid;
-	}
+    public void setCamera_boid(Boid_observer camera_boid) {
+        this.camera_boid = camera_boid;
+    }
 
 }

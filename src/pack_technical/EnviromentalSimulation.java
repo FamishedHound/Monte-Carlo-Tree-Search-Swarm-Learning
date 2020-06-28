@@ -26,7 +26,6 @@ public class EnviromentalSimulation extends Thread {
     Tree MCT;
 
     AI_type simulator;
-    PApplet parent;
     PatrollingScheme scheme;
     ArrayList<int[]> cords;
 
@@ -43,9 +42,8 @@ public class EnviromentalSimulation extends Thread {
         return simulator;
     }
 
-
-    public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders, PApplet parent, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) throws IOException {
-        this.parent = parent;
+    // TODO why does this throw IOException?
+    public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) throws IOException {
         this.handler = handler;
         this.cords = cords;
         this.defenders = defenders;
@@ -55,7 +53,7 @@ public class EnviromentalSimulation extends Thread {
         defenders = copyTheStateOfAttackBoids(defenders);
         this.attackBoids = copyTheStateOfAttackBoids(attackers);
 
-        this.flock = new FlockManager(parent, true, true);
+        this.flock = new FlockManager(true, true);
         this.scheme = new PatrollingScheme(simulator.getWayPointForce());
         for (Boid_generic g : defenders) {
             g.setAi(simulator);
@@ -150,9 +148,9 @@ public class EnviromentalSimulation extends Thread {
                 Node n = MCT.UCT(MCT.root);
                 InnerSimulation newSim;
                 if(n.parent == null){
-                    newSim = new InnerSimulation(simulator, defenders, cords, attackBoids, handler, parent, n.depth);
+                    newSim = new InnerSimulation(simulator, defenders, cords, attackBoids, handler, n.depth);
                 }else {
-                    newSim = new InnerSimulation(simulator, defenders, cords, n.parent.attacker, handler, parent, n.depth);
+                    newSim = new InnerSimulation(simulator, defenders, cords, n.parent.attacker, handler, n.depth);
                 }
                 newSim.run1();
 
@@ -188,7 +186,7 @@ public class EnviromentalSimulation extends Thread {
         ArrayList<Boid_generic> boidListClone = new ArrayList<>();
 
         for (Boid_generic boid : boids) {
-            Boid_generic bi = new Boid_standard(parent, boid.getLocation().x, boid.getLocation().y, 6, 10);
+            Boid_generic bi = new Boid_standard(boid.getLocation().x, boid.getLocation().y, 6, 10);
             bi.setAcceleration(boid.getAcceleration());
             bi.setVelocity(boid.getVelocity());
             bi.setLocation(boid.getLocation());
