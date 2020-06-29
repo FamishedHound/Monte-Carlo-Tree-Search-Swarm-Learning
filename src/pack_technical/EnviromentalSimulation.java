@@ -13,30 +13,22 @@ import java.util.ArrayList;
 
 public class EnviromentalSimulation extends Simulation implements Runnable {
     Tree MCT;
-
-    //AI_type simulator;
-    //PatrollingScheme scheme;
     ArrayList<int[]> cords;
-
     FlockManager flock;
     double startTime = 0;
     int maxTreeDepth = 20;
     int actionCounter = 0;
     boolean treeReady = false;
     boolean dangerClose = false;
-
     CollisionHandler handler;
 
-    public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
+    public EnviromentalSimulation(ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
         this.handler = handler;
         this.cords = cords;
         this.defenderBoids = defenders;
-
         this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
-
         defenders = copyStateOfBoids(defenders);
         this.attackBoids = copyStateOfBoids(attackers);
-
         this.flock = new FlockManager(true, true);
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
         for (Boid_generic g : defenders) {
@@ -49,14 +41,13 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         // TODO - Magic numbers!!
         float shortestDistanceSq = 3000 * 3000;
-        int counter = 0;
+        float shortestVectorAngle=0;
+        float nextToShortestVectorAngle=0;
         int positionInTheList = 0;
         for (PVector checkpoint : this.patrollingScheme.getWaypoints()) {
             float distanceSq = Utility.distSq(defenders.get(0).getLocation(), checkpoint);
-            counter++;
             if (distanceSq < shortestDistanceSq) {
                 shortestDistanceSq = distanceSq;
-                positionInTheList = counter;
             }
         }
 

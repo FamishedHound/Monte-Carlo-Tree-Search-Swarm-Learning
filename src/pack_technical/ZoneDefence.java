@@ -1,9 +1,9 @@
 package pack_technical;
 
 import pack_1.Constants;
+import pack_1.Launcher;
 import pack_1.ParameterGatherAndSetter;
 import pack_boids.Boid_generic;
-import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.io.IOException;
@@ -56,13 +56,14 @@ public class ZoneDefence implements Cloneable {
         waypoints.addAll(output.returnDifficulty());
         patrolling.getWaypointsA().add(Constants.TARGET.copy());
         patrolling.setup();
+
     }
 
 
     public void run() {
         if (pattern.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
-            sim = new EnviromentalSimulation(40, 70, 70, 2.0f, 1.2f, 0.9f, "", boids, pattern.getImg().getNewpoints(), attackBoids, handler);
+            sim = new EnviromentalSimulation(boids, pattern.getImg().getNewpoints(), attackBoids, handler);
             param = new ParameterSimulation(boids, pattern.getImg().getNewpoints(), sim.getSimulator());
             pattern.setOnce(false);
         }
