@@ -99,15 +99,15 @@ public class ParameterGatherAndSetter {
         try {
             if(col.isLose()){
                 generateEndingStatement(0);
-                var finalMessage = "Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a failure";
+                String finalMessage = "Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a failure";
                 Launcher.quit(finalMessage, 0);
             } else if(col.isVictory()){
                 generateEndingStatement(1);
-                var finalMessage = "Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a victory";
+                String finalMessage = "Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a victory";
                 Launcher.quit(finalMessage, 0);
             } else if(Math.round((System.nanoTime()-startTime)/1000000000)==300){//timeout after 300 s
                 generateEndingStatement(2);
-                var finalMessage = "Timeout";
+                String finalMessage = "Timeout";
                 Launcher.quit(finalMessage, 1);
             }
         } catch(IOException e) {

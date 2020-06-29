@@ -80,9 +80,7 @@ public class InnerSimulation extends Simulation {
         float shortestDistanceSq = 3000 * 3000;
         float shortestVectorAngle=0;
         float nextToShortestVectorAngle=0;
-        int counter = 0;
         int positionInTheList = 0;
-
         for(int i=0;i<patrollingScheme.getWaypoints().size();i++) {
             PVector checkpoint = patrollingScheme.getWaypoints().get(i);
             PVector nextCheckPoint = patrollingScheme.getWaypoints().get((i+1)%patrollingScheme.getWaypoints().size());
@@ -90,11 +88,9 @@ public class InnerSimulation extends Simulation {
 
             if (distanceSq < shortestDistanceSq) {
                 shortestDistanceSq = distanceSq;
-                positionInTheList = counter;
                 shortestVectorAngle = PVector.angleBetween(defenderBoids.get(0).getLocation(), checkpoint);
                 nextToShortestVectorAngle = PVector.angleBetween(defenderBoids.get(0).getLocation(), nextCheckPoint);
             }
-            counter++;
         }
 
         if (shortestVectorAngle < nextToShortestVectorAngle) {

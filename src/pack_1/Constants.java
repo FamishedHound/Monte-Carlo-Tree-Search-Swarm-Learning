@@ -42,6 +42,7 @@ public class Constants {
                 case "--out":
                     OUTPUT_FILE = args[++i];
                     break;
+
             }
         }
     }
