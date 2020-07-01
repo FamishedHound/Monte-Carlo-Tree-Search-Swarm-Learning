@@ -33,7 +33,7 @@ public class CollisionHandler {
     public boolean doesCollide(Boid_generic boid1,Boid_generic boid2){
         // TODO Remove usage of magic number
         float d = Utility.distSq(boid1.getLocation(),boid2.getLocation());
-        if(d < 6 * 6) {
+        if(d < Constants.COLLISION_DISTANCE_SQ) {
             return true;
         }
         return false;

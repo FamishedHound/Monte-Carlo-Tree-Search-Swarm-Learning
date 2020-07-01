@@ -24,25 +24,26 @@ public class Constants {
     public static String OUTPUT_FILE = null;
 
     /** Distance required for a 'hit' to be recognized */
-    public static final int HIT_DISTANCE = 10;
+    public static int HIT_DISTANCE = 10;
     /** Square of Constants.HIT_DISTANCE */
     public static final int HIT_DISTANCE_SQ = HIT_DISTANCE * HIT_DISTANCE;
+
+    /** Distance required to count as collision between boids and its square */
+    public static final float COLLISION_DISTANCE = 6;
+    public static final float COLLISION_DISTANCE_SQ = COLLISION_DISTANCE * COLLISION_DISTANCE;
 
     // TODO Need to ensure the arguments are in range, throw IllegalArgumentException if not
     public static void setParamsFromProgramArgs(String[] args) {
         for(int i = 0; i < args.length; i++) {
             switch(args[i]) {
-                case "T":
                 case "-t":
                 case "--target":
                     TARGET = new PVector(Float.parseFloat(args[++i]), Float.parseFloat(args[++i]));
                     break;
-                case "F":
                 case "-o":
                 case "--out":
                     OUTPUT_FILE = args[++i];
                     break;
-
             }
         }
     }
