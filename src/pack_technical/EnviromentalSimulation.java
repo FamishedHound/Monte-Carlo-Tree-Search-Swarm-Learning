@@ -137,7 +137,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
                 String nodeName = n.name + "." + n.children.size(); 
                 n.addChild(simVal, nodeName, newSim.avgReward);
-                n.children.get(n.children.size()-1).storeDetails(newSim.MrLeandroVector, newSim.attackBoids);
+                n.children.get(n.children.size()-1).storeDetails(newSim.randomVector, newSim.attackBoids);
 
             } catch (IOException e) {
                 e.printStackTrace();
