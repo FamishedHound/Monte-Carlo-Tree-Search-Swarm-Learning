@@ -27,7 +27,7 @@ import pack_1.Utility;
 public class InnerSimulation extends Simulation {
 
     private int tick =0;
-    ArrayList<int[]> historyOfMovement = new ArrayList<>()
+    ArrayList<int[]> historyOfMovement = new ArrayList<>();
     boolean victory = false;
     boolean willContinueSimulation;
     Integer nextWaypoint;
