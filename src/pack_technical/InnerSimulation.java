@@ -184,7 +184,7 @@ public class InnerSimulation extends Simulation {
                         break;
                     } else {
                         for (Boid_generic b1 : defenderBoids) {
-                            if (Math.abs(PVector.dist(b1.getLocation(), locationRollOut)) < 16) {  // was 3
+                            if (Utility.distSq(b1.getLocation(), locationRollOut) < 16 * 16) {  // was 3
                                 avgReward = -1;
                                 break;
                             }

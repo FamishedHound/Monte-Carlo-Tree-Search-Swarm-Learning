@@ -15,11 +15,11 @@ import java.util.*;
 public class ParameterSimulation extends Thread{
     private boolean once=true;
     private ArrayList<Boid_generic> defenders;
-    private ArrayList<int[]> pattern;
-    private AI_type currentAi;
-    private Random rand = new Random();
+    private final ArrayList<int[]> pattern;
+    private final AI_type currentAi;
+    private final Random rand = new Random();
     private PatrollingScheme scheme ;
-    private Map<Integer,ArrayList<Boid_generic>> observations = new HashMap<>();
+    private final Map<Integer,ArrayList<Boid_generic>> observations = new HashMap<>();
     int frameCount=0;
     int innerFrameCount=0;
     Integer nextWaypoint;
@@ -34,7 +34,7 @@ public class ParameterSimulation extends Thread{
     //private  double learningRate = 0.0001;
     private  double learningRate = 1;
     private double fastLearningRate = 15;
-    private double learningRateParameters=0.002;
+    private final double learningRateParameters=0.002;
     private int begin=0;
     private int end =-1;
 
@@ -65,11 +65,11 @@ public class ParameterSimulation extends Thread{
     Map<Integer,PVector> endPositions= new HashMap<>();
     private boolean observing=true;
 
-    private ArrayList<PVector> initialLocation = new ArrayList<>();
+    private final ArrayList<PVector> initialLocation = new ArrayList<>();
 
 
     int oldBegin=0;
-    private ArrayList<PVector> endingLocation = new ArrayList<>();
+    private final ArrayList<PVector> endingLocation = new ArrayList<>();
 
     public ParameterSimulation(ArrayList<Boid_generic> defenders , ArrayList<int[]> pattern, AI_type currentAi) {
         this.currentAi=currentAi;
@@ -313,7 +313,7 @@ public class ParameterSimulation extends Thread{
                 }
 
                 resultsInt.add((int)averageSep/sepEst.size());
-                currentAi.setSep_neighbourhood_size((float)averageSep/sepEst.size());
+                currentAi.setSep_neighbourhood_size(averageSep /sepEst.size());
                 break;
             case 2:
                 for(Map.Entry<Integer,ArrayList<WeightedObservedPoint>> boid: aliBoidError.entrySet()){
@@ -337,7 +337,7 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 resultsInt.add((int)averageSep/aliEst.size());
-                currentAi.setAli_neighbourhood_size((float)averageSep/aliEst.size());
+                currentAi.setAli_neighbourhood_size(averageSep /aliEst.size());
                 break;
             case 3:
                 for(Map.Entry<Integer,ArrayList<WeightedObservedPoint>> boid: cohBoidError.entrySet()){
@@ -361,7 +361,7 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 resultsInt.add((int)averageSep/cohEst.size());
-                currentAi.setCoh_neighbourhood_size((float)averageSep/cohEst.size());
+                currentAi.setCoh_neighbourhood_size(averageSep /cohEst.size());
                 break;
 
             case 4:
@@ -385,8 +385,8 @@ public class ParameterSimulation extends Thread{
                 for(Map.Entry<Integer,Double> sep : sepWEst.entrySet()){
                     averageSep+=sep.getValue();
                 }
-                resultsFloat.add((float) averageSep/sepWEst.size());
-                currentAi.setSep_weight((float) averageSep/sepWEst.size());
+                resultsFloat.add(averageSep /sepWEst.size());
+                currentAi.setSep_weight(averageSep /sepWEst.size());
                 break;
 
             case 5:
@@ -409,8 +409,8 @@ public class ParameterSimulation extends Thread{
                 for(Map.Entry<Integer,Double> sep : aliWEst.entrySet()){
                     averageSep+=sep.getValue();
                 }
-                resultsFloat.add((float) averageSep/aliWEst.size());
-                currentAi.setAli_weight((float) averageSep/aliWEst.size());
+                resultsFloat.add(averageSep /aliWEst.size());
+                currentAi.setAli_weight(averageSep /aliWEst.size());
                 break;
 
             case 6:
@@ -434,8 +434,8 @@ public class ParameterSimulation extends Thread{
                 for(Map.Entry<Integer,Double> sep : cohWEst.entrySet()){
                     averageSep+=sep.getValue();
                 }
-                resultsFloat.add((float) averageSep/cohWEst.size());
-                currentAi.setCoh_weight((float) averageSep/cohWEst.size());
+                resultsFloat.add(averageSep /cohWEst.size());
+                currentAi.setCoh_weight(averageSep /cohWEst.size());
                 break;
 
             case 7:
@@ -463,8 +463,8 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 System.out.println("average sep " + averageSep + " size  " +  sepEst.size() + " together " + (int)averageSep/sepEst.size() );
-                resultsFloat.add((float) averageSep/wayPointEst.size());
-                currentAi.setWayPointForce((float) averageSep/wayPointEst.size());
+                resultsFloat.add(averageSep /wayPointEst.size());
+                currentAi.setWayPointForce(averageSep /wayPointEst.size());
                 break;
 
         }
@@ -497,7 +497,7 @@ public class ParameterSimulation extends Thread{
             schemeCopy.getWaypoints().add(new PVector(k.x,k.y));
         }
 
-        float values[] = new float[howManyErrors];
+        float[] values = new float[howManyErrors];
 
         float lowerBound = AI_manager.neighbourhoodSeparation_lower_bound;
         float higherBound = AI_manager.neighbourhoodSeparation_upper_bound;
@@ -535,13 +535,13 @@ public class ParameterSimulation extends Thread{
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(),  xValue,currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 4:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), (float) xValue, currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), xValue, currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 5:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), currentAi.getSep_weight(), (float) xValue, currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), currentAi.getSep_weight(), xValue, currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 6:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), (float) xValue,currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), xValue,currentAi.getWayPointForce(), ":(");
                     break;
                 case 7:
                     sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),xValue, ":(");
@@ -561,7 +561,7 @@ public class ParameterSimulation extends Thread{
                     //My force
                     location.add(velocity.add(acceleration.add(schemeCopy.patrol(def.getLocation(), def)/*patrolling.patrol(be.getLocation(),be)*/)));
                     if(i==frameCount-1) {
-                        WeightedObservedPoint point = new WeightedObservedPoint(1, xValue, (double) PVector.dist(endPositions.get(counter), location));
+                        WeightedObservedPoint point = new WeightedObservedPoint(1, xValue, PVector.dist(endPositions.get(counter), location));
                         map.get(counter).add(point);
                     }
 

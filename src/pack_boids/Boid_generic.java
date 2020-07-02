@@ -59,7 +59,7 @@ public abstract class Boid_generic {
 	public void setToMove(boolean b){
 		moveable=b;
 	}
-	private int id;
+	private final int id;
 	AI_type ai;
 	ParameterHandler pHandler = new ParameterHandler();
 	public boolean isHasFailed() {

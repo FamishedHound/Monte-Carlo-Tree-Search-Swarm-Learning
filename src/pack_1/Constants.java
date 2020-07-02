@@ -17,7 +17,7 @@ public class Constants {
 
     /**
      * File to output results to
-     * Set as an argument using (F|-o|--output) fileName
+     * Set as an argument using (-o|--output) fileName
      * for example -o results
      * If ommited, results will not be written to file
      */

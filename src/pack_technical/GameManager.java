@@ -23,8 +23,8 @@ public class GameManager {
 
     static Boid_generic selected_boid = null;
 
-    private static int team_number = (int) (Launcher.applet.width / 75); // not all of these will be used
-    private FlockManager flock_ref;
+    private static final int team_number = Launcher.applet.width / 75; // not all of these will be used
+    private final FlockManager flock_ref;
 
     @SuppressWarnings("unchecked")
     static ArrayList<Boid_generic>[] team = new ArrayList[getTeam_number()];

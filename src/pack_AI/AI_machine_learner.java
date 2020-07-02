@@ -79,8 +79,8 @@ public class  AI_machine_learner {
     float[][] calculate_points(Boid_imaginary b) {
         points[0][0] = b.getLocation().x;
         points[0][1] = b.getLocation().y;
-        points[1][0] = ((Boid_imaginary) b).getOriginal().getLocation().x;
-        points[1][1] = ((Boid_imaginary) b).getOriginal().getLocation().y;
+        points[1][0] = b.getOriginal().getLocation().x;
+        points[1][1] = b.getOriginal().getLocation().y;
         return points;
     }
 
@@ -125,17 +125,17 @@ public class  AI_machine_learner {
         obs_cns[observed_t].add(param_cns, error);
         coeff_count[observed_t]++;
         if (OutputWriter.isOutput_to_file()) {
-            String data = Double.toString(param_sw) + "," + Integer.toString(error);
+            String data = param_sw + "," + error;
             OutputWriter.output_perspective(parent_boid.getTeam(), observed_t, data, "param_sw");
-            data = Double.toString(param_aw) + "," + Integer.toString(error);
+            data = param_aw + "," + error;
             OutputWriter.output_perspective(parent_boid.getTeam(), observed_t, data, "param_aw");
-            data = Double.toString(param_cw) + "," + Integer.toString(error);
+            data = param_cw + "," + error;
             OutputWriter.output_perspective(parent_boid.getTeam(), observed_t, data, "param_cw");
-            data = Float.toString(param_sns) + "," + Integer.toString(error);
+            data = param_sns + "," + error;
             OutputWriter.output_perspective(parent_boid.getTeam(), observed_t, data, "param_sns");
-            data = Float.toString(param_ans) + "," + Integer.toString(error);
+            data = param_ans + "," + error;
             OutputWriter.output_perspective(parent_boid.getTeam(), observed_t, data, "param_ans");
-            data = Float.toString(param_cns) + "," + Integer.toString(error);
+            data = param_cns + "," + error;
             OutputWriter.output_perspective(parent_boid.getTeam(), observed_t, data, "param_cns");
         }
     }

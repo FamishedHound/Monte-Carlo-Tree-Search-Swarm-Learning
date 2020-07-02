@@ -19,9 +19,9 @@ public class ZoneDefence implements Cloneable {
         return boids;
     }
 
-    private boolean defend = true;
-    private ArrayList<Boid_generic> boids;
-    private ArrayList<Boid_generic> attackBoids;
+    private final boolean defend = true;
+    private final ArrayList<Boid_generic> boids;
+    private final ArrayList<Boid_generic> attackBoids;
     static int counter = 0;
     boolean flag = true;
     int DELAY = 200;
@@ -34,8 +34,8 @@ public class ZoneDefence implements Cloneable {
     float time = 0;
     long startTime = 0;
     float circumfence;
-    private PatrollingScheme patrolling = new PatrollingScheme(0.04f);
-    private ArrayList<PVector> waypoints = patrolling.getWaypoints();
+    private final PatrollingScheme patrolling = new PatrollingScheme(0.04f);
+    private final ArrayList<PVector> waypoints = patrolling.getWaypoints();
     EnviromentalSimulation sim;
     boolean attack = false;
     FlockManager flock;
@@ -44,6 +44,7 @@ public class ZoneDefence implements Cloneable {
     ParameterGatherAndSetter output;
 
 
+    //TODO fix this hardcoded path
     public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 
     public ZoneDefence(CollisionHandler collision, FlockManager flock, ParameterGatherAndSetter output) throws IOException {

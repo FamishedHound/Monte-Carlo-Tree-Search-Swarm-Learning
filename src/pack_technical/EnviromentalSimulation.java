@@ -122,11 +122,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 }
                 newSim.run1();
 
-                if(newSim.avgReward < 0){
-                    dangerClose = true;
-                }else{
-                    dangerClose = false;
-                }
+                dangerClose = newSim.avgReward < 0;
 
                 double simVal = 0;
                 if (newSim.attackBoids.get(0).isHasFailed()) {

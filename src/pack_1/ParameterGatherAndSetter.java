@@ -8,6 +8,7 @@ import processing.core.PVector;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,11 +18,11 @@ import java.util.Arrays;
 public class ParameterGatherAndSetter {
 
     CollisionHandler col;
-    private long startTime;
+    private final long startTime;
     private long startTimeWithoutwait = -1;
     ArrayList<String> history_of_learning = new ArrayList<>();
     public int iterations = 0;
-    private PVector attackerStartPosition;
+    private final PVector attackerStartPosition;
     ArrayList<PVector> hard = new ArrayList<>();
     ArrayList<PVector> medium = new ArrayList<>();
     ArrayList<PVector> easy = new ArrayList<>();
@@ -131,6 +132,6 @@ public class ParameterGatherAndSetter {
         lines.addAll(history_of_learning);
 
         Path file = Paths.get(Constants.OUTPUT_FILE+".txt");
-        Files.write(file, lines, Charset.forName("UTF-8"));
+        Files.write(file, lines, StandardCharsets.UTF_8);
     }
 }

@@ -42,7 +42,7 @@ public class PatrollingScheme {
         return waypointsA;
     }
 
-    private ArrayList<PVector> waypointsA = new ArrayList<>();
+    private final ArrayList<PVector> waypointsA = new ArrayList<>();
     public Iterator<PVector> iterator;
     private Iterator<PVector> iteratorA;
     public int currentPosition = 0;

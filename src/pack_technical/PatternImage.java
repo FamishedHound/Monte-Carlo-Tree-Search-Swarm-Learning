@@ -11,13 +11,13 @@ import java.util.Random;
 public class PatternImage {
 
 
-    private ArrayList<int[]> points = new ArrayList<>();
+    private final ArrayList<int[]> points = new ArrayList<>();
 
     public ArrayList<int[]> getNewpoints() {
         return newpoints;
     }
 
-    private ArrayList<int[]> newpoints = new ArrayList<>();
+    private final ArrayList<int[]> newpoints = new ArrayList<>();
     final BufferedImage image = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
     final BufferedImage image2 = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
 

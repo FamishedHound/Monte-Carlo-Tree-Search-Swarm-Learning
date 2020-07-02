@@ -7,7 +7,7 @@ public class PatternEntry {
         return radius;
     }
 
-    private PVector radius;
+    private final PVector radius;
     public PatternEntry(PVector r){
         this.radius=r;
     }
