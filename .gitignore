@@ -1,9 +1,10 @@
 .idea/
+.vscode/
 output/
 out/
 records/
 MyCode.jar
 MyCode.iml
-test*
+*.txt
 bin/
 graphing_application/

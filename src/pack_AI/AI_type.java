@@ -18,9 +18,9 @@ public class AI_type {
 
 
 	// the doubles have advanced precicion, and can change by very small values.
-	private double sep_weight, ali_weight, coh_weight;;
+	private double sep_weight, ali_weight, coh_weight;
 
-	public float getWayPointForce() {
+    public float getWayPointForce() {
 		return wayPointForce;
 	}
 
@@ -30,8 +30,8 @@ public class AI_type {
 
 	float wayPointForce;
 	private String ai_name;
-	private double param_a = 0.0001; // learning factor for parameters
-	private double neighbourhood_a = 0.0001; // learning factor for parameters
+	private final double param_a = 0.0001; // learning factor for parameters
+	private final double neighbourhood_a = 0.0001; // learning factor for parameters
 	Random rng = new Random();
 	int nub = AI_manager.getNeighbourhoodUpperBound();
 	int nlb = AI_manager.getNeighbourhoodLowerBound();
@@ -163,9 +163,9 @@ public class AI_type {
 		double[] mods = new double[6];
 		for (int i = 0; i < mods.length; i++) {
 			if (i < 3)
-				mods[i] = (double) param_a * derivatives[i];// 5 point precision
+				mods[i] = param_a * derivatives[i];// 5 point precision
 			else
-				mods[i] = (double) neighbourhood_a * derivatives[i];// 5 point precision
+				mods[i] = neighbourhood_a * derivatives[i];// 5 point precision
 			// the old and new positions are interpolated by a_value
 		}
 		sep_weight = sep_weight - mods[0];

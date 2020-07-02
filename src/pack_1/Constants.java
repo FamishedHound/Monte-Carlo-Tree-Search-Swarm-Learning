@@ -2,27 +2,49 @@ package pack_1;
 
 import processing.core.PVector;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class Constants {
 
-    //new params should be added as a public static field in Constants and a new "else if"
+    //new params should be added as a public static field in Constants and a new "case"
     //block added to Constants.setParamsFromProgramArgs to parse the program arguments accordingly
     //the value can then be used in the code wherever desired.
 
-    //E
-    public static int EXAMPLE = 10;
+    /**
+     * The target for the attack boids.
+     * Default to (550, 500). Set as an argument using
+     * (T|-t|--target) x y, for example -t 400 300
+     */
+    public static PVector TARGET = new PVector(550,500);
 
+    /**
+     * File to output results to
+     * Set as an argument using (-o|--output) fileName
+     * for example -o results
+     * If ommited, results will not be written to file
+     */
+    public static String OUTPUT_FILE = null;
+
+    /** Distance required for a 'hit' to be recognized */
+    public static int HIT_DISTANCE = 10;
+    /** Square of Constants.HIT_DISTANCE */
+    public static final int HIT_DISTANCE_SQ = HIT_DISTANCE * HIT_DISTANCE;
+
+    /** Distance required to count as collision between boids and its square */
+    public static final float COLLISION_DISTANCE = 6;
+    public static final float COLLISION_DISTANCE_SQ = COLLISION_DISTANCE * COLLISION_DISTANCE;
+
+    // TODO Need to ensure the arguments are in range, throw IllegalArgumentException if not
     public static void setParamsFromProgramArgs(String[] args) {
-        String arg;
         for(int i = 0; i < args.length; i++) {
-            if (args[i].equals("E")) {
-                EXAMPLE = Integer.parseInt(args[i+1]);
+            switch(args[i]) {
+                case "-t":
+                case "--target":
+                    TARGET = new PVector(Float.parseFloat(args[++i]), Float.parseFloat(args[++i]));
+                    break;
+                case "-o":
+                case "--out":
+                    OUTPUT_FILE = args[++i];
+                    break;
             }
         }
     }
-
 }

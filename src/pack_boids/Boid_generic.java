@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import pack_1.Launcher;
+import pack_1.Utility;
 import pack_AI.AI_internal_model;
 import pack_AI.AI_type;
 import pack_technical.GameManager;
@@ -16,37 +17,40 @@ import processing.core.PApplet;
 
 import processing.core.PVector;
 
-//TODO: move maxspeed to Constants
-//TODO: Identify other constant-esque stuff in here and move those to Constants too.
 
 // the generic boid class holds functions common to all boid types
-public class Boid_generic {
+public abstract class Boid_generic {
 
-	Color fillcol, linecol; // not in generic boid because not all boid suse the same colours
-	ArrayList<PVector> velocity_history = new ArrayList<PVector>();
-	ArrayList<PVector> location_history = new ArrayList<PVector>();
-	ArrayList<PVector> acceleration_history = new ArrayList<PVector>();
-	ArrayList<Float> heading_history = new ArrayList<Float>();
-	ArrayList<Double> angle_history = new ArrayList<Double>();
-	PApplet parent; // the processing app (allows access to it's functions)
-	public PVector location, velocity, acceleration = new PVector(0, 0);
-	PVector prev_vertex; // used for not drawing trails when a boid wraps around
-	float size; // determines drawing size
-	float maxsteer = 0.02f; // maximum steering force
-	float maxspeed = 3.0f; // maximum speed
-	double angle; // current pointing angle in DEGREES
-	int team; // determines team
-	float fireangle;
-	float firerange;
-	int reload_time; // steps taken to reload, counts down
-	boolean alive = true; // is alive?
-	boolean canfire = false; // is able to fire laser?
-	boolean isalone = true;
-	int current_reload; // current reload progress
+    Color fillcol, linecol; // not in generic boid because not all boid suse the same colours
+    ArrayList<PVector> velocity_history = new ArrayList<PVector>();
+    ArrayList<PVector> location_history = new ArrayList<PVector>();
+    ArrayList<PVector> acceleration_history = new ArrayList<PVector>();
+    ArrayList<Float> heading_history = new ArrayList<Float>();
+    ArrayList<Double> angle_history = new ArrayList<Double>();
+    public PVector location, velocity, acceleration = new PVector(0, 0);
+    PVector prev_vertex; // used for not drawing trails when a boid wraps around
+    float size; // determines drawing size
+    float maxsteer = 0.02f; // maximum steering force
+    float maxspeed = 3.0f; // maximum speed
+    double angle; // current pointing angle in DEGREES
+    int team; // determines team
+    float fireangle;
+    float firerange;
+    int reload_time; // steps taken to reload, counts down
+    boolean alive = true; // is alive?
+    boolean canfire = false; // is able to fire laser?
+    boolean isalone = true;
+    int current_reload; // current reload progress
 
-	public boolean isMoveable() {
-		return moveable;
-	}
+    // if real_step is true all normal actions will happen, otherwise
+    // rendering is disabled, this is for 'in-mind simulation'
+    public abstract void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation);
+    // TODO boids shouldn't really render themselves
+    protected abstract void render();
+
+    public boolean isMoveable() {
+        return moveable;
+    }
 
 	boolean moveable = true;
 	public int getId() {
@@ -55,7 +59,7 @@ public class Boid_generic {
 	public void setToMove(boolean b){
 		moveable=b;
 	}
-	private int id;
+	private final int id;
 	AI_type ai;
 	ParameterHandler pHandler = new ParameterHandler();
 	public boolean isHasFailed() {
@@ -66,36 +70,45 @@ public class Boid_generic {
 		this.hasFailed = hasFailed;
 	}
 
-	boolean hasFailed=false;
-	// create a boid (application,angle,x_position,y_position)
-	public Boid_generic(PApplet p, float x, float y, int t,int id) {
-
-		this.id = id;
-		parent = p;
-		team = t;
-		// graphics //
-		fillcol = GameManager.get_team_colour(t);
-		linecol = new Color(245, 245, 245);
-		// for in head simulations
-		location = new PVector(x, y);
-		/// set new properties ///
-		firerange = 140;
-		fireangle = 25;
-		reload_time = 100;
-		size = 6.0f;
-		// maxspeed = 3.0f; // float
-		// maxsteer = 0.02f; // float
-		current_reload = reload_time;
-		velocity_history.clear();
-		angle_history.clear();
-		acceleration_history.clear();
-		location_history.clear();
-		heading_history.clear();
+    boolean hasFailed=false;
+    // create a boid (application,angle,x_position,y_position)
+    protected Boid_generic(float x, float y, int t,int id) {
+        this.id = id;
+        team = t;
+        // graphics
+        fillcol = GameManager.get_team_colour(t);
+        linecol = new Color(245, 245, 245);
+        // for in head simulations
+        location = new PVector(x, y);
+        /// set new properties ///
+        firerange = 140;
+        fireangle = 25;
+        reload_time = 100;
+        size = 6.0f;
+        // maxspeed = 3.0f; // float
+        // maxsteer = 0.02f; // float
+        current_reload = reload_time;
+        velocity_history.clear();
+        angle_history.clear();
+        acceleration_history.clear();
+        location_history.clear();
+        heading_history.clear();
 	}
 
-	public void on_death() {
-		// generic boid has no features
-
+	public Boid_generic(Boid_generic boid_generic) {
+		this.id = boid_generic.getId();
+		this.team = boid_generic.getTeam();
+		this.fillcol = boid_generic.getFillcol();
+		this.linecol = boid_generic.getLinecol();
+		this.setLocation(boid_generic.getLocation());
+		this.firerange = boid_generic.getFirerange();
+		this.fireangle = boid_generic.getFireangle();
+		this.reload_time = boid_generic.getReload_time();
+		this.size = boid_generic.getSize();
+		this.current_reload = boid_generic.getCurrent_reload();
+		this.location = boid_generic.location.copy();
+		this.velocity = boid_generic.velocity.copy();
+		this.acceleration = boid_generic.acceleration.copy();
 	}
 
 	public void record_acceleration() {
@@ -119,54 +132,48 @@ public class Boid_generic {
 		}
 	}
 
-	// if real_step is true all normal actions will happen, otherwise
-	// rendering is disabled, this is for 'in-mind simulation'
-	public void run(ArrayList<Boid_generic> boids, boolean real_step,boolean simulation) {
-		System.out.println("handled by specific boids");
-	}
+    // TODO this can be removed maybe. The boids should not be artifically limited by the limits of the window
+    void move_borders(boolean wrap) {
+        if (wrap) {
+            if (location_history.size() > 0) {
+                if (location_history.get(0).x < -size)
+                    location.x = Launcher.applet.width + size;
+                if (location_history.get(0).y < -size)
+                    location.y = Launcher.applet.height + size;
+                if (location_history.get(0).x > Launcher.applet.width + size)
+                    location.x = -size;
+                if (location_history.get(0).y > Launcher.applet.height + size)
+                    location.y = -size;
+            }
+        } else {
+            if (location.x < size)
+                velocity.add(5, 0);
+            if (location.y < size)
+                velocity.add(0, 5);
+            if (location.x > Launcher.applet.width - size)
+                velocity.add(-5, 0);
+            if (location.y > Launcher.applet.height - size)
+                velocity.add(0, -5);
+        }
+    }
 
-	void move_borders(boolean wrap) {
-		if (wrap) {
-			if (location_history.size() > 0) {
-				if (location_history.get(0).x < -size)
-					location.x = parent.width + size;
-				if (location_history.get(0).y < -size)
-					location.y = parent.height + size;
-				if (location_history.get(0).x > parent.width + size)
-					location.x = -size;
-				if (location_history.get(0).y > parent.height + size)
-					location.y = -size;
-			}
-		} else {
-			if (location.x < size)
-				velocity.add(5, 0);
-			if (location.y < size)
-				velocity.add(0, 5);
-			if (location.x > parent.width - size)
-				velocity.add(-5, 0);
-			if (location.y > parent.height - size)
-				velocity.add(0, -5);
+    // We accumulate a new acceleration each time based on three rules
+    public void move(ArrayList<Boid_generic> boids) {
+        PVector sep = separate(boids); // Separation
+        PVector ali = align(boids); // Alignment
+        PVector coh = cohesion(boids); // Cohesion
+        // Arbitrarily weight these forces
+
+        sep.mult((float) ai.getSep_weight());
+        ali.mult((float) ai.getAli_weight());
+        coh.mult((float) ai.getCoh_weight());
+        //System.out.println(" here" + sep + " " + ali + " " + coh);
+        // Add the force vectors to acceleration
+        if(moveable) {
+            acceleration.add(sep);
+            acceleration.add(ali);
+            acceleration.add(coh);
 		}
-	}
-
-	// We accumulate a new acceleration each time based on three rules
-	public void move(ArrayList<Boid_generic> boids) {
-		PVector sep = separate(boids); // Separation
-		PVector ali = align(boids); // Alignment
-		PVector coh = cohesion(boids); // Cohesion
-		// Arbitrarily weight these forces
-
-		sep.mult((float) ai.getSep_weight());
-		ali.mult((float) ai.getAli_weight());
-		coh.mult((float) ai.getCoh_weight());
-		//System.out.println(" here" + sep + " " + ali + " " + coh);
-		// Add the force vectors to acceleration
-		if(moveable) {
-			acceleration.add(sep);
-			acceleration.add(ali);
-			acceleration.add(coh);
-		}
-
 	}
 
 	public void update() {
@@ -191,144 +198,133 @@ public class Boid_generic {
 		return steer;
 	}
 
+    synchronized void render_trails(int type, boolean simulation) { // all boids draw trails
+        if(!simulation) {
+            prev_vertex = location.copy();
+            if (location_history.size() > 0) {
+                switch (type) {
+                    case 1: // periodic dots
+                        int index = 0;
+                        Launcher.applet.stroke(fillcol.getRGB());
+                        for (PVector vect : location_history) {
+                            prev_vertex = vect;
+                            index++;
+                            if ((index + Launcher.applet.frameCount) % 5 == 0)
+                                Launcher.applet.point(vect.x, vect.y);
+                        }
+                        break;// smooth curves
+                    case 2:
+                        Launcher.applet.noFill();
+                        Launcher.applet.beginShape();
+                        for (PVector vect : location_history) {
+                            if (Utility.distSq(vect, prev_vertex) > 200*200) {
+                                prev_vertex = vect.copy();
+                                Launcher.applet.endShape();
+                                return;
+                            } else {
+                                Launcher.applet.stroke(fillcol.getRGB(), 75); // set colour and opacity;
+                                Launcher.applet.vertex(vect.x, vect.y);
+                                prev_vertex = new PVector(vect.x, vect.y);
+                            }
+                        }
+                        Launcher.applet.endShape();
+                        break;
+                    case 3: // direct line
+                        if (location_history.size() > 0) {
+                            Launcher.applet.noFill();
+                            Launcher.applet.stroke(fillcol.getRGB(), 75); // set colour and opacity;
+                            if (Utility.distSq(location_history.get(0), location_history.get(location_history.size() - 1)) < 200 * 200)
+                                Launcher.applet.line(location_history.get(0).x, location_history.get(0).y,
+                                    location_history.get(location_history.size() - 1).x,
+                                    location_history.get(location_history.size() - 1).y);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 
-	void render_perfect_future() {
-		// abstract
-	}
+    // Separation - Method checks for nearby boids and steers away
+    // Method checks for nearby boids and steers away
+    PVector separate(ArrayList<Boid_generic> boids) {
+        PVector steer = new PVector(0, 0, 0);
+        int count = 0;
+        // For every boid in the system, check if it's too close
+        for (Boid_generic other : boids) {
+            float d = Utility.distSq(location, other.location);
+            // If the distance is greater than 0 and less than an arbitrary amount (0 when
+            // you are yourself)
+            if ((d > 0) && (d < ai.getSep_neighbourhood_size() * ai.getSep_neighbourhood_size())) {
+                isalone = false;
+                // Calculate vector pointing away from neighbor
+                PVector diff = PVector.sub(location, other.location);
+                diff.normalize();
+                diff.div((float)Math.sqrt(d)); // Weight by distance
+                steer.add(diff);
+                count++; // Keep track of how many
+            }
+        }
+        // Average -- divide by how many
+        if (count > 0) {
+            steer.div((float) count);
+        }
 
-	public void render() {
-		// abstract, handles by individuals
-	}
+        // As long as the vector is greater than 0
+        if (steer.magSq() > 0) {
+            steer.setMag(maxspeed);
+            steer.sub(velocity);
+            steer.limit(maxsteer);
+        }
+        return steer;
+    }
 
-	 synchronized void render_trails(int type,boolean simulation) { // all boids draw trails
-		if(!simulation) {
-			prev_vertex = new PVector(location.x, location.y);
-			if (location_history.size() > 0) {
-				switch (type) {
-					default:
-						break;
-					case 1: // periodic dots
-						int index = 0;
-						parent.stroke(fillcol.getRGB());
-						for (PVector vect : location_history) {
-							prev_vertex = vect;
-							index++;
-							if ((index + parent.frameCount) % 5 == 0)
-								parent.point(vect.x, vect.y);
-						}
-						break;// smooth curves
-					case 2:
-						parent.noFill();
-						parent.beginShape();
-					{
-						for (PVector vect : location_history) {
-							if (vect.dist(prev_vertex) > 200) {
-								prev_vertex = new PVector(vect.x, vect.y);
-								parent.endShape();
-								return;
-							} else {
-								parent.stroke(fillcol.getRGB(), 75); // set colour and opacity;
-								parent.vertex(vect.x, vect.y);
-								prev_vertex = new PVector(vect.x, vect.y);
-							}
-						}
-						parent.endShape();
-					}
-					break;
-					case 3: // direct line
-						if (location_history.size() > 0) {
-							parent.noFill();
-							parent.stroke(fillcol.getRGB(), 75); // set colour and opacity;
-							if (location_history.get(0).dist(location_history.get(location_history.size() - 1)) < 200)
-								parent.line(location_history.get(0).x, location_history.get(0).y,
-										location_history.get(location_history.size() - 1).x,
-										location_history.get(location_history.size() - 1).y);
-							break;
-						}
-				}
-			}
-		}
-	}
+    // Alignment - For every nearby boid in the system, calculate the average
+    // velocity
+    PVector align(ArrayList<Boid_generic> boids) {
+        PVector sum = new PVector(0, 0);
+        int count = 0;
+        for (Boid_generic other : boids) {
+            float d = Utility.distSq(location, other.location);
+            if ((d > 0) && (d < ai.getAli_neighbourhood_size() * ai.getAli_neighbourhood_size())) {
+                isalone = false;
+                sum.add(other.velocity);
+                count++;
+            }
+        }
+        if (count > 0) {
+            sum.div((float) count);
+            sum.setMag(maxspeed);
+            PVector steer = PVector.sub(sum, velocity);
+            steer.limit(maxsteer);
+            return steer;
+        } else {
+            return new PVector(0, 0);
+        }
+    }
 
-	// Separation - Method checks for nearby boids and steers away
-	// Method checks for nearby boids and steers away
-	PVector separate(ArrayList<Boid_generic> boids) {
-		PVector steer = new PVector(0, 0, 0);
-		int count = 0;
-		// For every boid in the system, check if it's too close
-		for (Boid_generic other : boids) {
-			float d = PVector.dist(location, other.location);
-			// If the distance is greater than 0 and less than an arbitrary amount (0 when
-			// you are yourself)
-			if ((d > 0) && (d < ai.getSep_neighbourhood_size())) {
-				isalone = false;
-				// Calculate vector pointing away from neighbor
-				PVector diff = PVector.sub(location, other.location);
-				diff.normalize();
-				diff.div(d); // Weight by distance
-				steer.add(diff);
-				count++; // Keep track of how many
-			}
-		}
-		// Average -- divide by how many
-		if (count > 0) {
-			steer.div((float) count);
-		}
-
-		// As long as the vector is greater than 0
-		if (steer.magSq() > 0) {
-			steer.setMag(maxspeed);
-			steer.sub(velocity);
-			steer.limit(maxsteer);
-		}
-		return steer;
-	}
-
-	// Alignment - For every nearby boid in the system, calculate the average
-	// velocity
-	PVector align(ArrayList<Boid_generic> boids) {
-		PVector sum = new PVector(0, 0);
-		int count = 0;
-		for (Boid_generic other : boids) {
-			float d = PVector.dist(location, other.location);
-			if ((d > 0) && (d < ai.getAli_neighbourhood_size())) {
-				isalone = false;
-				sum.add(other.velocity);
-				count++;
-			}
-		}
-		if (count > 0) {
-			sum.div((float) count);
-			sum.setMag(maxspeed);
-			PVector steer = PVector.sub(sum, velocity);
-			steer.limit(maxsteer);
-			return steer;
-		} else {
-			return new PVector(0, 0);
-		}
-	}
-
-	// Cohesion - For the average location (i.e. center) of all nearby boids,
-	// calculate
-	// steering vector towards that location
-	PVector cohesion(ArrayList<Boid_generic> boids) {
-		PVector sum = new PVector(0, 0); // Start with empty vector to accumulate all locations
-		int count = 0;
-		for (Boid_generic other : boids) {
-			float d = PVector.dist(location, other.location);
-			if ((d > 0) && (d < ai.getCoh_neighbourhood_size())) {
-				isalone = false;
-				sum.add(other.location); // Add location
-				count++;
-			}
-		}
-		if (count > 0) {
-			sum.div(count);
-			return seek(sum); // Steer towards the location
-		} else {
-			return new PVector(0, 0);
-		}
-	}
+    // Cohesion - For the average location (i.e. center) of all nearby boids,
+    // calculate
+    // steering vector towards that location
+    PVector cohesion(ArrayList<Boid_generic> boids) {
+        PVector sum = new PVector(0, 0); // Start with empty vector to accumulate all locations
+        int count = 0;
+        for (Boid_generic other : boids) {
+            float d = Utility.distSq(location, other.location);
+            if ((d > 0) && (d < ai.getCoh_neighbourhood_size() * ai.getCoh_neighbourhood_size())) {
+                isalone = false;
+                sum.add(other.location); // Add location
+                count++;
+            }
+        }
+        if (count > 0) {
+            sum.div(count);
+            return seek(sum); // Steer towards the location
+        } else {
+            return new PVector(0, 0);
+        }
+    }
 
 	void reload() {
 		current_reload--;
@@ -358,13 +354,9 @@ public class Boid_generic {
 		return location;
 	}
 
-	public int observed_team() {
-		return team;
-	}
-
-	public AI_type getAi() {
-		return ai;
-	}
+    public AI_type getAi() {
+        return ai;
+    }
 
 	public void setAi(AI_type ai) {
 		this.ai = ai;
@@ -379,7 +371,7 @@ public class Boid_generic {
 	}
 
 	public void setAcceleration(PVector acceleration) {
-		this.acceleration = new PVector(acceleration.x, acceleration.y); // only accesses 'future'
+		this.acceleration = acceleration.copy(); // only accesses 'future'
 	}
 
 	public Color getFillcol() {
@@ -390,7 +382,7 @@ public class Boid_generic {
 		return linecol;
 	}
 
-	public PVector getVelocity_history() {
+	public PVector getVelocityHistory() {
 		if (velocity_history.size() > 0)
 			return new PVector(velocity_history.get(0).x, velocity_history.get(0).y);
 		else
@@ -404,14 +396,14 @@ public class Boid_generic {
 			return angle;
 	}
 
-	public PVector getLocation_history() {
+	public PVector getLocationHistory() {
 		if (location_history.size() > 0)
 			return new PVector(location_history.get(0).x, location_history.get(0).y);
 		else
 			return location;
 	}
 
-	public PVector getAcceleration_history() {
+	public PVector getAccelerationHistory() {
 		if (acceleration_history.size() > 0)
 			return new PVector(acceleration_history.get(0).x, acceleration_history.get(0).y);
 		else
@@ -421,10 +413,6 @@ public class Boid_generic {
 	public ArrayList<PVector> getLocation_history_full() {
 		return location_history;
 
-	}
-
-	public PApplet getParent() {
-		return parent;
 	}
 
 	public PVector getLocation() {
@@ -476,7 +464,7 @@ public class Boid_generic {
 	}
 
 	public void setVelocity(PVector velocity) {
-		this.velocity = new PVector(velocity.x, velocity.y);
+		this.velocity = velocity.copy();
 	}
 
 	public void setLocation_history(ArrayList<PVector> location_history) {
@@ -497,12 +485,18 @@ public class Boid_generic {
 		this.angle = angle;
 	}
 
+	public void setStationary() {
+		this.setLocation(this.getLocation());
+		this.velocity.mult(0);
+		this.velocity.mult(0);
+	}
+
 	public void setVelocity_history(ArrayList<PVector> velocity_history) {
 		this.velocity_history = velocity_history;
 	}
 
 	public void setLocation(PVector location) {
-		this.location = new PVector(location.x, location.y);
+		this.location = location.copy();
 	}
 
 	public ArrayList<Float> getHeading_history() {

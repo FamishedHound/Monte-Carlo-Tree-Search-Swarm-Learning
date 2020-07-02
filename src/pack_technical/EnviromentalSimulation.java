@@ -1,94 +1,64 @@
 package pack_technical;
-
-import pack_1.Launcher;
+import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.Boid_generic;
-import pack_boids.Boid_standard;
-import processing.core.PApplet;
 import processing.core.PVector;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
 
 //todo move maxTreeDepth to Constants
 
-public class EnviromentalSimulation extends Thread {
-    ArrayList<Boid_generic> defenders;
-    ArrayList<Boid_generic> attackBoids;
-    storeDetails defend;
-    storeDetails attack;
+public class EnviromentalSimulation extends Simulation implements Runnable {
     Tree MCT;
-
-    AI_type simulator;
-    PApplet parent;
-    PatrollingScheme scheme;
     ArrayList<int[]> cords;
-
-    FlockManager flock;
+    FlockManager flockManager;
     double startTime = 0;
     int maxTreeDepth = 20;
     int actionCounter = 0;
     boolean treeReady = false;
     boolean dangerClose = false;
+    CollisionHandler collisionHandler;
 
-    CollisionHandler handler;
-
-    public AI_type getSimulator() {
-        return simulator;
-    }
-
-
-    public EnviromentalSimulation(int sns, int ans, int cns, double sw, double aw, double cw, String name, ArrayList<Boid_generic> defenders, PApplet parent, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) throws IOException {
-        this.parent = parent;
-        this.handler = handler;
+    public EnviromentalSimulation(ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
+        this.collisionHandler = handler;
         this.cords = cords;
-        this.defenders = defenders;
+        this.defenderBoids = defenders;
+        this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
+        defenders = copyStateOfBoids(defenders);
+        this.attackBoids = copyStateOfBoids(attackers);
+        this.flockManager = new FlockManager(true, true);
+        this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
 
-        simulator = new AI_type(randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
-
-        defend = new storeDetails();
-        defenders = defend.copyTheStateOfAttackBoids(defenders,parent);
-        attack = new storeDetails();
-        this.attackBoids = attack.copyTheStateOfAttackBoids(attackers,parent);
-
-        this.flock = new FlockManager(parent, true, true);
-        this.scheme = new PatrollingScheme(simulator.getWayPointForce());
         for (Boid_generic g : defenders) {
-            g.setAi(simulator);
+            g.setAi(this.ai_type);
         }
 
         for (int[] cord : cords) {
-            scheme.getWaypoints().add(new PVector(cord[0], cord[1]));
+            this.patrollingScheme.getWaypoints().add(new PVector(cord[0], cord[1]));
         }
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
-        float shortestDistance = 3000;
-        int counter = 0;
+        // TODO - Magic numbers!!
+        float shortestDistanceSq = 3000 * 3000;
+        float shortestVectorAngle=0;
+        float nextToShortestVectorAngle=0;
         int positionInTheList = 0;
-        for (PVector checkpoint : scheme.getWaypoints()) {
-            float distance = PVector.dist(defenders.get(0).getLocation(), checkpoint);
-            counter++;
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
-                positionInTheList = counter;
+        for (PVector checkpoint : this.patrollingScheme.getWaypoints()) {
+            float distanceSq = Utility.distSq(defenders.get(0).getLocation(), checkpoint);
+            if (distanceSq < shortestDistanceSq) {
+                shortestDistanceSq = distanceSq;
             }
         }
 
-        scheme.setup();
+        patrollingScheme.setup();
 
         for (int i = 0; i < positionInTheList + 1; i++) {
-            if (!scheme.getIterator().hasNext()) {
+            if (!patrollingScheme.getIterator().hasNext()) {
                 // if the end of the list of waypoints has been reached, reassigns the iterator
-                // to scheme so it can begin from the beginning again
-                scheme.setIterator(scheme.getWaypoints().iterator());
+                // to patrollingScheme so it can begin from the beginning again
+                patrollingScheme.setIterator(patrollingScheme.getWaypoints().iterator());
             }
-            scheme.setCurrWaypoint(scheme.getIterator().next());
+            patrollingScheme.setCurrWaypoint(patrollingScheme.getIterator().next());
         }
         startTime = System.nanoTime();
 
@@ -101,21 +71,13 @@ public class EnviromentalSimulation extends Thread {
 
 
     public void setAiToInnerSimulation(AI_type t) {
-        simulator = t;
+        ai_type = t;
     }
 
 
     public boolean isSimulating() {
         return true;
     }
-
-
-    public static float randFloat(float min, float max) {
-        Random rand = new Random();
-        float result = rand.nextFloat() * (max - min) + min;
-        return result;
-    }
-
 
     public PVector reutrnTargetVecotr() {
         Node bestSim = MCT.bestAvgVal();
@@ -142,8 +104,9 @@ public class EnviromentalSimulation extends Thread {
 
 
     public void updateBoids(ArrayList<Boid_generic> defenders, ArrayList<Boid_generic> attacker) {
-        this.defenders = defend.copyTheStateOfAttackBoids(defenders,parent);
-        this.attackBoids = attack.copyTheStateOfAttackBoids(attacker,parent);
+        this.defenderBoids = copyStateOfBoids(defenders);
+        this.attackBoids = copyStateOfBoids(attacker);
+
     }
 
 
@@ -153,17 +116,13 @@ public class EnviromentalSimulation extends Thread {
                 Node n = MCT.UCT(MCT.root);
                 InnerSimulation newSim;
                 if(n.parent == null){
-                    newSim = new InnerSimulation(simulator, defenders, cords, attackBoids, handler, parent, n.depth);
+                    newSim = new InnerSimulation(ai_type, defenderBoids, cords, attackBoids, handler, n.depth);
                 }else {
-                    newSim = new InnerSimulation(simulator, defenders, cords, n.parent.attacker, handler, parent, n.depth);
+                    newSim = new InnerSimulation(ai_type, defenderBoids, cords, n.parent.attacker, handler, n.depth);
                 }
                 newSim.run1();
 
-                if(newSim.avgReward < 0){
-                    dangerClose = true;
-                }else{
-                    dangerClose = false;
-                }
+                dangerClose = newSim.avgReward < 0;
 
                 double simVal = 0;
                 if (newSim.attackBoids.get(0).isHasFailed()) {
@@ -185,18 +144,4 @@ public class EnviromentalSimulation extends Thread {
             }
         }
     }
-
-
-//     public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids) {
-//         ArrayList<Boid_generic> boidListClone = new ArrayList<>();
-
-//         for (Boid_generic boid : boids) {
-//             Boid_generic bi = new Boid_standard(parent, boid.getLocation().x, boid.getLocation().y, 6, 10);
-//             bi.setAcceleration(boid.getAcceleration());
-//             bi.setVelocity(boid.getVelocity());
-//             bi.setLocation(boid.getLocation());
-//             boidListClone.add(bi);
-//         }
-//         return boidListClone;
-//     }
 }

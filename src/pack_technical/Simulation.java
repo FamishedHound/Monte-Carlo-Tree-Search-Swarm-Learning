@@ -1,103 +1,85 @@
 package pack_technical;
 
+import pack_1.Utility;
+import pack_AI.AI_manager;
+import pack_AI.AI_type;
 import pack_boids.Boid_generic;
+import pack_boids.Boid_standard;
 import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.ArrayList;
-import java.util.Random;
 
-public class Simulation {
-    private int x;
-    private int y;
-    private PApplet parent;
-    private ZoneDefence zone;
-    ArrayList<Boid_generic> clones;
-    CollisionHandler handler;
-    private boolean success=true;
+public abstract class Simulation {
 
-    public void setMode(int mode) {
-        this.mode = mode;
+    int nextWaypoint;
+    ArrayList<Boid_generic> defenderBoids;
+    ArrayList<Boid_generic> attackBoids;
+    AI_type ai_type;
+    PatrollingScheme patrollingScheme;
+    CollisionHandler collisionHandler;
+    ArrayList<int[]> cords;
+
+    public Simulation(ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
+        this.collisionHandler = handler;
+        this.cords = cords;
+        this.defenderBoids = defenders;
+        this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
+        this.attackBoids = copyStateOfBoids(attackers);
+        this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
     }
 
-    private int mode;
-    PVector target ;
-    PVector direction = new PVector();
-    Random rand = new Random();
-    PatrollingScheme scheme;
-    enum ACTION{
-
-    }
-    public Simulation(ArrayList<Boid_generic> clones, PApplet p, ZoneDefence z,CollisionHandler handler,PatrollingScheme scheme) {
-        this.handler=handler;
-        this.scheme=scheme;
-        this.x = x;
-        this.y = y;
-        this.parent = p;
-        this.zone = z;
-        this.clones = clones;
-        this.mode=0;
-        direction= new PVector(550,500);
+    protected Simulation() {
     }
 
+    public ArrayList<Boid_generic> copyStateOfBoids(ArrayList<Boid_generic> boids) {
+        ArrayList<Boid_generic> boidListClone = new ArrayList<>();
 
-    public int getMode() {
-        return mode;
-    }
-
-    public PVector getDirection() {
-        return direction;
-    }
-
-    public void simulate() {
-
-        //System.out.println(clones +"af");
-        //System.out.println(clones);
-
-        for (Boid_generic b : clones) {
-            PVector acceleration = b.getAcceleration();
-            PVector velocity = b.getVelocity();
-            PVector location = b.getLocation();
-            for (Boid_generic c :zone.getBoids()){
-                if(handler.doesCollide(b,c)) {
-                   // System.out.println("WE COLLIDED");
-                    success = false;
-                    PVector newDirection = new PVector(0,0);
-                    int ran1 = rand.nextInt(600)+1;
-                    int ran2 = rand.nextInt(600)+1;
-                    for(Boid_generic bc:clones){
-
-
-                        bc.setLocation(new PVector(location.x+ran1,location.y-ran2));
-                        newDirection=new PVector(location.x+ran1,location.y-ran2);
-                        scheme.setCurrWaypointA(new PVector(location.x+ran1,location.y-ran2));
-                    }
-                    direction=newDirection;
-                    mode =1;
-                    success=true;
-
-                }
-            }
-
-            //System.out.println(b.getLocation());
-            //b.move(clones);
-            //b.update();
-            target = zone.attack(b,2);
-            PVector turnLeft = new PVector(location.x+20,location.y-100);
-
-            velocity.limit(1);
-
-            location.add(velocity.add(acceleration.add(target)));
-
-            acceleration.mult(0);
-            //parent.fill(105, 105, 105);
-            // parent.shape(new PShape(2),b.getLocation().x,b.getLocation().y);
-            if(success)
-           // parent.ellipse(location.x, location.y, 10f, 10f);
-            if(location== new PVector(550,500)){
-                clones=null;
-            }
-
+        for (Boid_generic boid : boids) {
+            Boid_generic bi = new Boid_standard(boid.getLocation().x, boid.getLocation().y, 6, 10);
+            bi.setAcceleration(boid.getAcceleration());
+            bi.setVelocity(boid.getVelocity());
+            bi.setLocation(boid.getLocation());
+            boidListClone.add(bi);
         }
+        return boidListClone;
     }
+
+    public AI_type getSimulator() {
+        return ai_type;
+    }
+
+    public void waypointSetup(ArrayList<Boid_generic> defenders) {
+        for(int[] cord : cords){
+            patrollingScheme.getWaypoints().add(new PVector(cord[0],cord[1]));
+        }
+
+        //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
+        // TODO - Magic numbers!!
+        float shortestDistanceSq = 3000 * 3000;
+        float shortestVectorAngle=0;
+        float nextToShortestVectorAngle=0;
+        int positionInTheList = 0;
+        for(int i=0;i<patrollingScheme.getWaypoints().size();i++) {
+            PVector checkpoint = patrollingScheme.getWaypoints().get(i);
+            PVector nextCheckPoint = patrollingScheme.getWaypoints().get((i+1)%patrollingScheme.getWaypoints().size());
+            float distanceSq = Utility.distSq(defenders.get(0).getLocation(), checkpoint);
+            if (distanceSq < shortestDistanceSq) {
+                shortestDistanceSq = distanceSq;
+                shortestVectorAngle = PVector.angleBetween(defenders.get(0).getLocation(), checkpoint);
+                nextToShortestVectorAngle = PVector.angleBetween(defenders.get(0).getLocation(), nextCheckPoint);
+            }
+        }
+
+        if (shortestVectorAngle < nextToShortestVectorAngle) {
+            nextWaypoint = positionInTheList;
+        }else{
+            nextWaypoint = (positionInTheList + 1) % patrollingScheme.getWaypoints().size();
+        }
+
+        patrollingScheme.currentPosition = nextWaypoint;
+    }
+
+
+
 }
