@@ -7,15 +7,13 @@ public class PatternEntry {
         return radius;
     }
 
-    private PVector radius;
+    private final PVector radius;
     public PatternEntry(PVector r){
         this.radius=r;
     }
 
     public float difference(PatternEntry other){
-        float diff = PVector.dist(radius,other.getRadius());
-
-        return diff;
+        return PVector.dist(radius,other.getRadius());
     }
 
 }

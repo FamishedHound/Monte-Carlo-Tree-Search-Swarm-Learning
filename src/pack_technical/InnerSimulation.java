@@ -2,7 +2,6 @@ package pack_technical;
 
 import pack_AI.AI_type;
 import pack_boids.Boid_generic;
-import pack_boids.Boid_standard;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -16,11 +15,8 @@ import pack_1.Utility;
 //TODO: Rename location to currentAttackerLocation
 //TODO: Put the target PVector in Constants file
 //TODO: Find out what MrLeandroVector is for sure and then give it a real name (seems to be just a random vector)
-
 //TODO: Figure out what targetVector is. It seems to only have the local variable theClosest from run() assigned to it
 //and theClosest itself only ever has MrLeandroVector assigned to it.
-
-
 //TODO: seems to be a lot of redundant shared code between InnerSim and EnvSim. Tidy.
 //TODO: change b1 to be defenderBoids
 //TODO: change currentDistance to be currentDistanceToTarget
@@ -28,30 +24,22 @@ import pack_1.Utility;
 //TODO: I think 'cords' are the waypoint co-ordinates. If so change cords to be waypointCoordinates
 //TODO: rename r0acceleration & r0velocity local variables
 
-public class InnerSimulation  {
-    ArrayList<Boid_generic> attackBoids;
-    ArrayList<Boid_generic> simulationClones;
+public class InnerSimulation extends Simulation {
 
-    AI_type ai;
     private int tick =0;
-    PApplet parent;
-    CollisionHandler handler;
-    ArrayList<int[]> cords ;
-    ArrayList<int[]> historyOfMovement = new ArrayList<>();
-    PatrollingScheme scheme ;
+    ArrayList<int[]> historyOfMovement = new ArrayList<>()
     boolean victory = false;
-
     boolean willContinueSimulation;
     Integer nextWaypoint;
     Random randG = new Random();
     //what does targetVector actually represent
     PVector targetVector = new PVector(0,0);
     PVector MrLeandroVector;
-
     float theClosetDistance;
     float currentDistance;
     double avgReward;
     int nodeDepth;
+    boolean simulating=true;
 
     public boolean isSimulating() {
         return simulating;
@@ -61,100 +49,51 @@ public class InnerSimulation  {
         this.simulating = simulating;
     }
 
-    boolean simulating=true;
-
     public void createSimulationsAndRandomVectors(){
         float rand = randG.nextFloat() * 1;
         float rand2 = randG.nextFloat() * 1;
         MrLeandroVector = new PVector(-1+2*rand, -1+2*rand2);
         MrLeandroVector.setMag(0.1f);
     }
-    public void restartTheSimulation(ArrayList<Boid_generic> attackBoidss,ArrayList<Boid_generic> defenders ) {
-        attackBoids.clear();
-        simulationClones.clear();
 
-        this.attackBoids=copyTheStateOfAttackBoids(attackBoidss);
-        this.simulationClones = copyTheStateOfAttackBoids(defenders);
-
-        scheme.setWaypointforce(ai.getWayPointForce());
-        for(Boid_generic g : simulationClones){
-            g.setAi(ai);
-        }
-        scheme.restartIterator();
-
-        float shortestDistance = 3000;
-        float shortestVectorAngle=0;
-        float nextToShortestVectorAngle=0;
-        int counter = 0;
-        int positionInTheList = 0;
-
-        for(int i=0;i<scheme.getWaypoints().size();i++) {
-            PVector checkpoint = scheme.getWaypoints().get(i);
-            PVector nextCheckPoint = scheme.getWaypoints().get((i+1)%scheme.getWaypoints().size());
-            float distance = PVector.dist(simulationClones.get(0).getLocation(), checkpoint);
-
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
-                positionInTheList = counter;
-                shortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), checkpoint);
-                nextToShortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), nextCheckPoint);
-            }
-            counter++;
-        }
-
-        if (shortestVectorAngle < nextToShortestVectorAngle) {
-            nextWaypoint = positionInTheList;
-        }else{
-            nextWaypoint = (positionInTheList + 1) % scheme.getWaypoints().size();
-        }
-
-        scheme.currentPosition = nextWaypoint;
-        createSimulationsAndRandomVectors();
-    }
-
-
-    public InnerSimulation(AI_type ai, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers,CollisionHandler handler,PApplet parent, int nodeDepth) throws IOException {
-        this.ai = ai;
-        this.parent=parent;
+    public InnerSimulation(AI_type ai, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler collisionHandler, int nodeDepth) throws IOException {
+        this.ai_type = ai;
         this.cords= new ArrayList<>(cords);
-        this.parent=parent;
-        this.attackBoids=copyTheStateOfAttackBoids(attackers);
-        this.simulationClones=copyTheStateOfAttackBoids(defenders);
-        this.handler=handler;
+        this.attackBoids=copyStateOfBoids(attackers);
+        this.defenderBoids =copyStateOfBoids(defenders);
+        this.collisionHandler = collisionHandler;
         this.nodeDepth = nodeDepth;
-        scheme = new PatrollingScheme(ai.getWayPointForce());
+        patrollingScheme = new PatrollingScheme(ai.getWayPointForce());
 
         for(int[] cord : cords){
-            scheme.getWaypoints().add(new PVector(cord[0],cord[1]));
+            patrollingScheme.getWaypoints().add(new PVector(cord[0],cord[1]));
         }
 
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
-        float shortestDistance = 3000;
-        int counter = 0;
-        int positionInTheList = 0;
+        // TODO - Magic numbers!!
+        float shortestDistanceSq = 3000 * 3000;
         float shortestVectorAngle=0;
         float nextToShortestVectorAngle=0;
-        for(int i=0;i<scheme.getWaypoints().size();i++) {
-            PVector checkpoint = scheme.getWaypoints().get(i);
-            PVector nextCheckPoint = scheme.getWaypoints().get((i+1)%scheme.getWaypoints().size());
-            float distance = PVector.dist(simulationClones.get(0).getLocation(), checkpoint);
+        int positionInTheList = 0;
+        for(int i=0;i<patrollingScheme.getWaypoints().size();i++) {
+            PVector checkpoint = patrollingScheme.getWaypoints().get(i);
+            PVector nextCheckPoint = patrollingScheme.getWaypoints().get((i+1)%patrollingScheme.getWaypoints().size());
+            float distanceSq = Utility.distSq(defenderBoids.get(0).getLocation(), checkpoint);
 
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
-                positionInTheList = counter;
-                shortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), checkpoint);
-                nextToShortestVectorAngle = PVector.angleBetween(simulationClones.get(0).getLocation(), nextCheckPoint);
+            if (distanceSq < shortestDistanceSq) {
+                shortestDistanceSq = distanceSq;
+                shortestVectorAngle = PVector.angleBetween(defenderBoids.get(0).getLocation(), checkpoint);
+                nextToShortestVectorAngle = PVector.angleBetween(defenderBoids.get(0).getLocation(), nextCheckPoint);
             }
-            counter++;
         }
 
         if (shortestVectorAngle < nextToShortestVectorAngle) {
             nextWaypoint = positionInTheList;
         }else{
-            nextWaypoint = (positionInTheList + 1) % scheme.getWaypoints().size();
+            nextWaypoint = (positionInTheList + 1) % patrollingScheme.getWaypoints().size();
         }
 
-        scheme.currentPosition = nextWaypoint;
+        patrollingScheme.currentPosition = nextWaypoint;
         createSimulationsAndRandomVectors();
     }
 
@@ -175,13 +114,13 @@ public class InnerSimulation  {
             PVector velocity = attackBoids.get(0).getVelocity();
             PVector location = attackBoids.get(0).getLocation();
 
-            for (Boid_generic b1 : simulationClones) {
+            for (Boid_generic b1 : defenderBoids) {
                 //For each layer in the MCTS, moves every defender boid one iteration
                 for(int i=0; i < nodeDepth; i++) {
-                    b1.move(simulationClones);
+                    b1.move(defenderBoids);
                     b1.update();
                 }
-                if (Math.abs(PVector.dist(b1.getLocation(), location)) < 10) {  // was 3
+                if (Utility.distSq(b1.getLocation(), location) < Constants.HIT_DISTANCE_SQ) {  // was 3
                     attackBoids.get(0).setHasFailed(true);                                                              //Has collided with a swarm agent
                 }
             }
@@ -238,8 +177,8 @@ public class InnerSimulation  {
                         avgReward = 1;
                         break;
                     } else {
-                        for (Boid_generic b1 : simulationClones) {
-                            if (Math.abs(PVector.dist(b1.getLocation(), locationRollOut)) < 16) {  // was 3
+                        for (Boid_generic b1 : defenderBoids) {
+                            if (Utility.distSq(b1.getLocation(), locationRollOut) < 16 * 16) {  // was 3
                                 avgReward = -1;
                                 break;
                             }
@@ -253,16 +192,16 @@ public class InnerSimulation  {
 
 
             if (simulating) {
-                for (Boid_generic b : simulationClones) {
+                for (Boid_generic b : defenderBoids) {
                     PVector accelerationB = b.getAcceleration();
                     PVector velocityB = b.getVelocity();
                     PVector locationB = b.getLocation();
 
                     //this function doesn't do anything, probs deprecated
-                    b.run(simulationClones, true, true);
+                    b.run(defenderBoids, true, true);
 
                     velocityB.limit(1);
-                    locationB.add(velocityB.add(accelerationB.add(scheme.patrol(b.getLocation(), b)/*patrolling.patrol(be.getLocation(),be)*/)));
+                    locationB.add(velocityB.add(accelerationB.add(patrollingScheme.patrol(b.getLocation(), b)/*patrolling.patrol(be.getLocation(),be)*/)));
                     accelerationB.mult(0);
 
                     sumOfMassCentres = PVector.add(sumOfMassCentres, b.getLocation());
@@ -276,22 +215,4 @@ public class InnerSimulation  {
             }
         }
     }
-
-    public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids) {
-        ArrayList<Boid_generic> boidListClone = new ArrayList<>();
-
-        for(Boid_generic boid : boids){
-            Boid_generic bi = new Boid_standard(parent,boid.getLocation().x,boid.getLocation().y,6,10);
-            bi.setAi(ai);
-            bi.setAcceleration(boid.getAcceleration());
-            bi.setVelocity(boid.getVelocity());
-            bi.setLocation(boid.getLocation());
-            boidListClone.add(bi);
-        }
-        return boidListClone;
-    }
-
-    public ArrayList<Boid_generic> getSimulationClones(){ return simulationClones; }
-
-    public ArrayList<Boid_generic> getAttackBoids(){ return attackBoids; }
 }

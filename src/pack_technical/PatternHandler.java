@@ -3,8 +3,6 @@ package pack_technical;
 import pack_boids.Boid_generic;
 import processing.core.PVector;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import pack_1.Constants;
@@ -42,43 +40,23 @@ public class PatternHandler {
     public PatternImage img = new PatternImage();
 
 
-    public void newObservation(ArrayList<Boid_generic> boids,int coutner){
-        if(coutner%10==0) {
-            PVector SumOfTheMasses = new PVector(0, 0);
-            int counter = 0;
-            for (Boid_generic b : boids) {
-                SumOfTheMasses = PVector.add(SumOfTheMasses, b.getLocation());
-
-                counter++;
-            }
-            PVector MiddleOfTheMass = PVector.div(SumOfTheMasses, counter);
-            img.getPoints().add(new int[]{(int)MiddleOfTheMass.x,(int)MiddleOfTheMass.y});
-            observations.add(new PatternEntry(MiddleOfTheMass));
+    public void newObservation(ArrayList<Boid_generic> boids, int counter){
+        if(counter%10==0) {
+            PVector middleOfTheMass = boids.stream().map(boid -> boid.getLocation())
+                .reduce(new PVector(0,0), (a, b) -> PVector.add(a, b))
+                .div(boids.size());
+            img.getPoints().add(new int[]{(int)middleOfTheMass.x, (int)middleOfTheMass.y});
+            observations.add(new PatternEntry(middleOfTheMass));
         }
     }
 
-    public int analyze() throws IOException {
+    public int analyze() {
 
         if (observations.size() >= 150) observations.clear();
         if (observations.size() < 150 && observations.size() > 50) {
             PatternEntry circle = observations.get(0);
             PatternEntry base = new PatternEntry(Constants.TARGET);
-            float exact = PVector.dist(circle.getRadius(), new PVector(150, 500));
 
-            for (PatternEntry entry : observations) {
-
-                float error = Math.abs(entry.difference(base) / circle.difference(base));
-
-                //System.out.println(entry.difference(new PatternEntry(base)) + "   " + exact);
-                //System.out.println(error + " " + (ERROR));
-                //Circle error no more errors
-                /*if  (Math.abs(error - 1) > ERROR) {
-                    //System.out.println("error allowance" + ERROR + " Error real " + error);
-                    img.clearMe();
-                    return 0;
-                }*/
-            }
-            // when to draw
             if(observations.size()==100) {
                 img.drawPattern();
                 //img.clearMe();
