@@ -8,3 +8,5 @@ MyCode.iml
 *.txt
 bin/
 graphing_application/
+change.sh
+__pycache__/
