@@ -9,3 +9,4 @@ MyCode.iml
 bin/
 graphing_application/
 change.sh
+__pycache__/
