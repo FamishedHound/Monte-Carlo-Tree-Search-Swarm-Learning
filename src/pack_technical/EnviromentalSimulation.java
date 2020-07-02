@@ -1,11 +1,9 @@
 package pack_technical;
-
 import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.Boid_generic;
 import processing.core.PVector;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -14,23 +12,24 @@ import java.util.ArrayList;
 public class EnviromentalSimulation extends Simulation implements Runnable {
     Tree MCT;
     ArrayList<int[]> cords;
-    FlockManager flock;
+    FlockManager flockManager;
     double startTime = 0;
     int maxTreeDepth = 20;
     int actionCounter = 0;
     boolean treeReady = false;
     boolean dangerClose = false;
-    CollisionHandler handler;
+    CollisionHandler collisionHandler;
 
     public EnviromentalSimulation(ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
-        this.handler = handler;
+        this.collisionHandler = handler;
         this.cords = cords;
         this.defenderBoids = defenders;
         this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
         defenders = copyStateOfBoids(defenders);
         this.attackBoids = copyStateOfBoids(attackers);
-        this.flock = new FlockManager(true, true);
+        this.flockManager = new FlockManager(true, true);
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
+
         for (Boid_generic g : defenders) {
             g.setAi(this.ai_type);
         }
@@ -107,6 +106,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     public void updateBoids(ArrayList<Boid_generic> defenders, ArrayList<Boid_generic> attacker) {
         this.defenderBoids = copyStateOfBoids(defenders);
         this.attackBoids = copyStateOfBoids(attacker);
+
     }
 
 
@@ -144,5 +144,4 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             }
         }
     }
-
 }

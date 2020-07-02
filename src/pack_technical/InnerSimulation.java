@@ -15,11 +15,8 @@ import pack_1.Utility;
 //TODO: Rename location to currentAttackerLocation
 //TODO: Put the target PVector in Constants file
 //TODO: Find out what MrLeandroVector is for sure and then give it a real name (seems to be just a random vector)
-
 //TODO: Figure out what targetVector is. It seems to only have the local variable theClosest from run() assigned to it
 //and theClosest itself only ever has MrLeandroVector assigned to it.
-
-
 //TODO: seems to be a lot of redundant shared code between InnerSim and EnvSim. Tidy.
 //TODO: change b1 to be defenderBoids
 //TODO: change currentDistance to be currentDistanceToTarget
@@ -28,22 +25,21 @@ import pack_1.Utility;
 //TODO: rename r0acceleration & r0velocity local variables
 
 public class InnerSimulation extends Simulation {
-    private int tick =0;
-    ArrayList<int[]> historyOfMovement = new ArrayList<>();
-    //PatrollingScheme scheme ;
-    boolean victory = false;
 
+    private int tick =0;
+    ArrayList<int[]> historyOfMovement = new ArrayList<>()
+    boolean victory = false;
     boolean willContinueSimulation;
     Integer nextWaypoint;
     Random randG = new Random();
     //what does targetVector actually represent
     PVector targetVector = new PVector(0,0);
     PVector MrLeandroVector;
-
     float theClosetDistance;
     float currentDistance;
     double avgReward;
     int nodeDepth;
+    boolean simulating=true;
 
     public boolean isSimulating() {
         return simulating;
@@ -52,8 +48,6 @@ public class InnerSimulation extends Simulation {
     public void setSimulating(boolean simulating) {
         this.simulating = simulating;
     }
-
-    boolean simulating=true;
 
     public void createSimulationsAndRandomVectors(){
         float rand = randG.nextFloat() * 1;
@@ -221,5 +215,4 @@ public class InnerSimulation extends Simulation {
             }
         }
     }
-
 }
