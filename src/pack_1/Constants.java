@@ -35,6 +35,7 @@ public class Constants {
     public static class Boids {
         public static final float MAX_STEER = 0.02f;
         public static final float MAX_SPEED = 3.0f;
+        public static final float MAX_SPEED_ATTACK = 1f;
         public static final float SIZE = 6.0f;
     }
 

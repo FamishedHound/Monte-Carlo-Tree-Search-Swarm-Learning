@@ -121,15 +121,15 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 newSim.run();
 
                 //fix, definitely wrong bc these defender boids wwont have been moved like the ones in newSim
-                int dangerClose = MCT.simulation(n, defenderBoids);
+                boolean dangerClose = newSim.avgReward < 0;
 
                 double simVal = 0;
-                if (newSim.attackBoids.get(0).hasFailed()) {
+                if (newSim.getAttackBoid().hasFailed()) {
                     simVal = -1 ;
                 } else if (newSim.victory) {
                     simVal = 1;
                 } else {
-                    if(dangerClose >= 0) {
+                    if(!dangerClose) {
                         simVal = 0.5 - (newSim.currentDistance / 6000);
                     }
                 }

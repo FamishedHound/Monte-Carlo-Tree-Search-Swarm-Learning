@@ -25,7 +25,7 @@ public abstract class BoidGeneric {
     protected final float size;
 
     /** Current location of the boid */
-    protected PVector location = new PVector(0, 0);
+    protected PVector location;
     /** History of the locations of the boid */
     protected ArrayList<PVector> locationHistory = new ArrayList<PVector>();
 
@@ -139,8 +139,8 @@ public abstract class BoidGeneric {
      */
     public void update(PVector acceleration) {
         this.setAcceleration(acceleration);
-
         this.update();
+        velocity.limit(Constants.Boids.MAX_SPEED_ATTACK);
     }
 
     /**

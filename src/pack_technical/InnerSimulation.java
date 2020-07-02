@@ -11,12 +11,9 @@ import java.util.Random;
 import pack_1.Constants;
 import pack_1.Utility;
 
-//TODO: Simulation objects to be stored as fields on the AttackBoid objects themselves?
+
 //TODO: Rename location to currentAttackerLocation
-//TODO: Figure out what targetVector is. It seems to only have the local variable theClosest from run() assigned to it
-//and theClosest itself only ever has randomVector assigned to it.
 //TODO: seems to be a lot of redundant shared code between InnerSim and EnvSim. Tidy.
-//TODO: change defenderBoid to be defenderBoids
 //TODO: change currentDistance to be currentDistanceToTarget
 //TODO: change theClosetDistance to be closetDistanceToTarget
 //TODO: I think 'cords' are the waypoint co-ordinates. If so change cords to be waypointCoordinates
@@ -99,7 +96,7 @@ public class InnerSimulation extends Simulation {
             PVector theClosest = new PVector(0,0);
             float distance = 150; //distance to target from start?
             theClosetDistance = 2000;
-            PVector location = attackBoids.get(0).getLocation();
+            PVector location = getAttackBoid().getLocation();
 
             for (BoidGeneric defenderBoid : defenderBoids) {
                 //For each layer in the MCTS, moves every defender boid one iteration
@@ -107,13 +104,13 @@ public class InnerSimulation extends Simulation {
                     defenderBoid.move(defenderBoids);
                     defenderBoid.update();
                 }
-                if (Utility.distSq(defenderBoid.getLocation(), getAttackBoid().getLocation()) < Constants.HIT_DISTANCE_SQ) {
+                if (Utility.distSq(defenderBoid.getLocation(), getAttackBoid().getLocation()) < Constants.COLLISION_DISTANCE_SQ) {
                     getAttackBoid().setHasFailed(true);
                 }
             }
 
-            if((Utility.distSq(location, Constants.TARGET) <= Constants.HIT_DISTANCE_SQ || Utility.distSq(attackBoids.get(0).getLocation(), location) >= distance * distance)
-                && !attackBoids.get(0).hasFailed() ){
+            if((Utility.distSq(location, Constants.TARGET) <= Constants.HIT_DISTANCE_SQ || Utility.distSq(getAttackBoid().getLocation(), location) >= distance * distance)
+                && !getAttackBoid().hasFailed() ){
                 simulating = false;
             }
 
@@ -122,7 +119,7 @@ public class InnerSimulation extends Simulation {
             currentDistance = PVector.dist(location, Constants.TARGET);
 
 
-            if (!attackBoids.get(0).hasFailed()) {
+            if (!getAttackBoid().hasFailed()) {
                 if (currentDistance < theClosetDistance) {
                     theClosest = randomVector;
                     theClosetDistance = currentDistance;
@@ -138,7 +135,35 @@ public class InnerSimulation extends Simulation {
             }
 
             //I think this is the random rollout from newly expanded node
-            if(simulating && !victory) {}
+            if(simulating && !victory) {
+                PVector locationRollOut = new PVector(location.x, location.y);
+                PVector rOacceleration = getAttackBoid().getAcceleration();
+                PVector rOvelocity = getAttackBoid().getVelocity();
+                //avgReward is more like instantaneous reward rather than an average reward?
+
+                avgReward = 0;
+                for(int j=0; j<1000; j++){
+                    locationRollOut.add(rOvelocity.add(rOacceleration.add(randomVector)));
+                    //float rand = randG.nextFloat() * 1;
+                    //float rand2 = randG.nextFloat() * 1;
+                    //locationRollOut.add(rOvelocity.add(rOacceleration.add(new PVector(-1+2*rand, -1+2*rand2))));
+
+                    if(Utility.distSq(locationRollOut, Constants.TARGET) < 20 * 20) {
+                        avgReward = 1;
+                        break;
+                    } else {
+                        for (BoidGeneric defenderBoid : defenderBoids) {
+                            if (Utility.distSq(defenderBoid.getLocation(), locationRollOut) < 16 * 16) {  // was 3
+                                avgReward = -1;
+                                break;
+                            }
+                        }
+                        if(avgReward < 0){
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
