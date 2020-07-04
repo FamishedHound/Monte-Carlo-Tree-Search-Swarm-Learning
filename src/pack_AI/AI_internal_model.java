@@ -12,7 +12,7 @@ import pack_technical.GameManager;
  * also holds the error of these imaginary estimations
 */
 public class AI_internal_model {
-	
+
 	Boid_generic parent_boid;
 	AI_type[] ai_s = new AI_type[GameManager.getTeam_number()];
 

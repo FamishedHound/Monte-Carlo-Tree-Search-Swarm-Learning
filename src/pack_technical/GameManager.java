@@ -21,7 +21,7 @@ import processing.core.PVector;
  */
 public class GameManager {
 
-    static Boid_generic selected_boid = null;
+    static Boid_standard selected_boid = null;
 
     private static final int team_number = Launcher.applet.width / 75; // not all of these will be used
     private final FlockManager flock_ref;
@@ -75,7 +75,7 @@ public class GameManager {
 
     public void delete_selected() {
         if (selected_boid != null)
-            selected_boid.kill();
+            selected_boid.setAlive(false);
         selected_boid = null;
 
     }
@@ -112,7 +112,7 @@ public class GameManager {
         return selected_boid;
     }
 
-    public void setSelected_boid(Boid_generic selected_boid) {
+    public void setSelected_boid(Boid_standard selected_boid) {
         GameManager.selected_boid = selected_boid;
     }
 

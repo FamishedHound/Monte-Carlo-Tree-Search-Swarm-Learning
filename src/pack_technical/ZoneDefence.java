@@ -1,7 +1,6 @@
 package pack_technical;
 
 import pack_1.Constants;
-import pack_1.Launcher;
 import pack_1.ParameterGatherAndSetter;
 import pack_boids.Boid_generic;
 import processing.core.PVector;
@@ -57,7 +56,6 @@ public class ZoneDefence implements Cloneable {
         waypoints.addAll(output.returnDifficulty());
         patrolling.getWaypointsA().add(Constants.TARGET.copy());
         patrolling.setup();
-
     }
 
 
@@ -82,7 +80,7 @@ public class ZoneDefence implements Cloneable {
         for (Boid_generic attackBoid : attackBoids) {
             counter++;
             if (counter >= DELAY / 8 && counter <= DELAY * 2) {
-                if (!attack) attackBoid.setToMove(false);
+                if (!attack) attackBoid.setMovable(false);
                 attackBoid.setStationary();
                 delay2++;
             }
@@ -100,7 +98,7 @@ public class ZoneDefence implements Cloneable {
 
             // ATACK MODE
             if (attack) {
-                attackBoid.setToMove(true);
+                attackBoid.setMovable(true);
                 PVector acceleration = attackBoid.getAcceleration();
                 PVector velocity = attackBoid.getVelocity();
                 PVector location = attackBoid.getLocation();
@@ -130,6 +128,6 @@ public class ZoneDefence implements Cloneable {
                 defenderBoid.setStationary();
             }
         }
-        output.iterations++;
+        output.incrementIterations();
     }
 }

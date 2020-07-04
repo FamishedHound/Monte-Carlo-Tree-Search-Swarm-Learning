@@ -24,7 +24,7 @@ public class Constants {
     public static String OUTPUT_FILE = null;
 
     /** Distance required for a 'hit' to be recognized */
-    public static int HIT_DISTANCE = 10;
+    public static final int HIT_DISTANCE = 10;
     /** Square of Constants.HIT_DISTANCE */
     public static final int HIT_DISTANCE_SQ = HIT_DISTANCE * HIT_DISTANCE;
 
@@ -32,16 +32,28 @@ public class Constants {
     public static final float COLLISION_DISTANCE = 6;
     public static final float COLLISION_DISTANCE_SQ = COLLISION_DISTANCE * COLLISION_DISTANCE;
 
-    // TODO Need to ensure the arguments are in range, throw IllegalArgumentException if not
-    public static void setParamsFromProgramArgs(String[] args) {
+    public static class Boids {
+        public static final float MAX_STEER = 0.02f;
+        public static final float MAX_SPEED = 3.0f;
+        public static final float SIZE = 6.0f;
+    }
+
+
+    public static void setParamsFromProgramArgs(String[] args) throws IllegalArgumentException {
         for(int i = 0; i < args.length; i++) {
             switch(args[i]) {
                 case "-t":
                 case "--target":
+                    if(i + 2 >= args.length) {
+                        throw new IllegalArgumentException("Command line argument --target requires two parameters, x, and y, for the starting position");
+                    }
                     TARGET = new PVector(Float.parseFloat(args[++i]), Float.parseFloat(args[++i]));
                     break;
                 case "-o":
-                case "--out":
+                case "--output":
+                    if(i + 1 >= args.length) {
+                        throw new IllegalArgumentException("Command line argument --out requires one parameter, the file name to output to");
+                    }
                     OUTPUT_FILE = args[++i];
                     break;
             }

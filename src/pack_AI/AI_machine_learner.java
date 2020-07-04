@@ -2,6 +2,8 @@ package pack_AI;
 
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
+
+import pack_1.Constants;
 import pack_1.Launcher;
 import pack_boids.Boid_generic;
 import pack_boids.Boid_imaginary;
@@ -10,7 +12,6 @@ import pack_boids.Boid_standard;
 import pack_technical.FlockManager;
 import pack_technical.GameManager;
 import pack_technical.OutputWriter;
-import processing.core.PApplet;
 import processing.core.PVector;
 
 /*
@@ -68,8 +69,8 @@ public class  AI_machine_learner {
         if (b != null && b.getOriginal() != null) {
             imaginary_pos = new PVector(points[0][0], points[0][1]);
             original_pos = new PVector(points[1][0], points[1][1]);
-            double angle_diff1 = 10 * ((b.getOriginal().velocity.heading() - b.velocity.heading())) % 360;
-            double angle_diff2 = 10 * ((b.velocity.heading() - b.getOriginal().velocity.heading())) % 360;
+            double angle_diff1 = 10 * ((b.getOriginal().getVelocity().heading() - b.getVelocity().heading())) % 360;
+            double angle_diff2 = 10 * ((b.getVelocity().heading() - b.getOriginal().getVelocity().heading())) % 360;
             imaginary_pos.sub(original_pos);
             return (int) (-(Math.min(angle_diff1, angle_diff2)) + imaginary_pos.mag());
         }
@@ -180,8 +181,8 @@ public class  AI_machine_learner {
         coeff_count[t] = 0;
     }
 
-    int max_distance(Boid_imaginary b) {
-        return (int) ((b.getOriginal().getMaxspeed() * 2) * Launcher.getHISTORYLENGTH());
+    int max_distance() {
+        return (int) ((Constants.Boids.MAX_SPEED * 2) * Launcher.HISTORY_LENGTH);
     }
 
     private double create_new_term(int exponent, double coeffs, double param_x) {
@@ -260,7 +261,7 @@ public class  AI_machine_learner {
             // if (Launcher.isSim_drawtrails())
                 //draw_error_bars(b, observer_t);
             if (observed_t != observer_t) {
-                if (error < max_distance(b) && !b.Isalone())
+                if (error < max_distance() && !b.isAlone())
                     record_error_for_observation_of(observed_t);
                 if (coeff_count[observed_t] > poly_count) {
                     record_polynomials_for_observation_of(observed_t); // do this periodically once data has accumilated

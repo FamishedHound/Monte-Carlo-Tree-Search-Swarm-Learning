@@ -13,47 +13,53 @@ import java.util.Arrays;
  */
 public class Launcher extends PApplet {
 
+    /** Which boids can see the future */
+    public enum PredictStates {
+        /** No boids can see the future */
+        NONE,
+        /** Only the selected boid can see the future */
+        SELECTED,
+        /** All boids can see the future */
+        ALL
+    }
+
+    /** Length of history to record for each boid */
+    public static final int HISTORY_LENGTH = 0;
+    /** Requested frames per second from the applet */
+    public static final int SPS = 60;
+    /** Start time of the application, helps to identity file names */ // TODO change the name and or description of this
+    public static final int START_TIME = (int) System.currentTimeMillis()%100;
+
     public static PApplet applet;
 
-    boolean toBeDisplayed = true;
-    static boolean sim_paused = false;
-    static boolean sim_helpmenu = false;
-    static boolean sim_drawtrails = true;
-    static boolean sim_advancedmode = false;
-
-    public enum predictStates { // which boids can see the future?
-        NONE, SELECTED, ALL
-    }
-
-    static predictStates predict_state = predictStates.SELECTED;
-    PFont font_1, font_2;
-    final static int HISTORYLENGTH = 0; // (1 second)
-    private final static int SPS = 60; // steps per second
-    static int simspeed = 1; // time acceleration
-    public static FlockManager flock;
-    public DisplayManager display_sys; // created later with fonts
-    public static GameManager game_sys;
-    public IOManager IO_sys;
-    private CollisionHandler collision;
-    private ParameterGatherAndSetter empiricBoy;
-
     private ZoneDefence zone;
-    public ZoneDefence getZone() {
-        return zone;
-    }
+    private DisplayManager displayManager;
+    private GameManager gameManager;
+    private IOManager ioManager;
+    private static FlockManager flockManager;
+    private CollisionHandler collisionHandler;
+    private ParameterGatherAndSetter parameterGatherer;
 
-    boolean running=true;
+    boolean toBeDisplayed = true;
+    static boolean paused = false;
+    static boolean showHelpmenu = false;
+    static boolean drawTrails = true;
+    static boolean showAdvancedMode = false;
 
-    static int run_moment= (int) System.currentTimeMillis()%100; // helps identify each files name
+    static PredictStates predictState = PredictStates.SELECTED;
+    static int simSpeed = 1; // time acceleration
 
     public static void main(String[] args) {
         System.out.println("args: " + Arrays.toString(args));
-        String[] pass = new String[args.length];
-        for(int i=0;i<args.length;i++){
-            pass[i]=args[i];
-        }
-        PApplet.main(Launcher.class,pass);
+        PApplet.main(Launcher.class, args);
     }
+
+    public static void quit(String message, int code) {
+        System.out.println(message);
+        Launcher.applet.exit();
+    }
+
+    // PApplet extension methods
 
     @Override
     public void settings() {
@@ -67,170 +73,121 @@ public class Launcher extends PApplet {
         Launcher.applet = this;
 
         System.out.println("Client size: " + width + ", " + height);
-        // create fonts
-        font_1 = createFont("Lucida Sans", 12);
-        font_2 = createFont("Comic Sans MS", 12);
-        // create systems
         new AI_manager();
-        flock = new FlockManager(true);
-        display_sys = new DisplayManager(this, flock, font_1, font_2);
-        game_sys = new GameManager(flock);
-        IO_sys = new IOManager(this, flock, display_sys, game_sys, Launcher.this);
-        collision = new CollisionHandler();
+        new OutputWriter();
+        flockManager = new FlockManager(true);
+        displayManager = new DisplayManager(this, flockManager, createFont("Lucida Sans", 12), createFont("Comic Sans MS", 12));
+        gameManager = new GameManager(flockManager);
+        ioManager = new IOManager(this, flockManager, displayManager, gameManager, Launcher.this);
+        collisionHandler = new CollisionHandler();
 
         try {
-            empiricBoy = new ParameterGatherAndSetter(game_sys,collision,args);
-            zone = new ZoneDefence(collision,flock,empiricBoy);
+            parameterGatherer = new ParameterGatherAndSetter(gameManager,collisionHandler,args);
+            zone = new ZoneDefence(collisionHandler,flockManager,parameterGatherer);
         } catch(IllegalArgumentException e) {
-            Launcher.quit("Arguments must be [attackerStartX] [attackerStartY] [difficulty] [amountOfBoids]", 1);
+            Launcher.quit(e.getMessage(), 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        frameRate(getSPS());
+        frameRate(Launcher.SPS);
         noCursor();// turns off cursor
-        //
     }
 
     @Override
     public void draw() {
-        // inital font
         if (toBeDisplayed) {
-            textFont(font_1);
             // main step event
             background(60);
-            collision.checkCollisions();
-            empiricBoy.gather();
-            flock.run(simspeed);
-            IO_sys.run();
+            collisionHandler.checkCollisions();
+            parameterGatherer.gather();
+            flockManager.run(simSpeed);
+            ioManager.run();
             zone.run();
-            display_sys.draw();
+            displayManager.draw();
         } else {
             //zone.simulate();
         }
     }
+
+    @Override
     public void keyPressed() {
         if (key != CODED) {
-            IO_sys.on_key_pressed(key, keyCode);
+            ioManager.on_key_pressed(key, keyCode);
         }
     }
+
+    @Override
     public void mousePressed(MouseEvent e) {
         if (mouseButton == LEFT) {
-            IO_sys.on_left_click(e);
+            ioManager.on_left_click(e);
         }
         if (mouseButton == RIGHT) {
-            IO_sys.on_right_click(e);
+            ioManager.on_right_click(e);
         }
     }
+
+    @Override
     public void mouseWheel(MouseEvent e) {
-        int l = e.getCount();
-        IO_sys.on_mouse_wheel(l);
+        int wheelMovement = e.getCount();
+        ioManager.on_mouse_wheel(wheelMovement);
     }
 
-    public static int getSps() {
-        return SPS;
-    }
-
-    public PFont getFont_1() {
-        return font_1;
-    }
-
-    public PFont getFont_2() {
-        return font_2;
-    }
-
-    public DisplayManager getDisplay_sys() {
-        return display_sys;
-    }
-
-    public GameManager getGame_sys() {
-        return game_sys;
-    }
-
-    public IOManager getIO_sys() {
-        return IO_sys;
-    }
-
-    public void setFlock(FlockManager flock) {
-        Launcher.flock = flock;
-    }
-
-    public static int getSPS() {
-        return SPS;
-    }
-
-    public static boolean isSim_paused() {
-        return sim_paused;
-    }
-
-    public static boolean isSim_helpmenu() {
-        return sim_helpmenu;
-    }
-
-    public static boolean isSim_drawtrails() {
-        return sim_drawtrails;
-    }
-
-    public static boolean isSim_advancedmode() {
-        return sim_advancedmode;
-    }
-
-    public static void setSim_paused(boolean sim_paused) {
-        Launcher.sim_paused = sim_paused;
-    }
-
-    public static void setSim_helpmenu(boolean sim_helpmenu) {
-        Launcher.sim_helpmenu = sim_helpmenu;
-    }
-
-    public static void setSim_drawtrails(boolean sim_drawtrails) {
-        Launcher.sim_drawtrails = sim_drawtrails;
-    }
-
-    public static void setSim_advancedmode(boolean sim_advancedmode) {
-        Launcher.sim_advancedmode = sim_advancedmode;
-    }
-
-    public static predictStates getPredict_state() {
-        return predict_state;
-    }
-
-    public static void setPredict_state(predictStates predict_state) {
-        Launcher.predict_state = predict_state;
-    }
-
+    // Getters and setters
     public static FlockManager getFlock() {
-        return flock;
+        return flockManager;
     }
 
-    public static int getSimspeed() {
-        return simspeed;
-    }
-
-    public static int getRun_moment() {
-        return run_moment;
-    }
-
-    public static void setSimspeed(int simspeed) {
-        Launcher.simspeed = simspeed;
-    }
-
-    public static void quit(String message, int code) {
-        System.out.println(message);
-        System.exit(code);
-    }
-
-    public static int getHISTORYLENGTH() {
-        return HISTORYLENGTH;
-    }
-    public boolean isRunning() {
-        return running;
-    }
-    public  boolean isToBeDisplayed() {
+    public boolean isToBeDisplayed() {
         return toBeDisplayed;
     }
     public void setToBeDisplayed(boolean toBeDisplayed) {
         this.toBeDisplayed = toBeDisplayed;
     }
 
+    public static boolean isPaused() {
+        return Launcher.paused;
+    }
+    public static void setPaused(boolean paused) {
+        Launcher.paused = paused;
+    }
+
+    public static boolean isHelpmenuShowing() {
+        return Launcher.showHelpmenu;
+    }
+    public static void setShowHelpmenu(boolean showHelpmenu) {
+        Launcher.showHelpmenu = showHelpmenu;
+    }
+
+    public static boolean areTrailsDrawn() {
+        return Launcher.drawTrails;
+    }
+    public static void setDrawTrails(boolean drawTrails) {
+        Launcher.drawTrails = drawTrails;
+    }
+
+    public static boolean isAdvancedModeShowing() {
+        return Launcher.showAdvancedMode;
+    }
+    public static void setShowAdvancedMode(boolean showAdvancedMode) {
+        Launcher.showAdvancedMode = showAdvancedMode;
+    }
+
+    public static PredictStates getPredictState() {
+        return predictState;
+    }
+    public static void setPredictState(PredictStates predictState) {
+        Launcher.predictState = predictState;
+    }
+
+    public static int getSimSpeed() {
+        return simSpeed;
+    }
+    public static void setSimSpeed(int simSpeed) {
+        Launcher.simSpeed = simSpeed;
+    }
+
+    public static int getRun_moment() {
+        return START_TIME;
+    }
 }

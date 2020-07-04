@@ -125,7 +125,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 dangerClose = newSim.avgReward < 0;
 
                 double simVal = 0;
-                if (newSim.attackBoids.get(0).isHasFailed()) {
+                if (newSim.attackBoids.get(0).hasFailed()) {
                     simVal = -1 ;
                 } else if (newSim.victory) {
                     simVal = 1;
@@ -135,7 +135,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                     }
                 }
 
-                String nodeName = n.name + "." + n.children.size(); 
+                String nodeName = n.name + "." + n.children.size();
                 n.addChild(simVal, nodeName, newSim.avgReward);
                 n.children.get(n.children.size()-1).storeDetails(newSim.randomVector, newSim.attackBoids);
 

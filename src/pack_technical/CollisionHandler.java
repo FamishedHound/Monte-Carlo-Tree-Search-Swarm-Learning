@@ -32,7 +32,7 @@ public class CollisionHandler {
 
     public boolean doesCollide(Boid_generic boid1,Boid_generic boid2){
         float d = Utility.distSq(boid1.getLocation(),boid2.getLocation());
-        return d < Constants.COLLISION_DISTANCE_SQ;
+        return d < ((boid1.getSize() + boid2.getSize()) * (boid1.getSize() + boid2.getSize()));
     }
 
     public void checkCollisions(){ //Elastic collisions

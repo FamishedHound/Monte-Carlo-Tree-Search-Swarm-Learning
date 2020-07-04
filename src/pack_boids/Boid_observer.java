@@ -15,6 +15,7 @@ public class Boid_observer extends Boid_standard {
 
     @Override
     protected void render() {
+        Launcher.applet.fill(fillColour.getRGB());
         Launcher.applet.ellipse(location.x, location.y, size, size);
         Launcher.applet.textSize(10);
         Launcher.applet.textAlign(PConstants.CENTER);
@@ -25,7 +26,7 @@ public class Boid_observer extends Boid_standard {
     public void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation) {
         if (!simulation && real_step) {
             render();
-            if(Launcher.getPredict_state() != Launcher.predictStates.NONE && (Launcher.getPredict_state() == Launcher.predictStates.ALL || GameManager.getSelected_boid() == this)) {
+            if(Launcher.getPredictState() != Launcher.PredictStates.NONE && (Launcher.getPredictState() == Launcher.PredictStates.ALL || GameManager.getSelected_boid() == this)) {
                 attempt_future();
             }
         }

@@ -3,7 +3,6 @@ package pack_boids;
 import java.util.ArrayList;
 import java.util.Random;
 import pack_1.Launcher;
-import pack_1.Launcher.predictStates;
 import pack_AI.AI_internal_model;
 import pack_AI.AI_machine_learner;
 import pack_AI.AI_manager;
@@ -41,30 +40,29 @@ public class Boid_standard extends Boid_generic {
 
     @Override
     public void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation) {
-        if (!Launcher.isSim_paused()) {
-            isalone = true; // is boid uninteracted with?
+        if (!Launcher.isPaused()) {
+            isAlone = true; // is boid uninteracted with?
             move(boids); // sets isalone
             if(!simulation) {
-                record_history();
-                record_acceleration();
+                recordHistory();
+                recordAcceleration();
             }
             update();
         }
         if (!simulation) {
             if(real_step) {
                 render();
-                if (Launcher.getPredict_state() != Launcher.predictStates.NONE && (Launcher.getPredict_state() == Launcher.predictStates.ALL || GameManager.getSelected_boid() == this)) {
+                if (Launcher.getPredictState() != Launcher.PredictStates.NONE && (Launcher.getPredictState() == Launcher.PredictStates.ALL || GameManager.getSelected_boid() == this)) {
                     attempt_future();
                 }
             }
-            reload();
         }
     }
 
     @Override
     protected void render() {
-        if (Launcher.isSim_drawtrails()) {
-            render_trails(2, false);
+        if (Launcher.areTrailsDrawn()) {
+            renderTrails(TrailType.CURVE);
         }
         render_perfect_future();
 	}
@@ -73,7 +71,7 @@ public class Boid_standard extends Boid_generic {
 	protected void attempt_future() {
 		if (Launcher.getFlock().get_boid_count() > 0) {
 			mind_flock.import_imaginary_boids(Launcher.getFlock().get_all_boids(), internal_model);
-			mind_flock.run(Launcher.getHISTORYLENGTH());
+			mind_flock.run(Launcher.HISTORY_LENGTH);
 			machine_learner.run(mind_flock);
 			mind_flock.reset();
 		}
@@ -84,8 +82,8 @@ public class Boid_standard extends Boid_generic {
 	}
 
 	void render_perfect_future() {
-		Launcher.applet.fill(fillcol.getRGB());
-		Launcher.applet.stroke(linecol.getRGB(), 180);
+		Launcher.applet.fill(fillColour.getRGB());
+		Launcher.applet.stroke(lineColour.getRGB(), 180);
 		Launcher.applet.pushMatrix();
 		Launcher.applet.translate(location.x, location.y);
 		Launcher.applet.rotate(velocity.heading());

@@ -121,7 +121,7 @@ public class InnerSimulation extends Simulation {
             }
 
             if((Utility.distSq(location, Constants.TARGET) <= Constants.HIT_DISTANCE_SQ || Utility.distSq(attackBoids.get(0).getLocation(), location) >= distance * distance)
-                && !attackBoids.get(0).isHasFailed() ){
+                && !attackBoids.get(0).hasFailed() ){
                 simulating = false;
             }
 
@@ -134,7 +134,7 @@ public class InnerSimulation extends Simulation {
             currentDistance = PVector.dist(location, Constants.TARGET);
 
 
-            if (!attackBoids.get(0).isHasFailed()) {
+            if (!attackBoids.get(0).hasFailed()) {
                 if (currentDistance < theClosetDistance) {
                     theClosest = randomVector;
                     theClosetDistance = currentDistance;

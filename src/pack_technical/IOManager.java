@@ -1,8 +1,8 @@
 package pack_technical;
 
 import pack_1.Launcher;
-import pack_1.Launcher.predictStates;
-import pack_boids.Boid_generic;
+import pack_1.Launcher.PredictStates;
+import pack_boids.Boid_standard;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
@@ -20,7 +20,7 @@ public class IOManager {
 	DisplayManager display_sys_ref;
 	GameManager game_sys_ref;
 	PApplet parent; // the processing app (allows access to its functions)
-	Boid_generic closest_boid = null;
+	Boid_standard closest_boid = null;
 	Launcher launcher;
 	int amountBoidsToSpawn=10;
 	boolean flag = true;
@@ -51,9 +51,9 @@ public class IOManager {
 
 	public void on_mouse_wheel(int l) {
 		if (l > 0 && l != 0)
-			Launcher.setSimspeed(PApplet.max(1, Launcher.getSimspeed() - 1)); // decrease sim speed
+			Launcher.setSimSpeed(PApplet.max(1, Launcher.getSimSpeed() - 1)); // decrease sim speed
 		else
-			Launcher.setSimspeed(PApplet.min(50, Launcher.getSimspeed() + 1));// increase sim speed
+			Launcher.setSimSpeed(PApplet.min(50, Launcher.getSimSpeed() + 1));// increase sim speed
 
 	}
 
@@ -77,18 +77,18 @@ public class IOManager {
 		switch (key) {
             case 'l':
             case 'L':
-                if (Launcher.getPredict_state() == predictStates.ALL) {
-                    Launcher.setPredict_state(predictStates.NONE);
-                } else if (Launcher.getPredict_state() == predictStates.NONE) {
-                    Launcher.setPredict_state(predictStates.SELECTED);
-                } else if (Launcher.getPredict_state() == predictStates.SELECTED) {
-                    Launcher.setPredict_state(predictStates.ALL);
+                if (Launcher.getPredictState() == PredictStates.ALL) {
+                    Launcher.setPredictState(PredictStates.NONE);
+                } else if (Launcher.getPredictState() == PredictStates.NONE) {
+                    Launcher.setPredictState(PredictStates.SELECTED);
+                } else if (Launcher.getPredictState() == PredictStates.SELECTED) {
+                    Launcher.setPredictState(PredictStates.ALL);
                 }
                 break;
             case 'g':
-            case 'G': // technically grabs the future position
+            case 'G':
                 if (GameManager.selected_boid != null) {
-                    PVector dist = mouse_pos_vect.sub(GameManager.getSelected_boid().get_future_location());
+                    PVector dist = mouse_pos_vect.sub(GameManager.getSelected_boid().getLocation());
                     if (dist.magSq() > 900) { // if boid is an adequate distance away (use magSq as more efficient)
                         dist.normalize(); // reduces the 'power' of the pull considerably
                         GameManager.selected_boid.setAcceleration(GameManager.selected_boid.getAcceleration().add(dist));
@@ -97,13 +97,13 @@ public class IOManager {
                 break;
             case '-':
             case '_':
-                if (Launcher.getSimspeed() > 1)
-                    Launcher.setSimspeed(Launcher.getSimspeed() - 1);
+                if (Launcher.getSimSpeed() > 1)
+                    Launcher.setSimSpeed(Launcher.getSimSpeed() - 1);
                 break;
             case '+':
             case '=':
-                if (Launcher.getSimspeed() < 50)
-                    Launcher.setSimspeed(Launcher.getSimspeed() + 1);
+                if (Launcher.getSimSpeed() < 50)
+                    Launcher.setSimSpeed(Launcher.getSimSpeed() + 1);
                 break;
             case 'x':
                 launcher.setToBeDisplayed(false);
@@ -112,7 +112,6 @@ public class IOManager {
                 game_sys_ref.delete_selected();
                 break;
             case 'd':
-
                 launcher.setToBeDisplayed(true);
                 break;
             case 'D':
@@ -120,7 +119,7 @@ public class IOManager {
                 break;
             case '/':
             case '?':
-                Launcher.setSim_helpmenu(!Launcher.isSim_helpmenu());
+                Launcher.setShowHelpmenu(!Launcher.isHelpmenuShowing());
                 break;
             case 'r':
             case 'R':
@@ -129,11 +128,11 @@ public class IOManager {
                 break;
             case 'a':
             case 'A':
-                Launcher.setSim_advancedmode(!Launcher.isSim_advancedmode());
+                Launcher.setShowAdvancedMode(!Launcher.isAdvancedModeShowing());
                 break;
             case 'f':
             case 'F':
-                Launcher.setSim_drawtrails(!Launcher.isSim_drawtrails());
+                Launcher.setDrawTrails(!Launcher.areTrailsDrawn());
                 break;
             case '#':
                 parent.save("BLS"+Launcher.getRun_moment()+parent.frameCount%Integer.MAX_VALUE+".png");
@@ -141,7 +140,7 @@ public class IOManager {
                 // OutputWriter.setOutput_to_file(true); not currently in use
                 break;
             case ' ':
-                Launcher.setSim_paused(!Launcher.isSim_paused());
+                Launcher.setPaused(!Launcher.isPaused());
                 break;
 		}
 		// special keys

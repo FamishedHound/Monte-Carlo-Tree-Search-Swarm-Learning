@@ -51,7 +51,7 @@ public class FlockManager {
         ArrayList<Boid_generic> boids = get_all_boids();
 
         for (Boid_generic b : boids) {
-            if (!b.get_alive()) {
+            if (!b.isAlive()) {
                 remove_boid(b);
                 break;
             }
@@ -101,15 +101,15 @@ public class FlockManager {
             b2.setVelocity(b.getVelocityHistory());
             b2.setAcceleration(b.getAccelerationHistory());
             b2.setAi(internal_model.get_ai_team(b.getTeam()));
-            b2.setAngle(b.getAngle_history());
+            b2.setAngle(b.getAngleHistory());
             b2.setTeam(b.getTeam());
             add_boid(b2);
         }
     }
 
-    public Boid_generic get_nearest_boid(float selectDist) {
+    public Boid_standard get_nearest_boid(float selectDist) {
         PVector mousePos = new PVector(Launcher.applet.mouseX, Launcher.applet.mouseY);
-        Boid_generic nearestBoid = null;
+        Boid_standard nearestBoid = null;
         float selectDistSq = selectDist * selectDist;
         float distRecordSq = Float.MAX_VALUE;
         // attempt select camera first, this is not part of the flock
@@ -122,7 +122,7 @@ public class FlockManager {
             if(!(b instanceof Boid_standard)) continue; // Only consider if it is a real boid
             distSq = Utility.distSq(mousePos, b.getLocationHistory());
             if ((distSq < distRecordSq) && (distSq < selectDistSq)) {
-                nearestBoid = b;
+                nearestBoid = (Boid_standard)b;
                 distRecordSq = distSq;
             }
         }

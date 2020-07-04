@@ -60,7 +60,7 @@ public class DisplayManager {
         parent.text(
                 "Press the '?' key to show or hide the list of controls.            Press the 'a' key to toggle advanced detail:",
                 borderoffset + inneroffset + 390, 27);
-        if (Launcher.isSim_advancedmode()) {
+        if (Launcher.isAdvancedModeShowing()) {
             parent.text("(ON)", borderoffset + inneroffset + 980, 27);
         } else {
             parent.text("(OFF)", borderoffset + inneroffset + 980, 27);
@@ -70,7 +70,7 @@ public class DisplayManager {
         parent.line(inneroffset + 730, borderoffset + 7, inneroffset + 730, borderoffset + 29);
         // team colour of selected boid
         if (GameManager.selected_boid != null)
-            parent.fill(GameManager.selected_boid.get_colour().getRGB());
+            parent.fill(GameManager.selected_boid.getFillColour().getRGB());
         parent.text("Team", borderoffset + inneroffset + 335, 20);
     }
 
@@ -151,7 +151,7 @@ public class DisplayManager {
         parent.fill(GREYCOLOUR);
         parent.textAlign(PConstants.RIGHT);
         parent.text("Agent Count: " + flock_ref.get_boid_count(), parent.width - borderoffset - inneroffset, 35);
-        if (parent.frameRate < Launcher.getSPS() - 5)
+        if (parent.frameRate < Launcher.SPS - 5)
             parent.fill(220, 10, 10); // dropping frames gives red colour
         else
             parent.fill(GREYCOLOUR); // standard fps colour
@@ -180,11 +180,11 @@ public class DisplayManager {
 
         parent.text("Mouse Wheel - accelerates or decelerates time", parent.width - borderoffset - 70,
                 parent.height - 170);
-        parent.text("(" + Launcher.getSimspeed() + ")", parent.width - borderoffset, parent.height - 170);
+        parent.text("(" + Launcher.getSimSpeed() + ")", parent.width - borderoffset, parent.height - 170);
 
         parent.text("' l ' key  - changes machine learning settings", parent.width - borderoffset - 70,
                 parent.height - 150);
-        parent.text("(" + Launcher.getPredict_state() + ")", parent.width - borderoffset, parent.height - 150);
+        parent.text("(" + Launcher.getPredictState() + ")", parent.width - borderoffset, parent.height - 150);
 
         parent.text("' r ' key -  resets the simulation, clearing all boids", parent.width - borderoffset - 70,
                 parent.height - 130);
@@ -192,10 +192,10 @@ public class DisplayManager {
 
         parent.text("' f ' key -  toggles the display of future location", parent.width - borderoffset - 70,
                 parent.height - 110);
-        parent.text("(" + (Launcher.isSim_drawtrails() ? "ON" : "OFF") + ")", parent.width - borderoffset, parent.height - 110);
+        parent.text("(" + (Launcher.areTrailsDrawn() ? "ON" : "OFF") + ")", parent.width - borderoffset, parent.height - 110);
 
         parent.text("Space Bar -  pauses the simulation", parent.width - borderoffset - 70, parent.height - 90);
-        parent.text("(" + (Launcher.isSim_paused() ? "RUNNING" : "PAUSED") + ")", parent.width - borderoffset, parent.height - 90);
+        parent.text("(" + (Launcher.isPaused() ? "RUNNING" : "PAUSED") + ")", parent.width - borderoffset, parent.height - 90);
 
         parent.text("Left Mouse - selects a boid to view additional options", parent.width - borderoffset,
                 parent.height - 70);
@@ -228,11 +228,11 @@ public class DisplayManager {
         draw_base();
         draw_gui_frames();
         draw_selected_boid();
-        if (Launcher.isSim_paused())
+        if (Launcher.isPaused())
             draw_paused();
-        if (Launcher.isSim_helpmenu())
+        if (Launcher.isHelpmenuShowing())
             draw_help();
-        if (Launcher.isSim_advancedmode()) {
+        if (Launcher.isAdvancedModeShowing()) {
             draw_ai_internals();
             draw_writer_status();
         }
