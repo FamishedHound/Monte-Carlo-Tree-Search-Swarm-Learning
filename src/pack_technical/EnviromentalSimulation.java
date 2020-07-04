@@ -2,7 +2,7 @@ package pack_technical;
 import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import processing.core.PVector;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,10 +17,9 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     int maxTreeDepth = 20;
     int actionCounter = 0;
     boolean treeReady = false;
-    boolean dangerClose = false;
     CollisionHandler collisionHandler;
 
-    public EnviromentalSimulation(ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
+    public EnviromentalSimulation(ArrayList<BoidGeneric> defenders, ArrayList<int[]> cords, ArrayList<BoidGeneric> attackers, CollisionHandler handler) {
         this.collisionHandler = handler;
         this.cords = cords;
         this.defenderBoids = defenders;
@@ -30,7 +29,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
         this.flockManager = new FlockManager(true, true);
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
 
-        for (Boid_generic g : defenders) {
+        for (BoidGeneric g : defenders) {
             g.setAi(this.ai_type);
         }
 
@@ -81,11 +80,10 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
     public PVector reutrnTargetVecotr() {
         Node bestSim = MCT.bestAvgVal();
-        PVector bestVector = bestSim.MrLeandroVector;
+        PVector bestVector = bestSim.actionAcceleration;
         try {
             MCT.root = new Node(0, "root", 0, 0);
             MCT.root.storeDetails(new PVector(0,0,0), attackBoids);
-            dangerClose = false;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,7 +101,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     }
 
 
-    public void updateBoids(ArrayList<Boid_generic> defenders, ArrayList<Boid_generic> attacker) {
+    public void updateBoids(ArrayList<BoidGeneric> defenders, ArrayList<BoidGeneric> attacker) {
         this.defenderBoids = copyStateOfBoids(defenders);
         this.attackBoids = copyStateOfBoids(attacker);
 
@@ -120,9 +118,10 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 }else {
                     newSim = new InnerSimulation(ai_type, defenderBoids, cords, n.parent.attacker, collisionHandler, n.depth);
                 }
-                newSim.run1();
+                newSim.run();
 
-                dangerClose = newSim.avgReward < 0;
+                //fix, definitely wrong bc these defender boids wwont have been moved like the ones in newSim
+                int dangerClose = MCT.simulation(n, defenderBoids);
 
                 double simVal = 0;
                 if (newSim.attackBoids.get(0).hasFailed()) {
@@ -130,7 +129,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 } else if (newSim.victory) {
                     simVal = 1;
                 } else {
-                    if(!dangerClose) {
+                    if(dangerClose >= 0) {
                         simVal = 0.5 - (newSim.currentDistance / 6000);
                     }
                 }

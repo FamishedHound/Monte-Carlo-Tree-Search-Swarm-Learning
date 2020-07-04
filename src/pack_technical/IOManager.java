@@ -2,7 +2,7 @@ package pack_technical;
 
 import pack_1.Launcher;
 import pack_1.Launcher.PredictStates;
-import pack_boids.Boid_standard;
+import pack_boids.BoidStandard;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
@@ -20,7 +20,7 @@ public class IOManager {
 	DisplayManager display_sys_ref;
 	GameManager game_sys_ref;
 	PApplet parent; // the processing app (allows access to its functions)
-	Boid_standard closest_boid = null;
+	BoidStandard closest_boid = null;
 	Launcher launcher;
 	int amountBoidsToSpawn=10;
 	boolean flag = true;

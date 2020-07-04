@@ -6,9 +6,9 @@ import processing.core.PConstants;
 import processing.core.PVector;
 import java.util.ArrayList;
 
-public class Boid_observer extends Boid_standard {
+public class BoidObserver extends BoidStandard {
 
-    public Boid_observer(float x, float y, int t) {
+    public BoidObserver(float x, float y, int t) {
         super(x, y, t,-1);
         velocity = new PVector(0, 0);
     }
@@ -23,7 +23,7 @@ public class Boid_observer extends Boid_standard {
     }
 
     @Override
-    public void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation) {
+    public void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation) {
         if (!simulation && real_step) {
             render();
             if(Launcher.getPredictState() != Launcher.PredictStates.NONE && (Launcher.getPredictState() == Launcher.PredictStates.ALL || GameManager.getSelected_boid() == this)) {

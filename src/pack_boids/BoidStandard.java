@@ -9,19 +9,18 @@ import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_technical.FlockManager;
 import pack_technical.GameManager;
-import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 
 // there is only one type of boid at the moment, this one can shoot(?) and predict
-public class Boid_standard extends Boid_generic {
+public class BoidStandard extends BoidGeneric {
 
 	// machine learning apparatus
 	FlockManager mind_flock = new FlockManager(false); // for inhead simulation
 	AI_internal_model internal_model;
 	AI_machine_learner machine_learner;
 
-    public Boid_standard(float x, float y, int t,int id) {
+    public BoidStandard(float x, float y, int t, int id) {
         super(x, y, t,id);
         ai = AI_manager.get_team_ai(t);
         angle = new Random().nextInt(360); // degrees
@@ -30,7 +29,7 @@ public class Boid_standard extends Boid_generic {
         machine_learner = new AI_machine_learner(this); // perfect model;
     }
 
-	public Boid_standard(PApplet p, Boid_generic boid_generic) {
+	public BoidStandard(BoidGeneric boid_generic) {
 		super(boid_generic);
 		this.ai = AI_manager.get_team_ai(boid_generic.getTeam());
 		this.angle = boid_generic.getAngle(); // degrees
@@ -39,7 +38,7 @@ public class Boid_standard extends Boid_generic {
 	}
 
     @Override
-    public void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation) {
+    public void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation) {
         if (!Launcher.isPaused()) {
             isAlone = true; // is boid uninteracted with?
             move(boids); // sets isalone

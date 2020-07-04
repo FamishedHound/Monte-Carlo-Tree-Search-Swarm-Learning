@@ -1,6 +1,7 @@
 package pack_technical;
 
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
+import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ public class Node {
     double uct = 0;
     String name = "Root";
 
-    PVector MrLeandroVector;
-    ArrayList<Boid_generic> attacker;
+    PVector actionAcceleration;
+    ArrayList<BoidGeneric> attacker;
 
     /**
      * Constructor of Node, assigns internal values and initialises storage for children.
@@ -77,10 +78,25 @@ public class Node {
         updateUCT();
     }
 
-
-    public void storeDetails(PVector MrLeandroVector, ArrayList<Boid_generic> attacker){
-        this.MrLeandroVector = MrLeandroVector;
+    /**
+     *
+     * @param MrLeandroVector
+     * @param attacker
+     */
+    public void storeDetails(PVector MrLeandroVector, ArrayList<BoidGeneric> attacker){
+        this.actionAcceleration = MrLeandroVector;
         this.attacker = attacker;
     }
 
+    public PVector getAccelerationAction() {
+        return actionAcceleration.copy();
+    }
+
+    /**
+     * Returns a deep copy of the attacker.
+     * @return
+     */
+    public BoidGeneric getAttacker() {
+        return new BoidStandard(this.attacker.get(0));
+    }
 }

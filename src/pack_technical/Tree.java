@@ -1,5 +1,11 @@
 package pack_technical;
 
+import pack_1.Constants;
+import pack_1.Utility;
+import pack_boids.BoidGeneric;
+
+import java.util.ArrayList;
+
 public class Tree {
     //root.depth is always 0
     Node root;
@@ -52,5 +58,23 @@ public class Tree {
         }
         //System.out.println("Node Name: " + root.children.get(bestNodePos).name);
         return root.children.get(bestNodePos);
+    }
+
+    public int simulation(Node node, ArrayList<BoidGeneric> defenderBoids) {
+        BoidGeneric attackBoid = node.getAttacker();
+        for (int j = 0; j < 1000; j++) {
+            attackBoid.update(node.getAccelerationAction());
+
+            if (Utility.distSq(attackBoid.getLocation(), Constants.TARGET) < 20 * 20) {
+                return 1;
+            } else {
+                for (BoidGeneric defenderBoid : defenderBoids) {
+                    if (Utility.distSq(attackBoid.getLocation(), defenderBoid.getLocation()) < 16 * 16) {  // was 3
+                        return -1;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 }

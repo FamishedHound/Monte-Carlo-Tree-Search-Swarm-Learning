@@ -68,7 +68,7 @@ public class ParameterGatherAndSetter {
 
     public void createDifficulties(){
         // Old settings
-        this.defenderBoidWaypoints.put(Difficulty.EASY, new ArrayList<>() {
+        this.defenderBoidWaypoints.put(Difficulty.EASY, new ArrayList<PVector>() {
             {
                 add(PVector.add(Constants.TARGET, new PVector(-100, 50)));
                 add(PVector.add(Constants.TARGET, new PVector(200, 0)));
@@ -76,14 +76,14 @@ public class ParameterGatherAndSetter {
                 add(PVector.add(Constants.TARGET, new PVector(40, -195)));
             }
         });
-        this.defenderBoidWaypoints.put(Difficulty.MEDIUM, new ArrayList<>() {
+        this.defenderBoidWaypoints.put(Difficulty.MEDIUM, new ArrayList<PVector>() {
             {
                 add(PVector.add(Constants.TARGET, new PVector(-100, 50)));
                 add(PVector.add(Constants.TARGET, new PVector(100, 0)));
                 add(PVector.add(Constants.TARGET, new PVector(-100, -95)));
             }
         });
-        this.defenderBoidWaypoints.put(Difficulty.HARD, new ArrayList<>() {
+        this.defenderBoidWaypoints.put(Difficulty.HARD, new ArrayList<PVector>() {
             {
                 add(PVector.add(Constants.TARGET, new PVector(0, -15)));
                 add(PVector.add(Constants.TARGET, new PVector(0, 15)));

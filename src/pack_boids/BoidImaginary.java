@@ -8,22 +8,22 @@ import processing.core.PConstants;
 /**
  * a fake boid running inside the 'heads' of existing boids,
 */
-public class Boid_imaginary extends Boid_generic {
+public class BoidImaginary extends BoidGeneric {
 
     // technically always a boid standard
-    Boid_generic original; // the real boid that this fake one imitates
+    BoidGeneric original; // the real boid that this fake one imitates
 
-    public Boid_imaginary(float x, float y, int t, Boid_generic b) {
+    public BoidImaginary(float x, float y, int t, BoidGeneric b) {
         super(x, y, t, b.getId());
         original = b;
     }
 
-    public Boid_generic getOriginal() {
+    public BoidGeneric getOriginal() {
         return original;
     }
 
     @Override
-    public void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation) {
+    public void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation) {
         if (boids.get(0).isMoveable()) {
             recordHistory();
             isAlone = true; // is boid uninteracted with?

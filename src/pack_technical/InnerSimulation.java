@@ -1,7 +1,7 @@
 package pack_technical;
 
 import pack_AI.AI_type;
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.io.IOException;
@@ -24,8 +24,6 @@ import pack_1.Utility;
 
 public class InnerSimulation extends Simulation {
 
-    private int tick =0;
-    ArrayList<int[]> historyOfMovement = new ArrayList<>();
     boolean victory = false;
     Integer nextWaypoint;
     Random randG = new Random();
@@ -53,7 +51,7 @@ public class InnerSimulation extends Simulation {
         randomVector.setMag(0.1f);
     }
 
-    public InnerSimulation(AI_type ai, ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler collisionHandler, int nodeDepth) throws IOException {
+    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenders, ArrayList<int[]> cords, ArrayList<BoidGeneric> attackers, CollisionHandler collisionHandler, int nodeDepth) throws IOException {
         this.ai_type = ai;
         this.cords= new ArrayList<>(cords);
         this.attackBoids=copyStateOfBoids(attackers);
@@ -96,27 +94,21 @@ public class InnerSimulation extends Simulation {
 
 
 
-    public void run1(){
+    public void run(){
         if (simulating) {
-            PVector sumOfMassCentres = new PVector(0, 0);
             PVector theClosest = new PVector(0,0);
-            int counter = 0;
             float distance = 150; //distance to target from start?
             theClosetDistance = 2000;
-            tick++;
-
-            PVector acceleration = attackBoids.get(0).getAcceleration();
-            PVector velocity = attackBoids.get(0).getVelocity();
             PVector location = attackBoids.get(0).getLocation();
 
-            for (Boid_generic defenderBoid : defenderBoids) {
+            for (BoidGeneric defenderBoid : defenderBoids) {
                 //For each layer in the MCTS, moves every defender boid one iteration
                 for(int i=0; i < nodeDepth; i++) {
                     defenderBoid.move(defenderBoids);
                     defenderBoid.update();
                 }
-                if (Utility.distSq(defenderBoid.getLocation(), location) < Constants.HIT_DISTANCE_SQ) {  // was 3
-                    attackBoids.get(0).setHasFailed(true);                                                              //Has collided with a swarm agent
+                if (Utility.distSq(defenderBoid.getLocation(), getAttackBoid().getLocation()) < Constants.HIT_DISTANCE_SQ) {
+                    getAttackBoid().setHasFailed(true);
                 }
             }
 
@@ -125,11 +117,7 @@ public class InnerSimulation extends Simulation {
                 simulating = false;
             }
 
-            //this bit to go in a function
-            velocity.limit(1);
-            location.add(velocity.add(acceleration.add(randomVector)));
-            acceleration.mult(0); //doesnt seen to affect, maybe because velocity.limit is 1?
-
+            getAttackBoid().update(randomVector);
             // TODO - Could replace this dist with distSq, but that will change all of the currentDistance etc. vars to be currentDistanceSq
             currentDistance = PVector.dist(location, Constants.TARGET);
 
@@ -150,58 +138,7 @@ public class InnerSimulation extends Simulation {
             }
 
             //I think this is the random rollout from newly expanded node
-            if(simulating && !victory) {
-                PVector locationRollOut = new PVector(location.x, location.y);
-                PVector rOacceleration = attackBoids.get(0).getAcceleration();
-                PVector rOvelocity = attackBoids.get(0).getVelocity();
-                //avgReward is more like instantaneous reward rather than an average reward?
-
-                avgReward = 0;
-                for(int j=0; j<1000; j++){
-                    locationRollOut.add(rOvelocity.add(rOacceleration.add(randomVector)));
-                    //float rand = randG.nextFloat() * 1;
-                    //float rand2 = randG.nextFloat() * 1;
-                    //locationRollOut.add(rOvelocity.add(rOacceleration.add(new PVector(-1+2*rand, -1+2*rand2))));
-
-                    if(Utility.distSq(locationRollOut, Constants.TARGET) < 20 * 20) {
-                        avgReward = 1;
-                        break;
-                    } else {
-                        for (Boid_generic defenderBoid : defenderBoids) {
-                            if (Utility.distSq(defenderBoid.getLocation(), locationRollOut) < 16 * 16) {  // was 3
-                                avgReward = -1;
-                                break;
-                            }
-                        }
-                        if(avgReward < 0){
-                            break;
-                        }
-                    }
-                }
-            }
-
-
-            if (simulating) {
-                for (Boid_generic defenderBoid : defenderBoids) {
-                    PVector accelerationB = defenderBoid.getAcceleration();
-                    PVector velocityB = defenderBoid.getVelocity();
-                    PVector locationB = defenderBoid.getLocation();
-
-                    defenderBoid.run(defenderBoids, true, true);
-
-                    velocityB.limit(1);
-                    locationB.add(velocityB.add(accelerationB.add(patrollingScheme.patrol(defenderBoid.getLocation(), defenderBoid)/*patrolling.patrol(be.getLocation(),be)*/)));
-                    accelerationB.mult(0);
-
-                    sumOfMassCentres = PVector.add(sumOfMassCentres, defenderBoid.getLocation());
-                    counter++;
-                }
-
-                PVector mean = PVector.div(sumOfMassCentres, counter);
-                if (tick % 10 == 0) {
-                    historyOfMovement.add(new int[]{(int) mean.x + 50, (int) mean.y});
-                }
-            }
+            if(simulating && !victory) {}
         }
     }
 }

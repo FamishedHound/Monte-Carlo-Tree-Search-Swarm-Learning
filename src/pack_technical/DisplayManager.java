@@ -3,7 +3,7 @@ package pack_technical;
 import pack_1.Launcher;
 import pack_1.Constants;
 import pack_AI.AI_manager;
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PFont;
@@ -74,7 +74,7 @@ public class DisplayManager {
         parent.text("Team", borderoffset + inneroffset + 335, 20);
     }
 
-    void highlight_boid(Boid_generic b, int visualRadius) {
+    void highlight_boid(BoidGeneric b, int visualRadius) {
         parent.noFill();
         parent.stroke(GREYCOLOUR, TRANSPARENTALPHA);
         parent.pushMatrix();

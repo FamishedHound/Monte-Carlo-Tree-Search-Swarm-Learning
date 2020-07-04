@@ -5,10 +5,7 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
 
 import pack_1.Constants;
 import pack_1.Launcher;
-import pack_boids.Boid_generic;
-import pack_boids.Boid_imaginary;
-import pack_boids.Boid_observer;
-import pack_boids.Boid_standard;
+import pack_boids.*;
 import pack_technical.FlockManager;
 import pack_technical.GameManager;
 import pack_technical.OutputWriter;
@@ -42,13 +39,13 @@ public class  AI_machine_learner {
     double derivative_sw, derivative_aw, derivative_cw, derivative_sns, derivative_ans, derivative_cns;
 
     AI_internal_model internal_model_ref; // the model to work with
-    Boid_standard parent_boid; // the boid holding this internal model
-    Boid_observer parent_camera; // the boid holding this internal model
+    BoidStandard parent_boid; // the boid holding this internal model
+    BoidObserver parent_camera; // the boid holding this internal model
     int error = 0;
     float[][] points = new float[2][2];
     PVector imaginary_pos, original_pos;
 
-    public AI_machine_learner(Boid_standard boid_standard) {
+    public AI_machine_learner(BoidStandard boid_standard) {
         parent_boid = boid_standard;
         internal_model_ref = boid_standard.getInternal_model();
         initialise_observed_point_lists();
@@ -65,7 +62,7 @@ public class  AI_machine_learner {
         return this.prediction_errors[t] = in;
     }
 
-    int calculate_error(Boid_imaginary b, float[][] points) {
+    int calculate_error(BoidImaginary b, float[][] points) {
         if (b != null && b.getOriginal() != null) {
             imaginary_pos = new PVector(points[0][0], points[0][1]);
             original_pos = new PVector(points[1][0], points[1][1]);
@@ -77,7 +74,7 @@ public class  AI_machine_learner {
         return error;
     }
 
-    float[][] calculate_points(Boid_imaginary b) {
+    float[][] calculate_points(BoidImaginary b) {
         points[0][0] = b.getLocation().x;
         points[0][1] = b.getLocation().y;
         points[1][0] = b.getOriginal().getLocation().x;
@@ -251,8 +248,8 @@ public class  AI_machine_learner {
     // takes the final state of the imaginary flock
     public void run(FlockManager mind_flock) {
         int observer_t = parent_boid.getTeam();
-        for (Boid_generic in : mind_flock.get_all_boids()) {
-            Boid_imaginary b = (Boid_imaginary) in;
+        for (BoidGeneric in : mind_flock.get_all_boids()) {
+            BoidImaginary b = (BoidImaginary) in;
             int observed_t = b.getOriginal().getTeam();
             points = calculate_points(b);
             error = calculate_error(b, points);

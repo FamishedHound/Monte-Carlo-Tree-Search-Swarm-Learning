@@ -7,8 +7,8 @@ import java.util.Random;
 import pack_1.Launcher;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
-import pack_boids.Boid_standard;
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
+import pack_boids.BoidStandard;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -21,13 +21,13 @@ import processing.core.PVector;
  */
 public class GameManager {
 
-    static Boid_standard selected_boid = null;
+    static BoidStandard selected_boid = null;
 
     private static final int team_number = Launcher.applet.width / 75; // not all of these will be used
     private final FlockManager flock_ref;
 
     @SuppressWarnings("unchecked")
-    static ArrayList<Boid_generic>[] team = new ArrayList[getTeam_number()];
+    static ArrayList<BoidGeneric>[] team = new ArrayList[getTeam_number()];
     static Color[] team_cols = new Color[getTeam_number()]; // Array for the teams, index is team, colour is held
     static AI_type[] team_ai = new AI_type[getTeam_number()]; // Array for the teams, index is team, colour is held
     static boolean isSwitched = false;
@@ -38,7 +38,7 @@ public class GameManager {
         for (int i = 0; i < getTeam_number(); i++) { // for every team
             team_cols[i] = generate_teamcolour(i);
             team_ai[i] = AI_manager.get_team_ai(i);
-            team[i] = new ArrayList<Boid_generic>();
+            team[i] = new ArrayList<BoidGeneric>();
             team[i].clear(); // teams start empty
         }
 
@@ -67,7 +67,7 @@ public class GameManager {
 
     public void spawn_boids(int team_n, int amount, PVector pos) {
         for (int i = 0; i < amount; i++) {
-            Boid_generic b = new Boid_standard(pos.x, pos.y, team_n,i);
+            BoidGeneric b = new BoidStandard(pos.x, pos.y, team_n,i);
             flock_ref.add_boid(b);
             team[team_n].add(b);
         }
@@ -80,11 +80,11 @@ public class GameManager {
 
     }
 
-    public static ArrayList<Boid_generic> get_team(int i) {
+    public static ArrayList<BoidGeneric> get_team(int i) {
         return team[i];
     }
 
-    public Boid_generic get_select_boid() {
+    public BoidGeneric get_select_boid() {
         return selected_boid;
     }
 
@@ -108,11 +108,11 @@ public class GameManager {
         return team_number;
     }
 
-    public static Boid_generic getSelected_boid() {
+    public static BoidGeneric getSelected_boid() {
         return selected_boid;
     }
 
-    public void setSelected_boid(Boid_standard selected_boid) {
+    public void setSelected_boid(BoidStandard selected_boid) {
         GameManager.selected_boid = selected_boid;
     }
 
@@ -129,7 +129,7 @@ public class GameManager {
         return flock_ref;
     }
 
-    public static ArrayList<Boid_generic>[] getTeam() {
+    public static ArrayList<BoidGeneric>[] getTeam() {
         return team;
     }
 

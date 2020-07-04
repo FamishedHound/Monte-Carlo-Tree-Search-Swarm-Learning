@@ -12,7 +12,7 @@ import pack_technical.GameManager;
 import processing.core.PVector;
 
 // the generic boid class holds functions common to all boid types
-public abstract class Boid_generic {
+public abstract class BoidGeneric {
 
     /** Unique ID of the boid */
     private final int id;
@@ -60,7 +60,7 @@ public abstract class Boid_generic {
 
     // if real_step is true all normal actions will happen, otherwise
     // rendering is disabled, this is for 'in-mind simulation'
-    public abstract void run(ArrayList<Boid_generic> boids, boolean real_step, boolean simulation);
+    public abstract void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation);
     /** Render the boid */
     protected abstract void render();
 
@@ -71,7 +71,7 @@ public abstract class Boid_generic {
      * @param team The team the boid belongs to
      * @param id The unique id of the boid
      */
-    protected Boid_generic(float x, float y, int team,int id) {
+    protected BoidGeneric(float x, float y, int team, int id) {
         this.id = id;
         this.team = team;
         fillColour = GameManager.get_team_colour(team);
@@ -84,7 +84,7 @@ public abstract class Boid_generic {
      * Make a copy of the given boid
      * @param boid The boid to copy
      */
-	public Boid_generic(Boid_generic boid) {
+	public BoidGeneric(BoidGeneric boid) {
 		this.id = boid.getId();
 		this.team = boid.getTeam();
 		this.fillColour = boid.getFillColour();
@@ -139,6 +139,7 @@ public abstract class Boid_generic {
      */
     public void update(PVector acceleration) {
         this.setAcceleration(acceleration);
+
         this.update();
     }
 
@@ -152,11 +153,11 @@ public abstract class Boid_generic {
      * The weighting of each of these forces is dependent upon the parameters in
      * the {@link pack_AI.AI_type}
      * @param boids The flock of boids to update acceleration based upon
-     * @see pack_boids.Boid_generic#separate
-     * @see pack_boids.Boid_generic#align
-     * @see pack_boids.Boid_generic#cohesion
+     * @see BoidGeneric#separate
+     * @see BoidGeneric#align
+     * @see BoidGeneric#cohesion
      */
-    public void move(Iterable<Boid_generic> boids) {
+    public void move(Iterable<BoidGeneric> boids) {
         // Compute the three forces
         PVector separation = separate(boids);
         PVector alignment = align(boids);
@@ -180,11 +181,11 @@ public abstract class Boid_generic {
      * @param boids The collection of boids to move away from
      * @return A force to move the boid away neighbouring boids
      */
-    private PVector separate(Iterable<Boid_generic> boids) {
+    private PVector separate(Iterable<BoidGeneric> boids) {
         PVector steer = new PVector(0, 0, 0);
         int count = 0;
         // For every boid in the system, check if it's too close
-        for (Boid_generic other : boids) {
+        for (BoidGeneric other : boids) {
             float d = Utility.distSq(location, other.location);
             // If the distance is greater than 0 and less than an arbitrary amount (0 when
             // you are yourself)
@@ -218,10 +219,10 @@ public abstract class Boid_generic {
      * @param boids The collection of boids to match the velocity of
      * @return A force to match the average velocity of neighbourin boids
      */
-    private PVector align(Iterable<Boid_generic> boids) {
+    private PVector align(Iterable<BoidGeneric> boids) {
         PVector sum = new PVector(0, 0);
         int count = 0;
-        for (Boid_generic other : boids) {
+        for (BoidGeneric other : boids) {
             float d = Utility.distSq(location, other.location);
             if ((d > 0) && (d < ai.getAli_neighbourhood_size() * ai.getAli_neighbourhood_size())) {
                 isAlone = false;
@@ -245,10 +246,10 @@ public abstract class Boid_generic {
      * @param boids The collection of boids to move to the center of
      * @return A force to move towards the center of the neighbouring boids
      */
-    private PVector cohesion(Iterable<Boid_generic> boids) {
+    private PVector cohesion(Iterable<BoidGeneric> boids) {
         PVector sum = new PVector(0, 0); // Start with empty vector to accumulate all locations
         int count = 0;
-        for (Boid_generic other : boids) {
+        for (BoidGeneric other : boids) {
             float d = Utility.distSq(location, other.location);
             if ((d > 0) && (d < ai.getCoh_neighbourhood_size() * ai.getCoh_neighbourhood_size())) {
                 isAlone = false;

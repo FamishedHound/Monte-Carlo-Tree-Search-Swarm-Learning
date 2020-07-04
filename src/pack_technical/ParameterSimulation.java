@@ -6,20 +6,20 @@ import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
-import pack_boids.Boid_generic;
-import pack_boids.Boid_standard;
+import pack_boids.BoidGeneric;
+import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.*;
 
 public class ParameterSimulation extends Thread{
     private boolean once=true;
-    private ArrayList<Boid_generic> defenders;
+    private ArrayList<BoidGeneric> defenders;
     private final ArrayList<int[]> pattern;
     private final AI_type currentAi;
     private final Random rand = new Random();
     private PatrollingScheme scheme ;
-    private final Map<Integer,ArrayList<Boid_generic>> observations = new HashMap<>();
+    private final Map<Integer,ArrayList<BoidGeneric>> observations = new HashMap<>();
     int frameCount=0;
     int innerFrameCount=0;
     Integer nextWaypoint;
@@ -46,7 +46,7 @@ public class ParameterSimulation extends Thread{
     Map<Integer,ArrayList<WeightedObservedPoint>> aliWBoidError= new HashMap<>();
     Map<Integer,ArrayList<WeightedObservedPoint>> wayPointForceBoidError= new HashMap<>();
 
-    ArrayList<ArrayList<Boid_generic>>  stack = new ArrayList<>();
+    ArrayList<ArrayList<BoidGeneric>>  stack = new ArrayList<>();
 
     Map<Integer,Double> sepEst= new HashMap<>();
     Map<Integer,Double> cohEst= new HashMap<>();
@@ -60,7 +60,7 @@ public class ParameterSimulation extends Thread{
     ArrayList<Integer> resultsInt = new ArrayList<>();
     ArrayList<Float> resultsFloat = new ArrayList<>();
 
-    ArrayList<Boid_generic> nextIterationObservation = new ArrayList<>();
+    ArrayList<BoidGeneric> nextIterationObservation = new ArrayList<>();
 
     Map<Integer,PVector> endPositions= new HashMap<>();
     private boolean observing=true;
@@ -71,7 +71,7 @@ public class ParameterSimulation extends Thread{
     int oldBegin=0;
     private final ArrayList<PVector> endingLocation = new ArrayList<>();
 
-    public ParameterSimulation(ArrayList<Boid_generic> defenders , ArrayList<int[]> pattern, AI_type currentAi) {
+    public ParameterSimulation(ArrayList<BoidGeneric> defenders , ArrayList<int[]> pattern, AI_type currentAi) {
         this.currentAi=currentAi;
         this.scheme= new PatrollingScheme(currentAi.getWayPointForce());
         this.pattern=pattern;
@@ -81,9 +81,9 @@ public class ParameterSimulation extends Thread{
 
 
 
-    public void assigntBoidsToTheirSimulations(ArrayList<Boid_generic> pop ,Map<Integer,ArrayList<WeightedObservedPoint>> map ){
+    public void assigntBoidsToTheirSimulations(ArrayList<BoidGeneric> pop , Map<Integer,ArrayList<WeightedObservedPoint>> map ){
         int couter=0;
-        for(Boid_generic g : pop){
+        for(BoidGeneric g : pop){
             map.put(couter,new ArrayList<WeightedObservedPoint>());
             couter++;
         }
@@ -193,10 +193,10 @@ public class ParameterSimulation extends Thread{
 
     // TODO - in what way does this calculate distances?
     public void calculateDistance(){
-        for (Map.Entry<Integer, ArrayList<Boid_generic>> entry : observations.entrySet()) {
+        for (Map.Entry<Integer, ArrayList<BoidGeneric>> entry : observations.entrySet()) {
             if (entry.getKey() == 2) {
                 int counter =0;
-                for (Boid_generic def : entry.getValue()) {
+                for (BoidGeneric def : entry.getValue()) {
                     endPositions.put(counter, def.getLocation());
                     counter++;
                 }
@@ -206,27 +206,27 @@ public class ParameterSimulation extends Thread{
         }
     }
 
-    public void generatePopulationAndMapsForPoints(ArrayList<Boid_generic> attacker){
-        ArrayList<Boid_generic> sep = copyTheStateOfAttackBoids(attacker,0);
+    public void generatePopulationAndMapsForPoints(ArrayList<BoidGeneric> attacker){
+        ArrayList<BoidGeneric> sep = copyTheStateOfAttackBoids(attacker,0);
       //  System.out.println(" Population before applying " + Arrays.toString(attacker.toArray()));
         assigntBoidsToTheirSimulations(sep,sepBoidError);
 
-        ArrayList<Boid_generic> ali = copyTheStateOfAttackBoids(attacker,0);
+        ArrayList<BoidGeneric> ali = copyTheStateOfAttackBoids(attacker,0);
         assigntBoidsToTheirSimulations(ali,aliBoidError);
 
-        ArrayList<Boid_generic> coh = copyTheStateOfAttackBoids(attacker,0);
+        ArrayList<BoidGeneric> coh = copyTheStateOfAttackBoids(attacker,0);
         assigntBoidsToTheirSimulations(coh,cohBoidError);
 
-        ArrayList<Boid_generic> sepW = copyTheStateOfAttackBoids(attacker,0);
+        ArrayList<BoidGeneric> sepW = copyTheStateOfAttackBoids(attacker,0);
         assigntBoidsToTheirSimulations(sepW,sepWBoidError);
 
-        ArrayList<Boid_generic> aliW = copyTheStateOfAttackBoids(attacker,0);
+        ArrayList<BoidGeneric> aliW = copyTheStateOfAttackBoids(attacker,0);
         assigntBoidsToTheirSimulations(aliW,aliWBoidError);
 
-        ArrayList<Boid_generic> cohW = copyTheStateOfAttackBoids(attacker,0);
+        ArrayList<BoidGeneric> cohW = copyTheStateOfAttackBoids(attacker,0);
         assigntBoidsToTheirSimulations(cohW,cohWBoidError);
 
-        ArrayList<Boid_generic> waypoints = copyTheStateOfAttackBoids(attacker,0);
+        ArrayList<BoidGeneric> waypoints = copyTheStateOfAttackBoids(attacker,0);
         assigntBoidsToTheirSimulations(waypoints,wayPointForceBoidError);
     }
     // Mode 1 sep 2 ali 3 coh 4 sepWeight 5 aliW 6 cohW
@@ -489,7 +489,7 @@ public class ParameterSimulation extends Thread{
     }
     // Mode 1 sep 2 ali 3 coh 4 sepWeight 5 aliW 6 cohW
 
-    public void learnTheErrors(Map<Integer,ArrayList<WeightedObservedPoint>> map,int mode,ArrayList<Boid_generic> defenders ){
+    public void learnTheErrors(Map<Integer,ArrayList<WeightedObservedPoint>> map,int mode,ArrayList<BoidGeneric> defenders ){
 
         calculateDistance();
         PatrollingScheme schemeCopy = new PatrollingScheme(currentAi.getWayPointForce());
@@ -523,7 +523,7 @@ public class ParameterSimulation extends Thread{
                 xValue = randFloat(0.01f,5);
             }
             AI_type sepAi = currentAi;
-            ArrayList<Boid_generic> simulationBoids = copyTheStateOfAttackBoids(defenders,0);
+            ArrayList<BoidGeneric> simulationBoids = copyTheStateOfAttackBoids(defenders,0);
             switch (mode) {
                 case 1:
                     sepAi = new AI_type( xValue, currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
@@ -550,7 +550,7 @@ public class ParameterSimulation extends Thread{
 
             for (int i = 0; i < frameCount; i++) {
                 int counter=0;
-                for (Boid_generic def : simulationBoids) {
+                for (BoidGeneric def : simulationBoids) {
                     def.setAi(sepAi);
                     PVector acceleration =def.getAcceleration();
                     PVector velocity = def.getVelocity();
@@ -572,7 +572,7 @@ public class ParameterSimulation extends Thread{
         }
     }
 
-    public int observe(ArrayList<Boid_generic> defenders) {
+    public int observe(ArrayList<BoidGeneric> defenders) {
         int numFrames = 20;
         if(stack.size()<numFrames) {
             stack.add(copyTheStateOfAttackBoids(defenders,0));
@@ -586,8 +586,8 @@ public class ParameterSimulation extends Thread{
 
         if(stack.size()== numFrames && once) {
             frameCount=numFrames;
-            ArrayList<Boid_generic> initialStateForCalculation = stack.get(begin);
-            ArrayList<Boid_generic> endStateForCalculation = stack.get(end);
+            ArrayList<BoidGeneric> initialStateForCalculation = stack.get(begin);
+            ArrayList<BoidGeneric> endStateForCalculation = stack.get(end);
             observations.put(1, initialStateForCalculation); //initial state
             observations.put(2, endStateForCalculation);//end state
             observing = false;
@@ -609,12 +609,12 @@ public class ParameterSimulation extends Thread{
         return currentAi;
     }
 
-    public ArrayList<Boid_generic> copyTheStateOfAttackBoids(ArrayList<Boid_generic> boids,int mode) {
-        ArrayList<Boid_generic> boidListClone = new ArrayList<>();
+    public ArrayList<BoidGeneric> copyTheStateOfAttackBoids(ArrayList<BoidGeneric> boids, int mode) {
+        ArrayList<BoidGeneric> boidListClone = new ArrayList<>();
 
-        for(Boid_generic boid : boids){
+        for(BoidGeneric boid : boids){
             //nadaj im tutaj acceleration velocity etc..
-            Boid_generic bi = new Boid_standard(boid.getLocation().x,boid.getLocation().y,6,10);
+            BoidGeneric bi = new BoidStandard(boid.getLocation().x,boid.getLocation().y,6,10);
             bi.setAi(currentAi);
 
             bi.setAcceleration(boid.getAcceleration());

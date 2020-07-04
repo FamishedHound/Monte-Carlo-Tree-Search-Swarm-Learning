@@ -2,7 +2,7 @@ package pack_technical;
 
 import pack_1.Constants;
 import pack_1.ParameterGatherAndSetter;
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.io.IOException;
@@ -14,13 +14,13 @@ import java.util.ArrayList;
 
 public class ZoneDefence implements Cloneable {
 
-    public ArrayList<Boid_generic> getBoids() {
+    public ArrayList<BoidGeneric> getBoids() {
         return boids;
     }
 
     private final boolean defend = true;
-    private final ArrayList<Boid_generic> boids;
-    private final ArrayList<Boid_generic> attackBoids;
+    private final ArrayList<BoidGeneric> boids;
+    private final ArrayList<BoidGeneric> attackBoids;
     static int counter = 0;
     boolean flag = true;
     int DELAY = 200;
@@ -77,7 +77,7 @@ public class ZoneDefence implements Cloneable {
             }
         }
 
-        for (Boid_generic attackBoid : attackBoids) {
+        for (BoidGeneric attackBoid : attackBoids) {
             counter++;
             if (counter >= DELAY / 8 && counter <= DELAY * 2) {
                 if (!attack) attackBoid.setMovable(false);
@@ -115,7 +115,7 @@ public class ZoneDefence implements Cloneable {
             }
         }
 
-        for (Boid_generic defenderBoid : boids) {
+        for (BoidGeneric defenderBoid : boids) {
             if (defend) {
                 PVector acceleration = defenderBoid.getAcceleration();
                 PVector velocity = defenderBoid.getVelocity();

@@ -3,9 +3,8 @@ package pack_technical;
 import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
-import pack_boids.Boid_generic;
-import pack_boids.Boid_standard;
-import processing.core.PApplet;
+import pack_boids.BoidGeneric;
+import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -13,14 +12,14 @@ import java.util.ArrayList;
 public abstract class Simulation {
 
     int nextWaypoint;
-    ArrayList<Boid_generic> defenderBoids;
-    ArrayList<Boid_generic> attackBoids;
+    ArrayList<BoidGeneric> defenderBoids;
+    ArrayList<BoidGeneric> attackBoids;
     AI_type ai_type;
     PatrollingScheme patrollingScheme;
     CollisionHandler collisionHandler;
     ArrayList<int[]> cords;
 
-    public Simulation(ArrayList<Boid_generic> defenders, ArrayList<int[]> cords, ArrayList<Boid_generic> attackers, CollisionHandler handler) {
+    public Simulation(ArrayList<BoidGeneric> defenders, ArrayList<int[]> cords, ArrayList<BoidGeneric> attackers, CollisionHandler handler) {
         this.collisionHandler = handler;
         this.cords = cords;
         this.defenderBoids = defenders;
@@ -32,11 +31,11 @@ public abstract class Simulation {
     protected Simulation() {
     }
 
-    public ArrayList<Boid_generic> copyStateOfBoids(ArrayList<Boid_generic> boids) {
-        ArrayList<Boid_generic> boidListClone = new ArrayList<>();
+    public ArrayList<BoidGeneric> copyStateOfBoids(ArrayList<BoidGeneric> boids) {
+        ArrayList<BoidGeneric> boidListClone = new ArrayList<>();
 
-        for (Boid_generic boid : boids) {
-            Boid_generic bi = new Boid_standard(boid.getLocation().x, boid.getLocation().y, 6, 10);
+        for (BoidGeneric boid : boids) {
+            BoidGeneric bi = new BoidStandard(boid.getLocation().x, boid.getLocation().y, 6, 10);
             bi.setAcceleration(boid.getAcceleration());
             bi.setVelocity(boid.getVelocity());
             bi.setLocation(boid.getLocation());
@@ -49,7 +48,15 @@ public abstract class Simulation {
         return ai_type;
     }
 
-    public void waypointSetup(ArrayList<Boid_generic> defenders) {
+    public BoidGeneric getAttackBoid() {
+        return attackBoids.get(0);
+    }
+
+    public BoidGeneric getAttackBoid(int index) {
+        return attackBoids.get(index);
+    }
+
+    public void waypointSetup(ArrayList<BoidGeneric> defenders) {
         for(int[] cord : cords){
             patrollingScheme.getWaypoints().add(new PVector(cord[0],cord[1]));
         }
