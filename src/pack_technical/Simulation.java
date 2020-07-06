@@ -11,27 +11,25 @@ import java.util.ArrayList;
 
 public abstract class Simulation {
 
-    int nextWaypoint;
     ArrayList<BoidGeneric> defenderBoids;
     ArrayList<BoidGeneric> attackBoids;
     AI_type ai_type;
     PatrollingScheme patrollingScheme;
     CollisionHandler collisionHandler;
-    ArrayList<int[]> cords;
+    ArrayList<int[]> waypointCoords;
 
-    public Simulation(ArrayList<BoidGeneric> defenders, ArrayList<int[]> cords, ArrayList<BoidGeneric> attackers, CollisionHandler handler) {
-        this.collisionHandler = handler;
-        this.cords = cords;
-        this.defenderBoids = defenders;
+    public Simulation(ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
+        this.collisionHandler = collisionHandler;
+        this.waypointCoords = waypointCoords;
+        this.defenderBoids = defenderBoids;
         this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
-        this.attackBoids = copyStateOfBoids(attackers);
+        this.attackBoids = attackBoids;
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
     }
 
-    protected Simulation() {
-    }
 
-    public ArrayList<BoidGeneric> copyStateOfBoids(ArrayList<BoidGeneric> boids) {
+
+    public static ArrayList<BoidGeneric> copyStateOfBoids(ArrayList<BoidGeneric> boids) {
         ArrayList<BoidGeneric> boidListClone = new ArrayList<>();
 
         for (BoidGeneric boid : boids) {
@@ -57,34 +55,30 @@ public abstract class Simulation {
     }
 
     public void waypointSetup(ArrayList<BoidGeneric> defenders) {
-        for(int[] cord : cords){
-            patrollingScheme.getWaypoints().add(new PVector(cord[0],cord[1]));
+        for (int[] cord : waypointCoords) {
+            this.patrollingScheme.getWaypoints().add(new PVector(cord[0], cord[1]));
         }
-
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         // TODO - Magic numbers!!
         float shortestDistanceSq = 3000 * 3000;
-        float shortestVectorAngle=0;
-        float nextToShortestVectorAngle=0;
         int positionInTheList = 0;
-        for(int i=0;i<patrollingScheme.getWaypoints().size();i++) {
-            PVector checkpoint = patrollingScheme.getWaypoints().get(i);
-            PVector nextCheckPoint = patrollingScheme.getWaypoints().get((i+1)%patrollingScheme.getWaypoints().size());
+        for (PVector checkpoint : this.patrollingScheme.getWaypoints()) {
             float distanceSq = Utility.distSq(defenders.get(0).getLocation(), checkpoint);
             if (distanceSq < shortestDistanceSq) {
                 shortestDistanceSq = distanceSq;
-                shortestVectorAngle = PVector.angleBetween(defenders.get(0).getLocation(), checkpoint);
-                nextToShortestVectorAngle = PVector.angleBetween(defenders.get(0).getLocation(), nextCheckPoint);
             }
         }
 
-        if (shortestVectorAngle < nextToShortestVectorAngle) {
-            nextWaypoint = positionInTheList;
-        }else{
-            nextWaypoint = (positionInTheList + 1) % patrollingScheme.getWaypoints().size();
-        }
+        patrollingScheme.setup();
 
-        patrollingScheme.currentPosition = nextWaypoint;
+        for (int i = 0; i < positionInTheList + 1; i++) {
+            if (!patrollingScheme.getIterator().hasNext()) {
+                // if the end of the list of waypoints has been reached, reassigns the iterator
+                // to patrollingScheme so it can begin from the beginning again
+                patrollingScheme.setIterator(patrollingScheme.getWaypoints().iterator());
+            }
+            patrollingScheme.setCurrWaypoint(patrollingScheme.getIterator().next());
+        }
     }
 
 

@@ -4,7 +4,6 @@ import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -16,7 +15,7 @@ import pack_1.Utility;
 //TODO: seems to be a lot of redundant shared code between InnerSim and EnvSim. Tidy.
 //TODO: change currentDistance to be currentDistanceToTarget
 //TODO: change theClosetDistance to be closetDistanceToTarget
-//TODO: I think 'cords' are the waypoint co-ordinates. If so change cords to be waypointCoordinates
+//TODO: I think 'waypointCoords' are the waypoint co-ordinates. If so change waypointCoords to be waypointCoordinates
 //TODO: rename r0acceleration & r0velocity local variables
 
 public class InnerSimulation extends Simulation {
@@ -48,44 +47,11 @@ public class InnerSimulation extends Simulation {
         randomVector.setMag(0.1f);
     }
 
-    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenders, ArrayList<int[]> cords, ArrayList<BoidGeneric> attackers, CollisionHandler collisionHandler, int nodeDepth) throws IOException {
+    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler, int nodeDepth) {
+        super(copyStateOfBoids(defenderBoids), waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
         this.ai_type = ai;
-        this.cords= new ArrayList<>(cords);
-        this.attackBoids=copyStateOfBoids(attackers);
-        this.defenderBoids =copyStateOfBoids(defenders);
-        this.collisionHandler = collisionHandler;
         this.nodeDepth = nodeDepth;
-        patrollingScheme = new PatrollingScheme(ai.getWayPointForce());
-
-        for(int[] cord : cords){
-            patrollingScheme.getWaypoints().add(new PVector(cord[0],cord[1]));
-        }
-
-        //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
-        // TODO - Magic numbers!!
-        float shortestDistanceSq = 3000 * 3000;
-        float shortestVectorAngle=0;
-        float nextToShortestVectorAngle=0;
-        int positionInTheList = 0;
-        for(int i=0;i<patrollingScheme.getWaypoints().size();i++) {
-            PVector checkpoint = patrollingScheme.getWaypoints().get(i);
-            PVector nextCheckPoint = patrollingScheme.getWaypoints().get((i+1)%patrollingScheme.getWaypoints().size());
-            float distanceSq = Utility.distSq(defenderBoids.get(0).getLocation(), checkpoint);
-
-            if (distanceSq < shortestDistanceSq) {
-                shortestDistanceSq = distanceSq;
-                shortestVectorAngle = PVector.angleBetween(defenderBoids.get(0).getLocation(), checkpoint);
-                nextToShortestVectorAngle = PVector.angleBetween(defenderBoids.get(0).getLocation(), nextCheckPoint);
-            }
-        }
-
-        if (shortestVectorAngle < nextToShortestVectorAngle) {
-            nextWaypoint = positionInTheList;
-        }else{
-            nextWaypoint = (positionInTheList + 1) % patrollingScheme.getWaypoints().size();
-        }
-
-        patrollingScheme.currentPosition = nextWaypoint;
+        waypointSetup(defenderBoids);
         createSimulationsAndRandomVectors();
     }
 

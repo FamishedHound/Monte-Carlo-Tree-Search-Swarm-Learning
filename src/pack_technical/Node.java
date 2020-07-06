@@ -80,11 +80,11 @@ public class Node {
 
     /**
      *
-     * @param MrLeandroVector
+     * @param randomVector
      * @param attacker
      */
-    public void storeDetails(PVector MrLeandroVector, ArrayList<BoidGeneric> attacker){
-        this.actionAcceleration = MrLeandroVector;
+    public void storeDetails(PVector randomVector, ArrayList<BoidGeneric> attacker){
+        this.actionAcceleration = randomVector;
         this.attacker = attacker;
     }
 
