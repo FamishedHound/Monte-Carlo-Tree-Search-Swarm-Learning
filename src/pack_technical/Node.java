@@ -11,13 +11,11 @@ import java.util.LinkedList;
 public class Node {
     Node parent;
     LinkedList<Node> children;
-
     int timesVisited = 1, depth;
     double avgEstimatedValue = 0, nodeSimValue, rolloutValue;
     double uct = 0;
-    String name = "Root";
-
-    PVector actionAcceleration;
+    String name;
+    PVector accelerationAction;
     ArrayList<BoidGeneric> attacker;
 
     /**
@@ -84,12 +82,12 @@ public class Node {
      * @param attacker
      */
     public void storeDetails(PVector randomVector, ArrayList<BoidGeneric> attacker){
-        this.actionAcceleration = randomVector;
+        this.accelerationAction = randomVector;
         this.attacker = attacker;
     }
 
     public PVector getAccelerationAction() {
-        return actionAcceleration.copy();
+        return accelerationAction.copy();
     }
 
     /**

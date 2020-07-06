@@ -46,7 +46,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
     public PVector reutrnTargetVecotr() {
         Node bestSim = MCT.bestAvgVal();
-        PVector bestVector = bestSim.actionAcceleration;
+        PVector bestVector = bestSim.accelerationAction;
         try {
             MCT.root = new Node(0, "root", 0, 0);
             MCT.root.storeDetails(new PVector(0,0,0), attackBoids);
@@ -86,7 +86,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             newSim.run();
 
             //fix, definitely wrong bc these defender boids wwont have been moved like the ones in newSim
-            boolean dangerClose = newSim.avgReward < 0;
+            boolean dangerClose = newSim.rolloutReward < 0;
 
             double simVal = 0;
             if (newSim.getAttackBoid().hasFailed()) {
@@ -95,13 +95,13 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 simVal = 1;
             } else {
                 if(!dangerClose) {
-                    simVal = 0.5 - (newSim.currentDistance / 6000);
+                    simVal = 0.5 - (newSim.currentDistanceToTarget / 6000);
                 }
             }
 
             String nodeName = node.name + "." + node.children.size();
-            node.addChild(simVal, nodeName, newSim.avgReward);
-            node.children.get(node.children.size()-1).storeDetails(newSim.randomVector, newSim.attackBoids);
+            node.addChild(simVal, nodeName, newSim.rolloutReward);
+            node.children.get(node.children.size()-1).storeDetails(newSim.randomAccelerationAction, newSim.attackBoids);
         }
     }
 }
