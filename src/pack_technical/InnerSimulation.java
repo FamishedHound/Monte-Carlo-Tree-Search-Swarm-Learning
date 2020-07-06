@@ -12,8 +12,7 @@ import pack_1.Constants;
 import pack_1.Utility;
 
 
-//TODO: change currentDistance to be currentDistanceToTarget
-//TODO: I think 'waypointCoords' are the waypoint co-ordinates. If so change waypointCoords to be waypointCoordinates
+//NOTE: why is the collision handling done manually and the collisionHandler not used?
 //TODO: rename r0acceleration & r0velocity local variables
 
 public class InnerSimulation extends Simulation {
@@ -56,7 +55,6 @@ public class InnerSimulation extends Simulation {
     public void run(){
         if (simulating) {
             PVector theClosest = new PVector(0,0);
-            float distance = 150; //distance to target from start?
             closestDistanceToTarget = 2000;
             PVector currentAttackerLocation = getAttackBoid().getLocation();
 
@@ -79,6 +77,13 @@ public class InnerSimulation extends Simulation {
 
             getAttackBoid().update(randomAccelerationAction);
             // TODO - Could replace this dist with distSq, but that will change all of the currentDistance etc. vars to be currentDistanceSq
+
+            for (BoidGeneric defenderBoid : defenderBoids) {
+                if (Utility.distSq(defenderBoid.getLocation(), getAttackBoid().getLocation()) < 16 * 16) {  // was 3
+                    rolloutReward = -1;
+                    return;
+                }
+            }
             currentDistanceToTarget = PVector.dist(currentAttackerLocation, Constants.TARGET);
 
 

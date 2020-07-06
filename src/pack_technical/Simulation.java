@@ -27,8 +27,6 @@ public abstract class Simulation {
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
     }
 
-
-
     public static ArrayList<BoidGeneric> copyStateOfBoids(ArrayList<BoidGeneric> boids) {
         ArrayList<BoidGeneric> boidListClone = new ArrayList<>();
 
