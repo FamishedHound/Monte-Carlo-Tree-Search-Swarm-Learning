@@ -27,10 +27,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
         waypointSetup(defenderBoids);
         startTime = System.nanoTime();
-        MCT = new Tree(maxTreeDepth);
-        //the PVector would be a random vector, but for the root it is just 0.
-        //TODO: abstract below line to Node constructor if it proves easy
-        MCT.root.storeDetails(new PVector(0,0,0), this.attackBoids);
+        MCT = new Tree(maxTreeDepth, this.attackBoids);
         new Thread(this).start();
     }
 
@@ -44,12 +41,11 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
         return true;
     }
 
-    public PVector reutrnTargetVecotr() {
+    public PVector returnTargetVector() {
         Node bestSim = MCT.bestAvgVal();
         PVector bestVector = bestSim.accelerationAction;
         try {
-            MCT.root = new Node(0, "root", 0, 0);
-            MCT.root.storeDetails(new PVector(0,0,0), attackBoids);
+            MCT.root = new Node(0, "root", 0, 0, attackBoids);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,11 +77,10 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             if(node.parent == null){
                 newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, attackBoids, collisionHandler, node.depth);
             }else {
-                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, node.parent.attacker, collisionHandler, node.depth);
+                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, node.parent.attackBoids, collisionHandler, node.depth);
             }
             newSim.run();
 
-            //fix, definitely wrong bc these defender boids wwont have been moved like the ones in newSim
             boolean dangerClose = newSim.rolloutReward < 0;
 
             double simVal = 0;
@@ -100,8 +95,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             }
 
             String nodeName = node.name + "." + node.children.size();
-            node.addChild(simVal, nodeName, newSim.rolloutReward);
-            node.children.get(node.children.size()-1).storeDetails(newSim.randomAccelerationAction, newSim.attackBoids);
+            node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
         }
     }
 }

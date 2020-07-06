@@ -71,8 +71,9 @@ public class InnerSimulation extends Simulation {
                 }
             }
 
-            if((Utility.distSq(currentAttackerLocation, Constants.TARGET) <= Constants.HIT_DISTANCE_SQ || Utility.distSq(getAttackBoid().getLocation(), currentAttackerLocation) >= distance * distance)
-                && !getAttackBoid().hasFailed() ){
+            //there was a check to see if attackBoid had moved certain distance in tree lifetime,
+            //but it was wrong in its current form so it was removed
+            if((Utility.distSq(currentAttackerLocation, Constants.TARGET) <= Constants.HIT_DISTANCE_SQ) && !getAttackBoid().hasFailed() ){
                 simulating = false;
             }
 
