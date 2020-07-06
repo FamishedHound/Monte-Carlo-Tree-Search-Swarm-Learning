@@ -2,7 +2,7 @@ package pack_AI;
 
 import java.util.Random;
 
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import pack_technical.GameManager;
 
 /*
@@ -12,11 +12,11 @@ import pack_technical.GameManager;
  * also holds the error of these imaginary estimations
 */
 public class AI_internal_model {
-	
-	Boid_generic parent_boid;
+
+	BoidGeneric parent_boid;
 	AI_type[] ai_s = new AI_type[GameManager.getTeam_number()];
 
-	public AI_internal_model(boolean perfect, Boid_generic parent) {
+	public AI_internal_model(boolean perfect, BoidGeneric parent) {
 		parent_boid = parent;
 		if (perfect)
 			generate_perfect_ais();
@@ -84,11 +84,11 @@ public class AI_internal_model {
 		return ai_s[t];
 	}
 
-	public Boid_generic getParent_boid() {
+	public BoidGeneric getParent_boid() {
 		return parent_boid;
 	}
 
-	public void setParent_boid(Boid_generic parent_boid) {
+	public void setParent_boid(BoidGeneric parent_boid) {
 		this.parent_boid = parent_boid;
 	}
 

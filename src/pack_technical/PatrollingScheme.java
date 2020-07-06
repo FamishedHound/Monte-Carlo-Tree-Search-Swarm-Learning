@@ -1,6 +1,6 @@
 package pack_technical;
 
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class PatrollingScheme {
         this.iterator = iterator;
     }
 
-    public PVector patrol(PVector location, Boid_generic b){
+    public PVector patrol(PVector location, BoidGeneric b){
         currWaypoint = waypoints.get(currentPosition);//iterator.next();
         // TODO Magic Numbers!!
         if(Utility.distSq(location,currWaypoint) <= 5 * 5) { // was 2
