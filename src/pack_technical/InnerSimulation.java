@@ -22,7 +22,7 @@ import pack_1.Utility;
 public class InnerSimulation extends Simulation {
 
     boolean victory = false;
-    Integer nextWaypoint;
+    //Integer nextWaypoint;
     Random randG = new Random();
     //what does targetVector actually represent
     PVector targetVector = new PVector(0,0);

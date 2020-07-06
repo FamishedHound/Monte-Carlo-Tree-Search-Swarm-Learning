@@ -10,14 +10,12 @@ import java.util.ArrayList;
 //todo move maxTreeDepth to Constants
 
 public class EnviromentalSimulation extends Simulation implements Runnable {
+
     Tree MCT;
-    ArrayList<int[]> cords;
     FlockManager flockManager;
-    double startTime = 0;
+    double startTime;
     int maxTreeDepth = 20;
     int actionCounter = 0;
-    boolean treeReady = false;
-    CollisionHandler collisionHandler;
 
     public EnviromentalSimulation(ArrayList<BoidGeneric> defenders, ArrayList<int[]> cords, ArrayList<BoidGeneric> attackers, CollisionHandler handler) {
         this.collisionHandler = handler;
