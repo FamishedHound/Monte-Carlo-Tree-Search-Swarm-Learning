@@ -2,15 +2,13 @@ package pack_AI;
 
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
+
+import pack_1.Constants;
 import pack_1.Launcher;
-import pack_boids.Boid_generic;
-import pack_boids.Boid_imaginary;
-import pack_boids.Boid_observer;
-import pack_boids.Boid_standard;
+import pack_boids.*;
 import pack_technical.FlockManager;
 import pack_technical.GameManager;
 import pack_technical.OutputWriter;
-import processing.core.PApplet;
 import processing.core.PVector;
 
 /*
@@ -41,13 +39,13 @@ public class  AI_machine_learner {
     double derivative_sw, derivative_aw, derivative_cw, derivative_sns, derivative_ans, derivative_cns;
 
     AI_internal_model internal_model_ref; // the model to work with
-    Boid_standard parent_boid; // the boid holding this internal model
-    Boid_observer parent_camera; // the boid holding this internal model
+    BoidStandard parent_boid; // the boid holding this internal model
+    BoidObserver parent_camera; // the boid holding this internal model
     int error = 0;
     float[][] points = new float[2][2];
     PVector imaginary_pos, original_pos;
 
-    public AI_machine_learner(Boid_standard boid_standard) {
+    public AI_machine_learner(BoidStandard boid_standard) {
         parent_boid = boid_standard;
         internal_model_ref = boid_standard.getInternal_model();
         initialise_observed_point_lists();
@@ -64,19 +62,19 @@ public class  AI_machine_learner {
         return this.prediction_errors[t] = in;
     }
 
-    int calculate_error(Boid_imaginary b, float[][] points) {
+    int calculate_error(BoidImaginary b, float[][] points) {
         if (b != null && b.getOriginal() != null) {
             imaginary_pos = new PVector(points[0][0], points[0][1]);
             original_pos = new PVector(points[1][0], points[1][1]);
-            double angle_diff1 = 10 * ((b.getOriginal().velocity.heading() - b.velocity.heading())) % 360;
-            double angle_diff2 = 10 * ((b.velocity.heading() - b.getOriginal().velocity.heading())) % 360;
+            double angle_diff1 = 10 * ((b.getOriginal().getVelocity().heading() - b.getVelocity().heading())) % 360;
+            double angle_diff2 = 10 * ((b.getVelocity().heading() - b.getOriginal().getVelocity().heading())) % 360;
             imaginary_pos.sub(original_pos);
             return (int) (-(Math.min(angle_diff1, angle_diff2)) + imaginary_pos.mag());
         }
         return error;
     }
 
-    float[][] calculate_points(Boid_imaginary b) {
+    float[][] calculate_points(BoidImaginary b) {
         points[0][0] = b.getLocation().x;
         points[0][1] = b.getLocation().y;
         points[1][0] = b.getOriginal().getLocation().x;
@@ -180,8 +178,8 @@ public class  AI_machine_learner {
         coeff_count[t] = 0;
     }
 
-    int max_distance(Boid_imaginary b) {
-        return (int) ((b.getOriginal().getMaxspeed() * 2) * Launcher.getHISTORYLENGTH());
+    int max_distance() {
+        return (int) ((Constants.Boids.MAX_SPEED * 2) * Launcher.HISTORY_LENGTH);
     }
 
     private double create_new_term(int exponent, double coeffs, double param_x) {
@@ -250,8 +248,8 @@ public class  AI_machine_learner {
     // takes the final state of the imaginary flock
     public void run(FlockManager mind_flock) {
         int observer_t = parent_boid.getTeam();
-        for (Boid_generic in : mind_flock.get_all_boids()) {
-            Boid_imaginary b = (Boid_imaginary) in;
+        for (BoidGeneric in : mind_flock.get_all_boids()) {
+            BoidImaginary b = (BoidImaginary) in;
             int observed_t = b.getOriginal().getTeam();
             points = calculate_points(b);
             error = calculate_error(b, points);
@@ -260,7 +258,7 @@ public class  AI_machine_learner {
             // if (Launcher.isSim_drawtrails())
                 //draw_error_bars(b, observer_t);
             if (observed_t != observer_t) {
-                if (error < max_distance(b) && !b.Isalone())
+                if (error < max_distance() && !b.isAlone())
                     record_error_for_observation_of(observed_t);
                 if (coeff_count[observed_t] > poly_count) {
                     record_polynomials_for_observation_of(observed_t); // do this periodically once data has accumilated

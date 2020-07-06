@@ -2,12 +2,12 @@ package pack_AI;
 
 import java.util.Random;
 
-/*
+/**
  * a type of AI for one boid, many are created with different parameters and managed by an AIManager,
  * parameters can only be set upon creation, but read at any time (such as boid creation). even though AI's
  * are common to teams, not individuals, this is done on an individual basis for direct user control or
  * tampering with individuals under circumstances.
- * 
+ *
  * a set of AI_types is an AI_internal_model, which can be altered.
  */
 public class AI_type {

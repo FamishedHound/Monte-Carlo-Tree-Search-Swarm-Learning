@@ -11,7 +11,7 @@ import pack_AI.AI_manager;
 
 public class OutputWriter {
 
-    static boolean output_to_file = true;
+    static boolean output_to_file = false;
     int max_record_length = 100;
     int current_record_length = 0;
     // camera is team -1

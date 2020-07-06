@@ -1,9 +1,8 @@
 package pack_technical;
 
 import pack_1.Constants;
-import pack_1.Launcher;
 import pack_1.ParameterGatherAndSetter;
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.io.IOException;
@@ -15,13 +14,13 @@ import java.util.ArrayList;
 
 public class ZoneDefence implements Cloneable {
 
-    public ArrayList<Boid_generic> getBoids() {
+    public ArrayList<BoidGeneric> getBoids() {
         return boids;
     }
 
     private final boolean defend = true;
-    private final ArrayList<Boid_generic> boids;
-    private final ArrayList<Boid_generic> attackBoids;
+    private final ArrayList<BoidGeneric> boids;
+    private final ArrayList<BoidGeneric> attackBoids;
     static int counter = 0;
     boolean flag = true;
     int DELAY = 200;
@@ -57,7 +56,6 @@ public class ZoneDefence implements Cloneable {
         waypoints.addAll(output.returnDifficulty());
         patrolling.getWaypointsA().add(Constants.TARGET.copy());
         patrolling.setup();
-
     }
 
 
@@ -79,10 +77,10 @@ public class ZoneDefence implements Cloneable {
             }
         }
 
-        for (Boid_generic attackBoid : attackBoids) {
+        for (BoidGeneric attackBoid : attackBoids) {
             counter++;
             if (counter >= DELAY / 8 && counter <= DELAY * 2) {
-                if (!attack) attackBoid.setToMove(false);
+                if (!attack) attackBoid.setMovable(false);
                 attackBoid.setStationary();
                 delay2++;
             }
@@ -100,14 +98,14 @@ public class ZoneDefence implements Cloneable {
 
             // ATACK MODE
             if (attack) {
-                attackBoid.setToMove(true);
+                attackBoid.setMovable(true);
                 PVector acceleration = attackBoid.getAcceleration();
                 PVector velocity = attackBoid.getVelocity();
                 PVector location = attackBoid.getLocation();
                 velocity.limit(1);
 
                 //System.out.println("Asking for target vector!");
-                PVector attackVector = sim.reutrnTargetVecotr();
+                PVector attackVector = sim.returnTargetVector();
                 sim.updateBoids(boids, attackBoids);
 
                 location.add(velocity.add(acceleration.add(attackVector)));
@@ -117,7 +115,7 @@ public class ZoneDefence implements Cloneable {
             }
         }
 
-        for (Boid_generic defenderBoid : boids) {
+        for (BoidGeneric defenderBoid : boids) {
             if (defend) {
                 PVector acceleration = defenderBoid.getAcceleration();
                 PVector velocity = defenderBoid.getVelocity();
@@ -130,6 +128,6 @@ public class ZoneDefence implements Cloneable {
                 defenderBoid.setStationary();
             }
         }
-        output.iterations++;
+        output.incrementIterations();
     }
 }

@@ -1,6 +1,6 @@
 package pack_technical;
 
-import pack_boids.Boid_generic;
+import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class PatternHandler {
     public PatternImage img = new PatternImage();
 
 
-    public void newObservation(ArrayList<Boid_generic> boids, int counter){
+    public void newObservation(ArrayList<BoidGeneric> boids, int counter){
         if(counter%10==0) {
             PVector middleOfTheMass = boids.stream().map(boid -> boid.getLocation())
                 .reduce(new PVector(0,0), (a, b) -> PVector.add(a, b))

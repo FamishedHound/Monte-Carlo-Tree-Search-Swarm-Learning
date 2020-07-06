@@ -1,5 +1,11 @@
 package pack_technical;
 
+import pack_1.Constants;
+import pack_1.Utility;
+import pack_boids.BoidGeneric;
+
+import java.util.ArrayList;
+
 public class Tree {
     //root.depth is always 0
     Node root;
@@ -7,8 +13,8 @@ public class Tree {
     int maxNodeChildren = 12;
 
 
-    public Tree(int maxTreeDepth) {
-        this.root = new Node(0, "ROOT", 0, 0);
+    public Tree(int maxTreeDepth, ArrayList<BoidGeneric> attackBoids) {
+        this.root = new Node(0, "ROOT", 0, 0, attackBoids);
         this.maxTreeDepth = maxTreeDepth;
     }
 
@@ -26,6 +32,7 @@ public class Tree {
             for(Node child : currentNode.children){
                 if(bestNode == null){
                     bestNode = child;
+                    //conditions for child to be leaf: (child.nodeSimValue != -1) && (child.nodeSimValue != 1)
                 }else if((bestNode.uct < child.uct) && (child.depth < maxTreeDepth + root.depth) && (child.nodeSimValue != -1) && (child.nodeSimValue != 1)){
                     bestNode = child;
                 }

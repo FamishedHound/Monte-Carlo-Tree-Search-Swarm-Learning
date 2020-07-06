@@ -7,36 +7,53 @@ import pack_technical.GameManager;
 import processing.core.PVector;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 
 public class ParameterGatherAndSetter {
 
-    CollisionHandler col;
+    private CollisionHandler collisionHandler;
+    private final PVector attackerStartPosition;
     private final long startTime;
     private long startTimeWithoutwait = -1;
-    ArrayList<String> history_of_learning = new ArrayList<>();
-    public int iterations = 0;
-    private final PVector attackerStartPosition;
-    ArrayList<PVector> hard = new ArrayList<>();
-    ArrayList<PVector> medium = new ArrayList<>();
-    ArrayList<PVector> easy = new ArrayList<>();
+    private ArrayList<String> historyOfLearning = new ArrayList<>();
+    private int iterations = 0;
+
+    private enum Difficulty {
+        EASY,
+        MEDIUM,
+        HARD;
+        static Difficulty fromString(String difficulty) throws IllegalArgumentException {
+            switch(difficulty.toLowerCase()) {
+                case "easy":
+                    return EASY;
+                case "medium":
+                    return MEDIUM;
+                case "hard":
+                    return HARD;
+                default:
+                    throw new IllegalArgumentException("Difficulty must be 'easy', 'medium', or 'hard'.");
+            }
+        }
+    }
+    Difficulty difficulty;
+    EnumMap<Difficulty, ArrayList<PVector>> defenderBoidWaypoints = new EnumMap<>(Difficulty.class);
+
     int amountOfBoids=0;
-    String difficulty;
 
     public ParameterGatherAndSetter(GameManager game, CollisionHandler col, String[] args) throws IllegalArgumentException {
         if(args.length < 4) {
-            throw new IllegalArgumentException("args must be of length at least 4");
+            throw new IllegalArgumentException("Arguments must be [attackerStartX] [attackerStartY] [difficulty] [amountOfBoids]");
         }
-        this.col=col;
+        this.collisionHandler=col;
 
         this.attackerStartPosition = new PVector(Float.parseFloat(args[0]), Float.parseFloat(args[1]));
-        this.difficulty=args[2];
+        this.difficulty=Difficulty.fromString(args[2]);
         this.amountOfBoids=Integer.parseInt(args[3]);
 
         Constants.setParamsFromProgramArgs(Arrays.copyOfRange(args, 4, args.length));
@@ -51,12 +68,28 @@ public class ParameterGatherAndSetter {
 
     public void createDifficulties(){
         // Old settings
-        medium.add(PVector.add(Constants.TARGET, new PVector(-100, 50)));
-        medium.add(PVector.add(Constants.TARGET, new PVector(100, 0)));
-        medium.add(PVector.add(Constants.TARGET, new PVector(-100, -95)));
+        this.defenderBoidWaypoints.put(Difficulty.EASY, new ArrayList<PVector>() {
+            {
+                add(PVector.add(Constants.TARGET, new PVector(-100, 50)));
+                add(PVector.add(Constants.TARGET, new PVector(200, 0)));
+                add(PVector.add(Constants.TARGET, new PVector(-100, -95)));
+                add(PVector.add(Constants.TARGET, new PVector(40, -195)));
+            }
+        });
+        this.defenderBoidWaypoints.put(Difficulty.MEDIUM, new ArrayList<PVector>() {
+            {
+                add(PVector.add(Constants.TARGET, new PVector(-100, 50)));
+                add(PVector.add(Constants.TARGET, new PVector(100, 0)));
+                add(PVector.add(Constants.TARGET, new PVector(-100, -95)));
+            }
+        });
+        this.defenderBoidWaypoints.put(Difficulty.HARD, new ArrayList<PVector>() {
+            {
+                add(PVector.add(Constants.TARGET, new PVector(0, -15)));
+                add(PVector.add(Constants.TARGET, new PVector(0, 15)));
+            }
+        });
 
-        hard.add(PVector.add(Constants.TARGET, new PVector(0, -15)));
-        hard.add(PVector.add(Constants.TARGET, new PVector(0, 15)));
         /*
         hard.add(new PVector(20,20));
         hard.add(new PVector(1400,20));
@@ -64,11 +97,6 @@ public class ParameterGatherAndSetter {
         hard.add(new PVector(20,900));
         hard.add(new PVector(500,500));
          */
-
-        easy.add(PVector.add(Constants.TARGET, new PVector(-100, 50))); // 550-100, 500+50
-        easy.add(PVector.add(Constants.TARGET, new PVector(200, 0))); // 550+200, 500+0
-        easy.add(PVector.add(Constants.TARGET, new PVector(-100, -95))); // 550-100, 500-95
-        easy.add(PVector.add(Constants.TARGET, new PVector(40, -195))); // 550+40,  500-195
 
 
         // New settings
@@ -86,23 +114,16 @@ public class ParameterGatherAndSetter {
     }
 
     public ArrayList<PVector> returnDifficulty() {
-        if(difficulty.equals("hard")){
-            return hard;
-        }
-        if(difficulty.equals("medium")){
-            return medium;
-        }
-
-        return easy;
+        return this.defenderBoidWaypoints.get(difficulty);
     }
 
     public void gather() {
         try {
-            if(col.isLose()){
+            if(collisionHandler.isLose()){
                 generateEndingStatement(0);
                 String finalMessage = "Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a failure";
                 Launcher.quit(finalMessage, 0);
-            } else if(col.isVictory()){
+            } else if(collisionHandler.isVictory()){
                 generateEndingStatement(1);
                 String finalMessage = "Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a victory";
                 Launcher.quit(finalMessage, 0);
@@ -120,7 +141,7 @@ public class ParameterGatherAndSetter {
         if(startTimeWithoutwait < 0){
             startTimeWithoutwait=System.nanoTime();
         }
-        history_of_learning.add(currentAi.getSep_neighbourhood_size() + "," + currentAi.getAli_neighbourhood_size() + "," + currentAi.getCoh_neighbourhood_size() + "," + currentAi.getSep_weight()  + "," + currentAi.getAli_weight() + "," + currentAi.getCoh_weight() + "," +Math.pow(currentAi.getSep_neighbourhood_size()-30,2)+","+Math.pow(currentAi.getAli_neighbourhood_size()-70,2) + "," + Math.pow(currentAi.getCoh_neighbourhood_size()-70,2) + "," + Math.pow(currentAi.getSep_weight()-2,2) + "," + Math.pow(currentAi.getAli_weight()-1.2,2)  + "," + Math.pow(currentAi.getCoh_weight()-0.9f,2) +  "," + Math.pow(currentAi.getWayPointForce()-0.04,2)+"\n");
+        historyOfLearning.add(currentAi.getSep_neighbourhood_size() + "," + currentAi.getAli_neighbourhood_size() + "," + currentAi.getCoh_neighbourhood_size() + "," + currentAi.getSep_weight()  + "," + currentAi.getAli_weight() + "," + currentAi.getCoh_weight() + "," +Math.pow(currentAi.getSep_neighbourhood_size()-30,2)+","+Math.pow(currentAi.getAli_neighbourhood_size()-70,2) + "," + Math.pow(currentAi.getCoh_neighbourhood_size()-70,2) + "," + Math.pow(currentAi.getSep_weight()-2,2) + "," + Math.pow(currentAi.getAli_weight()-1.2,2)  + "," + Math.pow(currentAi.getCoh_weight()-0.9f,2) +  "," + Math.pow(currentAi.getWayPointForce()-0.04,2)+"\n");
     }
 
     public void generateEndingStatement(int v) throws IOException {
@@ -129,9 +150,13 @@ public class ParameterGatherAndSetter {
         ArrayList<String> lines = new ArrayList<>();
         lines.add(AI_manager.getAi_basic().getSep_neighbourhood_size() + "," + AI_manager.getAi_basic().getAli_neighbourhood_size() + "," + AI_manager.getAi_basic().getCoh_neighbourhood_size() + "," + AI_manager.getAi_basic().getSep_weight()  + "," + AI_manager.getAi_basic().getAli_weight() + "," + AI_manager.getAi_basic().getCoh_weight() );
         lines.add(v+","+Math.round((System.nanoTime()-startTime)/1000000000)+","+Math.round((System.nanoTime()-startTimeWithoutwait)/1000000000)+","+ iterations + "," + difficulty+","+amountOfBoids+","+attackerStartPosition.x+","+attackerStartPosition.y+"\n");
-        lines.addAll(history_of_learning);
+        lines.addAll(historyOfLearning);
 
         Path file = Paths.get(Constants.OUTPUT_FILE+".txt");
         Files.write(file, lines, StandardCharsets.UTF_8);
+    }
+
+    public void incrementIterations() {
+        this.iterations++;
     }
 }
