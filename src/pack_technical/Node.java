@@ -122,7 +122,7 @@ public class Node {
         Node node = this;
         while (node.parent != null) {
             node.addCumuValue(simVal);
-            node = this.parent;
+            node = node.parent;
         }
         if (node.parent == null) {
             node.setCumuValue(node.getChildren()
@@ -169,7 +169,7 @@ public class Node {
         if (this.getParent() == null) {
             return this.getCumuValue() / visits + ((2 * 1.414) * (1.414));
         }
-            return this.getCumuValue() / visits + 2 * 1.414 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / this.getVisits());
+            return this.getCumuValue() / visits + 2 * 1.414 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
     }
 
 

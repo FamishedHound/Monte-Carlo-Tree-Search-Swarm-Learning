@@ -99,17 +99,9 @@ public class ZoneDefence implements Cloneable {
             // ATACK MODE
             if (attack) {
                 attackBoid.setMovable(true);
-                PVector acceleration = attackBoid.getAcceleration();
-                PVector velocity = attackBoid.getVelocity();
-                PVector location = attackBoid.getLocation();
-                velocity.limit(1);
-
-                //System.out.println("Asking for target vector!");
                 PVector attackVector = sim.returnTargetVector();
                 sim.updateBoids(boids, attackBoids);
-
-                location.add(velocity.add(acceleration.add(attackVector)));
-                acceleration.mult(0);
+                attackBoid.update(attackVector);
             } else {
                 attackBoid.setStationary();
             }
