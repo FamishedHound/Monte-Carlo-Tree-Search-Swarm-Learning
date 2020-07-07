@@ -18,7 +18,7 @@ public class Node {
     double cumuValue = 0;
     double rolloutReward;
     double uct = 0;
-    String name;
+    //String name;
     PVector accelerationAction;
     ArrayList<BoidGeneric> attackBoids;
 
@@ -28,7 +28,7 @@ public class Node {
     public Node(double simulationValue, String name, int depth, double rolloutReward, ArrayList<BoidGeneric> attackBoids) {
         this.children = new ArrayList<>();
         this.nodeSimValue = simulationValue;
-        this.name = name;
+        //this.name = name;
         this.depth = depth;
         this.rolloutReward = rolloutReward;
         this.attackBoids = attackBoids;
@@ -42,22 +42,6 @@ public class Node {
 
     public Node getParent() {
         return parent;
-    }
-
-    public int getDepth() {
-        return depth;
-    }
-
-    public double getAvgEstimatedValue() {
-        return avgEstimatedValue;
-    }
-
-    public double getNodeSimValue() {
-        return nodeSimValue;
-    }
-
-    public double getRolloutReward() {
-        return rolloutReward;
     }
 
     public int getVisits() {
@@ -99,9 +83,6 @@ public class Node {
         return childNode;
     }
 
-    public double getUCT() {
-        return uct;
-    }
 
     public double getCumuValue() {
         return cumuValue;
@@ -132,44 +113,12 @@ public class Node {
         }
     }
 
-    public void backPropagate() {
-        this.avgEstimatedValue = rolloutReward;
-        if(children.size() > 0) {
-            for (Node child : children) {
-                this.avgEstimatedValue += (child.avgEstimatedValue / this.visits);
-            }
-        }else{
-            this.avgEstimatedValue = nodeSimValue;
-        }
-
-        updateUCT();
-    }
-
-
-    public void updateUCT() {
-        if (parent != null) {
-            this.uct = calcUCT(parent.visits);
-            parent.backPropagate();
-        } else {
-            this.uct = calcUCT(this.visits);
-        }
-    }
-
-    public double calcUCT(int parentVisits) {
-        //why is this 2*sqrt(2) rather than 1/sqrt(2) as standard? more exploration required??
-        if (parent != null) {
-            return this.avgEstimatedValue + ((2*1.414) * (Math.sqrt(2 * Math.log(parentVisits) / (this.visits))));
-        } else {
-            return this.avgEstimatedValue + ((2*1.414) * (Math.sqrt(2 * Math.log(parentVisits) / (this.visits))));
-        }
-    }
-
     public double calcUCT() {
         int visits = (this.getVisits() == 0) ? 1 : this.getVisits();
         if (this.getParent() == null) {
-            return this.getCumuValue() / visits + ((2 * 1.414) * (1.414));
+            return 0;
         }
-            return this.getCumuValue() / visits + 2 * 1.414 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
+            return this.getCumuValue() / visits + 1/ 1.414 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
     }
 
 

@@ -32,7 +32,7 @@ public class Tree {
 
             currentNode = currentNode.getChildren()
                     .stream()
-                    .max(Comparator.comparingDouble(Node::calcUCT))
+                    .min(Comparator.comparingDouble(Node::calcUCT))
                     .orElseThrow(Error::new);
         } while(true);
     }
@@ -42,11 +42,11 @@ public class Tree {
         if(root.children.size() == 0){
             return root;
         }
-        double bestNode = root.children.get(0).avgEstimatedValue;
+        double bestNode = root.children.get(0).calcUCT();
         int bestNodePos = 0;
         for (int i=0; i<root.children.size()-1; i++){
-            if(root.children.get(i).avgEstimatedValue > bestNode){
-                bestNode = root.children.get(i).avgEstimatedValue;
+            if(root.children.get(i).calcUCT() > bestNode){
+                bestNode = root.children.get(i).calcUCT();
                 bestNodePos = i;
             }
             if(root.children.get(i).nodeSimValue >= 1){
