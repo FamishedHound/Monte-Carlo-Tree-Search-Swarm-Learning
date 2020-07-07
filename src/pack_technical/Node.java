@@ -58,10 +58,9 @@ public class Node {
      */
     public void backPropagate() {
         this.avgEstimatedValue = rolloutReward;
-        this.timesVisited++;
         if(children.size() > 0) {
             for (Node child : children) {
-                this.avgEstimatedValue += (child.avgEstimatedValue / children.size());
+                this.avgEstimatedValue += (child.avgEstimatedValue / this.timesVisited);
             }
         }else{
             this.avgEstimatedValue = nodeSimValue;
@@ -69,6 +68,7 @@ public class Node {
 
         updateUCT();
     }
+
 
     public void updateUCT() {
         if (parent != null) {
@@ -82,9 +82,9 @@ public class Node {
     public double calcUCT(int parentVisits) {
         //why is this 2*sqrt(2) rather than 1/sqrt(2) as standard? more exploration required??
         if (parent != null) {
-            return this.avgEstimatedValue + ((2*1.414) * (Math.sqrt(2 * Math.log(parentVisits+1) / (this.timesVisited))));
+            return this.avgEstimatedValue + ((2*1.414) * (Math.sqrt(2 * Math.log(parentVisits) / (this.timesVisited))));
         } else {
-            return this.avgEstimatedValue + ((2*1.414) * (Math.sqrt(2 * Math.log(parentVisits+1) / (this.timesVisited))));
+            return this.avgEstimatedValue + ((2*1.414) * (Math.sqrt(2 * Math.log(parentVisits) / (this.timesVisited))));
         }
     }
 

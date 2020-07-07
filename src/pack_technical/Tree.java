@@ -1,11 +1,10 @@
 package pack_technical;
 
-import pack_1.Constants;
-import pack_1.Utility;
 import pack_boids.BoidGeneric;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Optional;
 
 public class Tree {
     //root.depth is always 0
@@ -21,6 +20,7 @@ public class Tree {
 
     public Node UCT(Node currentNode, double epsilon) {
         do {
+            currentNode.incrementTimesVisited();
             if(currentNode.children.size() < maxNodeChildren){
                 return currentNode;
             }
