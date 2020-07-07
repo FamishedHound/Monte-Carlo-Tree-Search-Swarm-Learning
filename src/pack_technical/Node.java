@@ -5,12 +5,14 @@ import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 
 public class Node {
     Node parent;
-    LinkedList<Node> children;
+    List<Node> children;
     int timesVisited = 0;
     int depth;
     double avgEstimatedValue = 0;
@@ -25,7 +27,7 @@ public class Node {
      * Constructor of Node, assigns internal values and initialises storage for children. If not provided, stores a zeroed random acceleration action.
      */
     public Node(double simulationValue, String name, int depth, double rolloutReward, ArrayList<BoidGeneric> attackBoids) {
-        this.children = new LinkedList<>();
+        this.children = new ArrayList<>();
         this.nodeSimValue = simulationValue;
         this.name = name;
         this.depth = depth;
@@ -96,5 +98,21 @@ public class Node {
      */
     public BoidGeneric getAttackBoids() {
         return new BoidStandard(this.attackBoids.get(0));
+    }
+
+    public Node getRandomChild() {
+        return children.get((int) (Math.random()*children.size()));
+    }
+
+    public List<Node> getChildren() {
+        return children;
+    }
+
+    public double getUCT() {
+        return uct;
+    }
+
+    public void incrementTimesVisited() {
+        this.timesVisited++;
     }
 }

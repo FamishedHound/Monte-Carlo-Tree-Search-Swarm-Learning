@@ -5,6 +5,7 @@ import pack_1.Utility;
 import pack_boids.BoidGeneric;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Tree {
     //root.depth is always 0
@@ -18,27 +19,22 @@ public class Tree {
         this.maxTreeDepth = maxTreeDepth;
     }
 
-    public Node UCT(Node currentNode) {
-        if(currentNode.children.size() < maxNodeChildren){
-            return currentNode;
-        }
-
-        while(true){
+    public Node UCT(Node currentNode, double epsilon) {
+        do {
             if(currentNode.children.size() < maxNodeChildren){
                 return currentNode;
             }
 
-            Node bestNode = null;
-            for(Node child : currentNode.children){
-                if(bestNode == null){
-                    bestNode = child;
-                    //conditions for child to be leaf: (child.nodeSimValue != -1) && (child.nodeSimValue != 1)
-                }else if((bestNode.uct < child.uct) && (child.depth < maxTreeDepth + root.depth) && (child.nodeSimValue != -1) && (child.nodeSimValue != 1)){
-                    bestNode = child;
-                }
+            if(Math.random() < epsilon) {
+                currentNode = currentNode.getRandomChild();
+                continue;
             }
-            currentNode = bestNode;
-        }
+
+            currentNode = currentNode.getChildren()
+                    .stream()
+                    .max(Comparator.comparingDouble(Node::getUCT))
+                    .orElseThrow(Error::new);
+        } while(true);
     }
 
 

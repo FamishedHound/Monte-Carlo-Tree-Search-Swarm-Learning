@@ -72,7 +72,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
     public void run() {
         while (true) {
-            Node node = MCT.UCT(MCT.root);
+            Node node = MCT.UCT(MCT.root, 0.1);
             InnerSimulation newSim;
             if(node.parent == null){
                 newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, attackBoids, collisionHandler, node.depth);
