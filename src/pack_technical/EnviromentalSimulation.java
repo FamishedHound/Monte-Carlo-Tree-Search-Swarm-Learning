@@ -72,7 +72,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
     public void run() {
         while (true) {
-            Node node = MCT.UCT(MCT.root, 0);
+            Node node = MCT.UCT(MCT.root, -1);
             InnerSimulation newSim;
             if(node.parent == null){
                 newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, attackBoids, collisionHandler, node.depth);
@@ -95,7 +95,8 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             }
 
             String nodeName = node.name + "." + node.children.size();
-            node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
+            Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
+            childNode.backPropagate(simVal);
         }
     }
 }

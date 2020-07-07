@@ -32,7 +32,7 @@ public class Tree {
 
             currentNode = currentNode.getChildren()
                     .stream()
-                    .max(Comparator.comparingDouble(Node::getUCT))
+                    .max(Comparator.comparingDouble(Node::calcUCT))
                     .orElseThrow(Error::new);
         } while(true);
     }
