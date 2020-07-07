@@ -41,6 +41,13 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
         return true;
     }
 
+    /**
+     * Replaces the current MCTS tree structure with an empty root node and returns
+     * the best acceleration vector according to the simulations the MCTS performed
+     * To prevent memory issues it also runs garbage collection every 10 calls.
+     *
+     * @return
+     */
     public PVector returnTargetVector() {
         Node bestSim = MCT.bestAvgVal();
         PVector bestVector = bestSim.accelerationAction;
@@ -94,8 +101,8 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 }
             }
 
-            String nodeName = node.name + "." + node.children.size();
-            Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
+            //String nodeName = node.name + "." + node.children.size();
+            Node childNode = node.addChild(simVal, "nodeName", newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
             childNode.backPropagate(simVal);
         }
     }
