@@ -11,7 +11,7 @@ public class Constants {
     /**
      * The target for the attack boids.
      * Default to (550, 500). Set as an argument using
-     * (T|-t|--target) x y, for example -t 400 300
+     * (-t|--target) x y, for example -t 400 300
      */
     public static PVector TARGET = new PVector(550,500);
 
@@ -38,6 +38,8 @@ public class Constants {
         public static final float MAX_SPEED_ATTACK = 1f;
         public static final float SIZE = 6.0f;
     }
+
+    public static final double SQRT2 = Math.sqrt(2);
 
 
     public static void setParamsFromProgramArgs(String[] args) throws IllegalArgumentException {

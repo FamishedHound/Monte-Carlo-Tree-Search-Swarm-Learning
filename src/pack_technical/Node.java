@@ -1,11 +1,13 @@
 package pack_technical;
 
+import pack_1.Constants;
 import pack_boids.BoidGeneric;
 import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 public class Node {
@@ -112,13 +114,15 @@ public class Node {
     }
 
     public double calcUCT() {
-        //n.b. the following line handles the edge case where we have divide by zero errors at the start
+        //todo - the following line handles the edge case where we have divide by zero=Infty at the start
+        //which results in very bad performance this is due to how Tree.bestAvgVal decides action to take
+        //based on ucb1 of direct descendents from root only. fix pls
         int visits = (this.getVisits() == 0) ? 1 : this.getVisits();
         if (this.getParent() == null) {
             //edge case for the root node; ucb is meaningless for the root so just return 0
             return 0;
         }
-            return this.getCumuValue() / visits + 1/ 1.414 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
+            return this.getCumuValue() / visits + 2 * Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
     }
 
 
