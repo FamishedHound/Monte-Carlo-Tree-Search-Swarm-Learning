@@ -4,6 +4,7 @@ import processing.core.PVector;
 
 public class Constants {
 
+
     //new params should be added as a public static field in Constants and a new "case"
     //block added to Constants.setParamsFromProgramArgs to parse the program arguments accordingly
     //the value can then be used in the code wherever desired.
@@ -22,6 +23,13 @@ public class Constants {
      * If ommited, results will not be written to file
      */
     public static String OUTPUT_FILE = null;
+
+    /**
+     * Debug setting; will pause the ZoneDefence thread for the
+     * amount of time below in ms before the tree in EnvironmentalSim
+     * is replaced with a new root
+     */
+    public static long THREAD_PAUSE = 0;
 
     /** Distance required for a 'hit' to be recognized */
     public static final int HIT_DISTANCE = 10;
@@ -58,6 +66,13 @@ public class Constants {
                         throw new IllegalArgumentException("Command line argument --out requires one parameter, the file name to output to");
                     }
                     OUTPUT_FILE = args[++i];
+                    break;
+                case "-p":
+                case "--thread-pause":
+                    if(i + 1 >= args.length) {
+                        throw new IllegalArgumentException("Command line argument --thread-pause requires one parameter, the pause time in ms");
+                    }
+                    THREAD_PAUSE = Long.parseLong(args[++i]);
                     break;
             }
         }

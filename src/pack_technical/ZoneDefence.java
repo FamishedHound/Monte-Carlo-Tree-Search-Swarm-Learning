@@ -98,6 +98,15 @@ public class ZoneDefence implements Cloneable {
 
             // ATACK MODE
             if (attack) {
+                if (delay2 <= 400) {
+                    delay2++;
+                } else {
+                    try {
+                        Thread.sleep(Constants.THREAD_PAUSE);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 attackBoid.setMovable(true);
                 PVector attackVector = sim.returnTargetVector();
                 sim.updateBoids(boids, attackBoids);

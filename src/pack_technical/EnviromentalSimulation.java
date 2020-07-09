@@ -87,7 +87,6 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, node.parent.attackBoids, collisionHandler, node.depth);
             }
             newSim.run();
-
             boolean dangerClose = newSim.rolloutReward < 0;
 
             double simVal = 0;
@@ -101,8 +100,8 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 }
             }
 
-            //String nodeName = node.name + "." + node.children.size();
-            Node childNode = node.addChild(simVal, "nodeName", newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
+            String nodeName = node.name + "." + node.children.size();
+            Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
             childNode.backPropagate(simVal);
         }
     }

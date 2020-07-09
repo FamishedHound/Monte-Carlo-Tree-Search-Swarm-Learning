@@ -18,7 +18,7 @@ public class Node {
     double nodeSimValue;
     double cumuValue = 0;
     double rolloutReward;
-    //String name; //debug only
+    String name; //debug only
     PVector accelerationAction;
     ArrayList<BoidGeneric> attackBoids;
 
