@@ -31,7 +31,7 @@ public class Constants {
      */
     public static long THREAD_PAUSE = 0;
 
-    /** Distance required for a 'hit' to be recognized */
+    /** Distance required for a 'hit' on target to be recognized */
     public static final int HIT_DISTANCE = 10;
     /** Square of Constants.HIT_DISTANCE */
     public static final int HIT_DISTANCE_SQ = HIT_DISTANCE * HIT_DISTANCE;
