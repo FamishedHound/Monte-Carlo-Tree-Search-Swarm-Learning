@@ -70,9 +70,9 @@ public class Constants {
                 case "-p":
                 case "--thread-pause":
                     if(i + 1 >= args.length) {
-                        throw new IllegalArgumentException("Command line argument --thread-pause requires one parameter, the pause time in ms");
+                        throw new IllegalArgumentException("Command line argument --thread-pause requires one parameter, the pause time in seconds");
                     }
-                    THREAD_PAUSE = Long.parseLong(args[++i]);
+                    THREAD_PAUSE = Long.parseLong(args[++i])*1000;
                     break;
             }
         }
