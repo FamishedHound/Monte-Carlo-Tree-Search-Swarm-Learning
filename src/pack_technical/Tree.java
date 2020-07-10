@@ -30,10 +30,31 @@ public class Tree {
                 continue;
             }
 
-            currentNode = currentNode.getChildren()
+            Node max = currentNode.getChildren()
+                    .stream()
+                    .max(Comparator.comparingDouble(Node::calcUCT))
+                    .orElseThrow(Error::new);
+            System.out.println("max, " +
+                            "visit: " + max.getVisits() +
+                            ", parVisits: " + max.getParent().getVisits() +
+                            ", cumVal: " + max.getCumuValue() +
+                            ", a_x: " + max.getAccelerationAction().x +
+                            ", a_y: " + max.getAccelerationAction().y +
+                            ", UCT " + max.calcUCT());
+
+            Node min = currentNode.getChildren()
                     .stream()
                     .min(Comparator.comparingDouble(Node::calcUCT))
                     .orElseThrow(Error::new);
+            System.out.println("min, " +
+                    "visit: " + min.getVisits() +
+                    ", parVisit: " + min.getParent().getVisits() +
+                    ", cumVal: " + min.getCumuValue() +
+                    ", a_x: " + min.getAccelerationAction().x +
+                    ", a_y: " + min.getAccelerationAction().y +
+                    ", UCT " + min.calcUCT() + "\n");
+
+            currentNode = max;
         } while(true);
     }
 
@@ -48,9 +69,6 @@ public class Tree {
             if(root.children.get(i).calcUCT() > bestNode){
                 bestNode = root.children.get(i).calcUCT();
                 bestNodePos = i;
-            }
-            if(root.children.get(i).nodeSimValue >= 1){
-                return root.children.get(i);
             }
         }
         //System.out.println("Node Name: " + root.children.get(bestNodePos).name);
