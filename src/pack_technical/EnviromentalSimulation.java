@@ -87,10 +87,11 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, node.parent.attackBoids, collisionHandler, node.depth);
             }
             newSim.run();
+
             boolean dangerClose = newSim.rolloutReward < 0;
 
             double simVal = 0;
-            if (newSim.getAttackBoid().hasFailed()) {//attacker <= 16 from any defender
+            if (newSim.getAttackBoid().hasFailed()) {
                 simVal = -1 ;
             } else if (newSim.victory) {
                 simVal = 1;

@@ -28,7 +28,7 @@ public class Node {
     public Node(double simulationValue, String name, int depth, double rolloutReward, ArrayList<BoidGeneric> attackBoids) {
         this.children = new ArrayList<>();
         this.nodeSimValue = simulationValue;
-        //this.name = name;
+        this.name = name;
         this.depth = depth;
         this.rolloutReward = rolloutReward;
         this.attackBoids = attackBoids;
@@ -117,12 +117,12 @@ public class Node {
         //todo - the following line handles the edge case where we have divide by zero=Infty at the start
         //which results in very bad performance this is due to how Tree.bestAvgVal decides action to take
         //based on ucb1 of direct descendents from root only. fix pls
-        int visits = (this.getVisits() == 0) ? 1 : this.getVisits();
+        //int visits = (this.getVisits() == 0) ? 1 : this.getVisits();
         if (this.getParent() == null) {
             //edge case for the root node; ucb is meaningless for the root so just return 0
             return 0;
         }
-            return this.getCumuValue() / visits + 2 * Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
+            return this.getCumuValue() / visits + 2 * Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()) / visits);
     }
 
 
