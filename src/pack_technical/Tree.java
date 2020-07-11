@@ -33,32 +33,6 @@ public class Tree {
                 selectedNode = node.calcUCT() < selectedNode.calcUCT() ? node : selectedNode;
             }
             currentNode = selectedNode;
-
-//            Node max = currentNode.getChildren()
-//                    .stream()
-//                    .max(Comparator.comparingDouble(Node::calcUCT))
-//                    .orElseThrow(Error::new);
-//            System.out.println("max " + max.name + ", " +
-//                            "visit: " + max.getVisits() +
-//                            ", parVisits: " + max.getParent().getVisits() +
-//                            ", cumVal: " + max.getCumuValue() +
-//                            ", a_x: " + max.getAccelerationAction().x +
-//                            ", a_y: " + max.getAccelerationAction().y +
-//                            ", UCT " + max.calcUCT());
-//
-//            Node min = currentNode.getChildren()
-//                    .stream()
-//                    .min(Comparator.comparingDouble(Node::calcUCT))
-//                    .orElseThrow(Error::new);
-//            System.out.println("min, " + max.name + ", " +
-//                    "visit: " + min.getVisits() +
-//                    ", parVisit: " + min.getParent().getVisits() +
-//                    ", cumVal: " + min.getCumuValue() +
-//                    ", a_x: " + min.getAccelerationAction().x +
-//                    ", a_y: " + min.getAccelerationAction().y +
-//                    ", UCT " + min.calcUCT() + "\n");
-//
-//            currentNode = max;
         } while(true);
     }
 
