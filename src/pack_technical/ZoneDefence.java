@@ -62,7 +62,7 @@ public class ZoneDefence implements Cloneable {
     public void run() {
         if (pattern.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
-            sim = new EnviromentalSimulation(boids, pattern.getImg().getNewpoints(), attackBoids, handler);
+            sim = new EnviromentalSimulation(boids, pattern.getImg().getNewpoints(), attackBoids, handler, Constants.DEBUG_SIM_LIMIT);
             param = new ParameterSimulation(boids, pattern.getImg().getNewpoints(), sim.getSimulator());
             pattern.setOnce(false);
         }
@@ -99,8 +99,10 @@ public class ZoneDefence implements Cloneable {
             // ATACK MODE
             if (attack) {
                 attackBoid.setMovable(true);
-                PVector attackVector = sim.returnTargetVector();
-                sim.updateBoids(boids, attackBoids);
+                PVector attackVector;
+                do {
+                    attackVector = sim.returnTargetVector(boids, attackBoids);
+                } while (attackVector == null);
                 attackBoid.update(attackVector);
             } else {
                 attackBoid.setStationary();

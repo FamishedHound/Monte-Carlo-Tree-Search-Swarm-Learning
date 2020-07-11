@@ -25,11 +25,12 @@ public class Constants {
     public static String OUTPUT_FILE = null;
 
     /**
-     * Debug setting; will pause the ZoneDefence thread for the
-     * amount of time below in ms before the tree in EnvironmentalSim
-     * is replaced with a new root
+     * If below is set on the command line then it will pause
+     * ZoneDefence thread until MCTS has performed the given
+     * number of iterations before refreshing the tree.
+     * (-p|--debug-sim-limit) on command line
      */
-    public static long THREAD_PAUSE = 0;
+    public static int DEBUG_SIM_LIMIT = 0;
 
     /** Distance required for a 'hit' on target to be recognized */
     public static final int HIT_DISTANCE = 10;
@@ -68,11 +69,11 @@ public class Constants {
                     OUTPUT_FILE = args[++i];
                     break;
                 case "-p":
-                case "--thread-pause":
+                case "--debug-sim-limit":
                     if(i + 1 >= args.length) {
-                        throw new IllegalArgumentException("Command line argument --thread-pause requires one parameter, the pause time in seconds");
+                        throw new IllegalArgumentException("Command line argument --debug-sim-limit requires one parameter, the number of desired iterations");
                     }
-                    THREAD_PAUSE = Long.parseLong(args[++i])*1000;
+                    DEBUG_SIM_LIMIT = Integer.parseInt(args[++i]);
                     break;
             }
         }
