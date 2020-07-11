@@ -102,10 +102,12 @@ public class Node {
     public void backPropagate(double simVal) {
         Node node = this;
         while (node.parent != null) {
+            node.incrementTimesVisited();
             node.addCumuValue(simVal);
             node = node.parent;
         }
         if (node.parent == null) {
+            node.incrementTimesVisited();
             node.setCumuValue(node.getChildren()
                     .stream()
                     .mapToDouble(Node::getCumuValue)
@@ -114,15 +116,11 @@ public class Node {
     }
 
     public double calcUCT() {
-        //todo - the following line handles the edge case where we have divide by zero=Infty at the start
-        //which results in very bad performance this is due to how Tree.bestAvgVal decides action to take
-        //based on ucb1 of direct descendents from root only. fix pls
-        //int visits = (this.getVisits() == 0) ? 1 : this.getVisits();
-        if (this.getParent() == null) {
+        if (this.getParent() == null || this.visits == 0) {
             //edge case for the root node; ucb is meaningless for the root so just return 0
-            return 0;
+            return Double.POSITIVE_INFINITY;
         }
-            return this.getCumuValue() / visits + 2 * Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()) / visits);
+            return this.getCumuValue() / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
     }
 
 

@@ -102,15 +102,6 @@ public class ZoneDefence implements Cloneable {
                 PVector attackVector = sim.returnTargetVector();
                 sim.updateBoids(boids, attackBoids);
                 attackBoid.update(attackVector);
-                if (delay2 <= 400) {
-                    delay2++;
-                } else {
-                    try {
-                        Thread.sleep(Constants.THREAD_PAUSE);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
             } else {
                 attackBoid.setStationary();
             }
