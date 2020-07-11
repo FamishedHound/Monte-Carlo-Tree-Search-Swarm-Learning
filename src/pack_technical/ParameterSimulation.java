@@ -26,12 +26,7 @@ public class ParameterSimulation extends Thread{
     PolynomialCurveFitter fitter ;
 
     int k =0;
-    int k2=0;
-
     private final int howManyErrors=20;
-    /*private  double learningRate = 1;
-    private double learningRateParameters=2;*/
-    //private  double learningRate = 0.0001;
     private  double learningRate = 1;
     private double fastLearningRate = 15;
     private final double learningRateParameters=0.002;
@@ -56,30 +51,19 @@ public class ParameterSimulation extends Thread{
     Map<Integer,Double> aliWEst= new HashMap<>();
     Map<Integer,Double> wayPointEst= new HashMap<>();
 
-
     ArrayList<Integer> resultsInt = new ArrayList<>();
     ArrayList<Float> resultsFloat = new ArrayList<>();
 
-    ArrayList<BoidGeneric> nextIterationObservation = new ArrayList<>();
-
     Map<Integer,PVector> endPositions= new HashMap<>();
-    private boolean observing=true;
 
     private final ArrayList<PVector> initialLocation = new ArrayList<>();
-
-
-    int oldBegin=0;
     private final ArrayList<PVector> endingLocation = new ArrayList<>();
 
     public ParameterSimulation(ArrayList<BoidGeneric> defenders , ArrayList<int[]> pattern, AI_type currentAi) {
         this.currentAi=currentAi;
         this.scheme= new PatrollingScheme(currentAi.getWayPointForce());
         this.pattern=pattern;
-        //scheme.getWaypoints().add(new PVector(550,535));
-        //scheme.getWaypoints().add(new PVector(550,485));
     }
-
-
 
     public void assigntBoidsToTheirSimulations(ArrayList<BoidGeneric> pop , Map<Integer,ArrayList<WeightedObservedPoint>> map ){
         int couter=0;
@@ -90,27 +74,12 @@ public class ParameterSimulation extends Thread{
         //System.out.println(" Population before applying " + Arrays.toString(map.get(0).toArray()));
     }
     public void run(){
-            setUpCheckPoints();
-           // StringBuilder sb = new StringBuilder();
-        //System.out.println("I have start with these parameters " + currentAi.getSep_neighbourhood_size() + " " + currentAi.getAli_neighbourhood_size() + " " + currentAi.getCoh_neighbourhood_size() + " " + currentAi.getSep_weight()  + " " + currentAi.getAli_weight() + " " + currentAi.getCoh_weight() + " " + currentAi.getWayPointForce());
-           learnTheErrors(sepBoidError,1,observations.get(1));
-       // System.out.println("1");
-            calculateNewParameter(1);
-           /*learnTheErrors(aliBoidError,2,observations.get(1));
-            calculateNewParameter(2);
-           learnTheErrors(cohBoidError,3,observations.get(1));
-            calculateNewParameter(3);*/
-           /*learnTheErrors(sepWBoidError,4,observations.get(1));
-            calculateNewParameter(4);
-           learnTheErrors(aliWBoidError,5,observations.get(1));
-            calculateNewParameter(5);
-           learnTheErrors(cohWBoidError,6,observations.get(1));
-            calculateNewParameter(6);
-           learnTheErrors(wayPointForceBoidError,7,observations.get(1));
-            calculateNewParameter(7);*/
-         learningRate*=0.90 ;
-         fastLearningRate*=0.90;
-            clearMapping();
+        setUpCheckPoints();
+        learnTheErrors(sepBoidError,1,observations.get(1));
+        calculateNewParameter(1);
+        learningRate*=0.90 ;
+        fastLearningRate*=0.90;
+        clearMapping();
 
         //System.out.println("I have finished with  " + currentAi.getSep_neighbourhood_size() + " " + currentAi.getAli_neighbourhood_size() + " " + currentAi.getCoh_neighbourhood_size() + " " + currentAi.getSep_weight()  + " " + currentAi.getAli_weight() + " " + currentAi.getCoh_weight()+ " " + currentAi.getWayPointForce());
 
@@ -121,18 +90,8 @@ public class ParameterSimulation extends Thread{
 
         for(int[] cord : pattern){
             scheme.getWaypoints().add(new PVector(cord[0],cord[1]));
-//            fw.write(Arrays.toString(cord).replace(" ",""));
         }
-        // THIS WILL BE CONTINUOUSLY ADDING WAYPOINTS???
-        //            for (int[] cord : pattern) {
-//                scheme.getWaypoints().add(new PVector(cord[0], cord[1]));
-////
-//            }
-        //scheme.waypoints = new ArrayList<>();
-        //scheme.getWaypoints().add(new PVector(550,535));
-        // scheme.getWaypoints().add(new PVector(550,485));
-
-
+        //basically same as code in simulation
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         float shortestDistanceSq = 3000 * 3000;
         int counter = 0;
@@ -244,67 +203,16 @@ public class ParameterSimulation extends Thread{
 
                     int erased = 0;
                     double estimation = 0;
-
-                    // The code below assumes an ordered list
-                    /*for(int i = 1; i < boid.getValue().size()/2; i++) {
-                        if (Math.abs(boid.getValue().get(i).getY() - boid.getValue().get(i-1).getY()) < 0.00001) {
-                            WeightedObservedPoint copy = new WeightedObservedPoint(0,boid.getValue().get(i).getX(),boid.getValue().get(i).getY());
-
-                            boid.getValue().set(i,copy);
-                            erased++;
-                        }
-                    }
-
-                    for(int i = boid.getValue().size() - 2; i >= boid.getValue().size()/2; i--) {
-                        if (Math.abs(boid.getValue().get(i).getY() - boid.getValue().get(i+1).getY()) < 0.00001) {
-                            WeightedObservedPoint copy = new WeightedObservedPoint(0,boid.getValue().get(i).getX(),boid.getValue().get(i).getY());
-
-                            boid.getValue().set(i,copy);
-                            erased++;
-                        }
-                    }*/
-
-
-                    /*if (erased > boid.getValue().size() - 3) {
-                        estimation = currentAi.getSep_neighbourhood_size();
-                        while (estimation >= currentAi.getSep_neighbourhood_size() - 10 && estimation <= currentAi.getSep_neighbourhood_size() + 10) {
-                            estimation = randFloat(AI_manager.getNeighbourhoodLowerBound(), AI_manager.getNeighbourhoodUpperBound());
-                        }
-                    }
-
-                    else {*/
-
-                        double[] coefincients = fitter.fit(boid.getValue());
-                        double terms_toal = 0;
-
+                    double[] coefincients = fitter.fit(boid.getValue());
+                    double terms_toal = 0;
                         for (int e = 1; e < 3; e++) {
-                            //  System.out.println(" coef " + Arrays.toString(coefincients));
                             // power of zero can be ignored for calculating the gradient
                             terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getSep_neighbourhood_size());
-                            //   System.out.println("terms_total " + terms_toal);
-//                        if(terms_toal>= AI_manager.getNeighbourhoodUpperBound() || terms_toal <= AI_manager.getNeighbourhoodLowerBound()){
-//                            System.out.println("kappa");
-//                            terms_toal=currentAi.getSep_neighbourhood_size();
-//                            learningRate*=0.5;
-//                            learningRateParameters*=0.1;
-//                        } else {
-//                            learningRateParameters*=1.25;
-//                            learningRate *=10;
-//                        }
-
                         }
-
                         estimation = currentAi.getSep_neighbourhood_size() - terms_toal * learningRate;
-
-                        //if(estimation>= AI_manager.getNeighbourhoodUpperBound() || estimation <= AI_manager.getNeighbourhoodLowerBound()){
-                        //if(estimation <= 20 || estimation >= 40){
-                        //if (estimation >= AI_manager.getNeighbourhoodUpperBound() || estimation <= AI_manager.getNeighbourhoodLowerBound()) {
                     if (estimation >= AI_manager.neighbourhoodSeparation_upper_bound || estimation <= AI_manager.neighbourhoodSeparation_lower_bound) {
-                            // System.out.println("kappa");
                             estimation = currentAi.getSep_neighbourhood_size();
-
                         }
-                    //}
                     sepEst.put(boid.getKey(),estimation);
 
                 }
@@ -493,21 +401,8 @@ public class ParameterSimulation extends Thread{
 
         calculateDistance();
         PatrollingScheme schemeCopy = new PatrollingScheme(currentAi.getWayPointForce());
-        for(PVector k : scheme.getWaypoints()){
-            schemeCopy.getWaypoints().add(new PVector(k.x,k.y));
-        }
-
-        float[] values = new float[howManyErrors];
-
-        float lowerBound = AI_manager.neighbourhoodSeparation_lower_bound;
-        float higherBound = AI_manager.neighbourhoodSeparation_upper_bound;
-
-        values[0] = lowerBound - 1;
-        values[howManyErrors-1] = higherBound + 1;
-        float separation = (higherBound - lowerBound + 2)/(howManyErrors -2);
-
-        for(int z = 1; z < howManyErrors -1; z++) {
-            values[z] = values[z-1] + separation;
+        for(PVector k : scheme.getWaypoints()) {
+            schemeCopy.getWaypoints().add(new PVector(k.x, k.y));
         }
 
         for(int j=0;j<howManyErrors;j++) {
@@ -590,7 +485,6 @@ public class ParameterSimulation extends Thread{
             ArrayList<BoidGeneric> endStateForCalculation = stack.get(end);
             observations.put(1, initialStateForCalculation); //initial state
             observations.put(2, endStateForCalculation);//end state
-            observing = false;
             new Thread(this).start();
             once=false;
         }

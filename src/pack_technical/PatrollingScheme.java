@@ -9,6 +9,20 @@ import java.util.Iterator;
 import pack_1.Utility;
 
 public class PatrollingScheme {
+
+    float waypointforce;
+    private volatile ArrayList<PVector> waypoints = new ArrayList<>();
+    private PVector currWaypointA = new PVector(0,0);
+    private PVector currWaypoint = new PVector(0,0);
+    public volatile Iterator<PVector> iterator;
+    private Iterator<PVector> iteratorA;
+    public volatile int currentPosition = 0;
+    private final ArrayList<PVector> waypointsA = new ArrayList<>();
+
+    public PatrollingScheme(float waypointforce){
+        this.waypointforce=waypointforce;
+    }
+
     public float getWaypointforce() {
         return waypointforce;
     }
@@ -17,46 +31,36 @@ public class PatrollingScheme {
         this.waypointforce = waypointforce;
     }
 
-    float waypointforce;
-
-    public PatrollingScheme(float waypointforce){
-        this.waypointforce=waypointforce;
-    }
     public ArrayList<PVector> getWaypoints() {
         return waypoints;
     }
-    private PVector currWaypoint = new PVector(0,0);
 
-    public void setCurrWaypointA(PVector currWaypoint) {
-        this.currWaypointA = currWaypoint;
+    public void setWaypoints(ArrayList<PVector> waypoints) {
+        this.waypoints = waypoints;
     }
 
     public PVector getCurrWaypointA() {
         return currWaypointA;
     }
 
-    private PVector currWaypointA = new PVector(0,0);
-    private ArrayList<PVector> waypoints = new ArrayList<>();
+    public void setCurrWaypointA(PVector currWaypoint) {
+        this.currWaypointA = currWaypoint;
+    }
 
     public ArrayList<PVector> getWaypointsA() {
         return waypointsA;
     }
 
-    private final ArrayList<PVector> waypointsA = new ArrayList<>();
-    public Iterator<PVector> iterator;
-    private Iterator<PVector> iteratorA;
-    public int currentPosition = 0;
-
     public PVector getCurrWaypoint() {
         return currWaypoint;
     }
 
-    public Iterator<PVector> getIterator() {
-        return iterator;
-    }
-
     public void setCurrWaypoint(PVector currWaypoint) {
         this.currWaypoint = currWaypoint;
+    }
+
+    public Iterator<PVector> getIterator() {
+        return iterator;
     }
 
     public void setup(){
@@ -64,13 +68,6 @@ public class PatrollingScheme {
         currWaypoint = iterator.next();
 
         currentPosition = 0;
-    }
-    public void copy(){
-
-    }
-
-    public void setWaypoints(ArrayList<PVector> waypoints) {
-        this.waypoints = waypoints;
     }
 
     public void restartIterator(){
