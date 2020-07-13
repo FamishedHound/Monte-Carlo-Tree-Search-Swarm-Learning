@@ -30,7 +30,7 @@ public class Tree {
                 if(randomNum < epsilon) {
                     continue;
                 }
-                selectedNode = node.calcUCT() < selectedNode.calcUCT() ? node : selectedNode;
+                selectedNode = node.calcUCT() > selectedNode.calcUCT() ? node : selectedNode;
             }
             currentNode = selectedNode;
         } while(true);

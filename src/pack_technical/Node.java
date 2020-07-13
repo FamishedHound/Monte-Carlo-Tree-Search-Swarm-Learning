@@ -120,7 +120,7 @@ public class Node {
             //edge case for the root node; ucb is meaningless for the root so just return 0
             return Double.POSITIVE_INFINITY;
         }
-            return this.getCumuValue() / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()-1) / visits);
+            return this.getCumuValue() / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()) / visits);
     }
 
 
