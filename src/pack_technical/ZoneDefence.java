@@ -25,10 +25,8 @@ public class ZoneDefence implements Cloneable {
     boolean flag = true;
     int DELAY = 200;
     int delay2 = 0;
-
     CollisionHandler handler;
     PatternHandler pattern;
-
     //timing simulation/real world
     float time = 0;
     long startTime = 0;

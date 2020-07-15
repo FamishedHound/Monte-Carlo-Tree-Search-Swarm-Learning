@@ -1,4 +1,6 @@
 package pack_technical;
+import pack_1.Utility;
+import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import processing.core.PVector;
@@ -36,7 +38,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
 
     public void setAiToInnerSimulation(AI_type t) {
-        ai_type = t;
+        ai_type = new AI_type(30, 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");;
     }
 
     public int getMaxSimulationIter() {

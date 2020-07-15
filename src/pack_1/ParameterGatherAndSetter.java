@@ -23,6 +23,9 @@ public class ParameterGatherAndSetter {
     private long startTimeWithoutwait = -1;
     private ArrayList<String> historyOfLearning = new ArrayList<>();
     private int iterations = 0;
+    Difficulty difficulty;
+    EnumMap<Difficulty, ArrayList<PVector>> defenderBoidWaypoints = new EnumMap<>(Difficulty.class);
+    int amountOfBoids=0;
 
     private enum Difficulty {
         EASY,
@@ -41,10 +44,7 @@ public class ParameterGatherAndSetter {
             }
         }
     }
-    Difficulty difficulty;
-    EnumMap<Difficulty, ArrayList<PVector>> defenderBoidWaypoints = new EnumMap<>(Difficulty.class);
 
-    int amountOfBoids=0;
 
     public ParameterGatherAndSetter(GameManager game, CollisionHandler col, String[] args) throws IllegalArgumentException {
         if(args.length < 4) {

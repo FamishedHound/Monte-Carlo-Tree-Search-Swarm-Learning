@@ -1,5 +1,6 @@
 package pack_technical;
 
+import pack_1.Constants;
 import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
@@ -19,10 +20,18 @@ public abstract class Simulation {
     ArrayList<int[]> waypointCoords;
 
     public Simulation(ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
+        ArrayList<int[]> correctCoords = new ArrayList<>();
+        //only works on medium, chamnge hardcodes for others
+        int[] wp1 = new int[]{(int) PVector.add(Constants.TARGET, new PVector(-100, 50)).x, (int) PVector.add(Constants.TARGET, new PVector(-100, 50)).y};
+        int[] wp2 = new int[]{(int) PVector.add(Constants.TARGET, new PVector(100, 0)).x, (int) PVector.add(Constants.TARGET, new PVector(100, 0)).y};
+        int[] wp3 = new int[]{(int) PVector.add(Constants.TARGET, new PVector(-100, -95)).x, (int) PVector.add(Constants.TARGET, new PVector(-100, 95)).y};
+        correctCoords.add(wp1);
+        correctCoords.add(wp2);
+        correctCoords.add(wp3);
         this.collisionHandler = collisionHandler;
-        this.waypointCoords = waypointCoords;
+        this.waypointCoords = correctCoords;
         this.defenderBoids = defenderBoids;
-        this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
+        this.ai_type = new AI_type(30, 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
         this.attackBoids = attackBoids;
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
     }
