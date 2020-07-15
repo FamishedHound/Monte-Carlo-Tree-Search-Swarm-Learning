@@ -23,8 +23,7 @@ public class ZoneDefence implements Cloneable {
     private final ArrayList<BoidGeneric> attackBoids;
     static int counter = 0;
     boolean flag = true;
-    int DELAY = 200;
-    int delay2 = 0;
+    int warmUpTimer = 0;
     CollisionHandler collisionHandler;
     PatternHandler patternHandler;
     //timing simulation/real world
@@ -73,14 +72,16 @@ public class ZoneDefence implements Cloneable {
         }
 
         for (BoidGeneric attackBoid : attackBoids) {
+            //the placement of these counters assume only one attackboid
+            //also the magic numbers arent great
             counter++;
-            if (counter >= DELAY / 8 && counter <= DELAY * 2) {
+            if (counter >= Constants.warmUpTime / 8 && counter <= Constants.warmUpTime * 2) {
                 if (!attack) attackBoid.setMovable(false);
                 attackBoid.setStationary();
-                delay2++;
+                warmUpTimer++;
             }
 
-            if (delay2 >= 200) {
+            if (warmUpTimer >= Constants.warmUpTime) {
                 patternHandler.newObservation(defenderBoids, counter);
                 if (attackBoids != null && flag && patternHandler.analyze() == 1) {
                     flag = false;
