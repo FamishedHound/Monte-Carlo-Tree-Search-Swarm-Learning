@@ -124,7 +124,7 @@ public class ParameterSimulation extends Thread{
 //            fw.write(Arrays.toString(cord).replace(" ",""));
         }
         // THIS WILL BE CONTINUOUSLY ADDING WAYPOINTS???
-        //            for (int[] cord : pattern) {
+        //            for (int[] cord : patternHandler) {
 //                scheme.getWaypoints().add(new PVector(cord[0], cord[1]));
 ////
 //            }

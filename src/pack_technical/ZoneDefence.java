@@ -14,63 +14,58 @@ import java.util.ArrayList;
 
 public class ZoneDefence implements Cloneable {
 
-    public ArrayList<BoidGeneric> getBoids() {
-        return boids;
+    public ArrayList<BoidGeneric> getDefenderBoids() {
+        return defenderBoids;
     }
 
     private final boolean defend = true;
-    private final ArrayList<BoidGeneric> boids;
+    private final ArrayList<BoidGeneric> defenderBoids;
     private final ArrayList<BoidGeneric> attackBoids;
     static int counter = 0;
     boolean flag = true;
     int DELAY = 200;
     int delay2 = 0;
-
-    CollisionHandler handler;
-    PatternHandler pattern;
-
+    CollisionHandler collisionHandler;
+    PatternHandler patternHandler;
     //timing simulation/real world
-    float time = 0;
     long startTime = 0;
-    float circumfence;
-    private final PatrollingScheme patrolling = new PatrollingScheme(0.04f);
-    private final ArrayList<PVector> waypoints = patrolling.getWaypoints();
-    EnviromentalSimulation sim;
+    private final PatrollingScheme patrollingScheme = new PatrollingScheme(0.04f);
+    private final ArrayList<PVector> waypoints = patrollingScheme.getWaypoints();
+    EnviromentalSimulation enviromentalSimulation;
     boolean attack = false;
-    FlockManager flock;
-    int timer = 0;
-    ParameterSimulation param;
-    ParameterGatherAndSetter output;
+    FlockManager flockManager;
+    ParameterSimulation parameterSimulation;
+    ParameterGatherAndSetter parameterGatherAndSetter;
 
 
     //TODO fix this hardcoded path
     public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 
-    public ZoneDefence(CollisionHandler collision, FlockManager flock, ParameterGatherAndSetter output) throws IOException {
-        this.flock = flock;
-        this.handler = collision;
-        boids = GameManager.get_team(0);
+    public ZoneDefence(CollisionHandler collision, FlockManager flockManager, ParameterGatherAndSetter parameterGatherAndSetter) throws IOException {
+        this.flockManager = flockManager;
+        this.collisionHandler = collision;
+        defenderBoids = GameManager.get_team(0);
         attackBoids = GameManager.get_team(1);
-        pattern = new PatternHandler();
-        this.output = output;
-        waypoints.addAll(output.returnDifficulty());
-        patrolling.getWaypointsA().add(Constants.TARGET.copy());
-        patrolling.setup();
+        patternHandler = new PatternHandler();
+        this.parameterGatherAndSetter = parameterGatherAndSetter;
+        waypoints.addAll(parameterGatherAndSetter.returnDifficulty());
+        patrollingScheme.getWaypointsA().add(Constants.TARGET.copy());
+        patrollingScheme.setup();
     }
 
 
     public void run() {
-        if (pattern.isOnce()) {
+        if (patternHandler.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
-            sim = new EnviromentalSimulation(boids, pattern.getImg().getNewpoints(), attackBoids, handler);
-            param = new ParameterSimulation(boids, pattern.getImg().getNewpoints(), sim.getSimulator());
-            pattern.setOnce(false);
+            enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getImg().getNewpoints(), attackBoids, collisionHandler);
+            parameterSimulation = new ParameterSimulation(defenderBoids, patternHandler.getImg().getNewpoints(), enviromentalSimulation.getSimulator());
+            patternHandler.setOnce(false);
         }
 
-        if (sim != null) {
-            if (param.observe(boids) == 1) {
-                sim.setAiToInnerSimulation(param.updateAi());
-                output.sendParameters(param.updateAi());
+        if (enviromentalSimulation != null) {
+            if (parameterSimulation.observe(defenderBoids) == 1) {
+                enviromentalSimulation.setAiToInnerSimulation(parameterSimulation.updateAi());
+                parameterGatherAndSetter.sendParameters(parameterSimulation.updateAi());
                 attack = true;
                 writer14.write("I started to attack " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + counter + "\n");
                 writer14.flush();
@@ -86,11 +81,8 @@ public class ZoneDefence implements Cloneable {
             }
 
             if (delay2 >= 200) {
-                pattern.newObservation(boids, counter);
-                if (attackBoids != null && flag && pattern.analyze() == 1) {
-                    circumfence = (float) (Math.PI * 2 * pattern.getRadius());
-                    time = (circumfence / boids.get(0).getVelocity().mag());
-                    System.out.println(boids.get(0).getVelocity().mag() + "   " + circumfence + "   " + time + "  " + (float) startTime);
+                patternHandler.newObservation(defenderBoids, counter);
+                if (attackBoids != null && flag && patternHandler.analyze() == 1) {
                     flag = false;
                     startTime = System.nanoTime();
                 }
@@ -99,27 +91,24 @@ public class ZoneDefence implements Cloneable {
             // ATACK MODE
             if (attack) {
                 attackBoid.setMovable(true);
-                PVector attackVector = sim.returnTargetVector();
-                sim.updateBoids(boids, attackBoids);
+                PVector attackVector = enviromentalSimulation.returnTargetVector();
+                enviromentalSimulation.updateBoids(defenderBoids, attackBoids);
                 attackBoid.update(attackVector);
             } else {
                 attackBoid.setStationary();
             }
         }
 
-        for (BoidGeneric defenderBoid : boids) {
+        for (BoidGeneric defenderBoid : defenderBoids) {
             if (defend) {
-                PVector acceleration = defenderBoid.getAcceleration();
-                PVector velocity = defenderBoid.getVelocity();
-                //PVector velocity = new PVector(0,0);
-                PVector location = defenderBoid.getLocation();
-                velocity.limit(1);
-                location.add(velocity.add(patrolling.patrol(defenderBoid.getLocation(), defenderBoid)));
-                acceleration.mult(0);
+                defenderBoid.update(patrollingScheme.patrol(defenderBoid.getLocation(), defenderBoid));
+                //velocity.limit(1);
+                //location.add(velocity.add(patrollingScheme.patrol(defenderBoid.getLocation(), defenderBoid)));
+                //acceleration.mult(0);
             } else {
                 defenderBoid.setStationary();
             }
         }
-        output.incrementIterations();
+        parameterGatherAndSetter.incrementIterations();
     }
 }

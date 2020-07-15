@@ -9,8 +9,8 @@ import pack_boids.*;
 import processing.core.PVector;
 
 /*
- * A flock holds a list of real_boids, and performs operations concerning removing and adding real_boids
- * to the simulation in a tidy manner. can also perform flock-wide operations such as returning the
+ * A flockManager holds a list of real_boids, and performs operations concerning removing and adding real_boids
+ * to the simulation in a tidy manner. can also perform flockManager-wide operations such as returning the
  * nearest boid.
  */
 public class FlockManager {
@@ -55,7 +55,7 @@ public class FlockManager {
         }
 
         for (int step = 0; step < steps; step++) {
-            // first run camera that does not interfere with the flock
+            // first run camera that does not interfere with the flockManager
             if (camera_boid != null)
                 camera_boid.run(null, (step == 0), simulation);
             for (BoidGeneric b : boids) {
@@ -109,7 +109,7 @@ public class FlockManager {
         BoidStandard nearestBoid = null;
         float selectDistSq = selectDist * selectDist;
         float distRecordSq = Float.MAX_VALUE;
-        // attempt select camera first, this is not part of the flock
+        // attempt select camera first, this is not part of the flockManager
         float distSq = Utility.distSq(mousePos, camera_boid.getLocation());
         if ((distSq < distRecordSq) && (distSq < selectDistSq)) {
             nearestBoid = camera_boid;

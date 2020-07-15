@@ -10,7 +10,7 @@ import processing.event.MouseEvent;
 
 /*
  * handles inputs and outputs, mainly inputs. Input is taken from the launcher class and handed to various managers,
- * for instance telling the display manager do highlight a boid when the flock determines a close boid is hovered over.
+ * for instance telling the display manager do highlight a boid when the flockManager determines a close boid is hovered over.
 */
 public class IOManager {
 

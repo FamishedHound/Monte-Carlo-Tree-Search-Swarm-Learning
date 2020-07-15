@@ -10,6 +10,14 @@ public class Constants {
     //the value can then be used in the code wherever desired.
 
     /**
+     * The time required for waypoints of the defenders to be adequately
+     * learned enough for the attacker to start the approach.
+     * attacker should be frozen in place before this time.
+     * This was set empirically.
+     */
+    public static int warmUpTime = 200;
+
+    /**
      * The target for the attack boids.
      * Default to (550, 500). Set as an argument using
      * (-t|--target) x y, for example -t 400 300
@@ -31,9 +39,8 @@ public class Constants {
      */
     public static long THREAD_PAUSE = 0;
 
-    /** Distance required for a 'hit' on target to be recognized */
+    /** Distance required for a 'hit' on target to be recognized and its square */
     public static final int HIT_DISTANCE = 10;
-    /** Square of Constants.HIT_DISTANCE */
     public static final int HIT_DISTANCE_SQ = HIT_DISTANCE * HIT_DISTANCE;
 
     /** Distance required to count as collision between boids and its square */

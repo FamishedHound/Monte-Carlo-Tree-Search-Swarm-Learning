@@ -199,7 +199,7 @@ public class DisplayManager {
 
         parent.text("Left Mouse - selects a boid to view additional options", parent.width - borderoffset,
                 parent.height - 70);
-        parent.text("Right Mouse - spawn a flock of boids at the position", parent.width - borderoffset,
+        parent.text("Right Mouse - spawn a flockManager of boids at the position", parent.width - borderoffset,
                 parent.height - 50);
 
     }
