@@ -8,6 +8,7 @@ import processing.core.PVector;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 //TODO: rename delay2
@@ -31,7 +32,7 @@ public class ZoneDefence implements Cloneable {
     private final PatrollingScheme patrollingScheme = new PatrollingScheme(0.04f);
     private final ArrayList<PVector> waypoints = patrollingScheme.getWaypoints();
     EnviromentalSimulation enviromentalSimulation;
-    boolean attack = false;
+    private final AtomicBoolean attack = new AtomicBoolean();
     FlockManager flockManager;
     ParameterSimulation parameterSimulation;
     ParameterGatherAndSetter parameterGatherAndSetter;
@@ -65,7 +66,7 @@ public class ZoneDefence implements Cloneable {
             if (parameterSimulation.observe(defenderBoids) == 1) {
                 enviromentalSimulation.setAiToInnerSimulation(parameterSimulation.updateAi());
                 parameterGatherAndSetter.sendParameters(parameterSimulation.updateAi());
-                attack = true;
+                attack.set(true);
                 writer14.write("I started to attack " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + counter + "\n");
                 writer14.flush();
             }
@@ -76,7 +77,7 @@ public class ZoneDefence implements Cloneable {
             //also the magic numbers arent great
             counter++;
             if (counter >= Constants.warmUpTime / 8 && counter <= Constants.warmUpTime * 2) {
-                if (!attack) attackBoid.setMovable(false);
+                if (!attack.get()) attackBoid.setMovable(false);
                 attackBoid.setStationary();
                 warmUpTimer++;
             }
@@ -90,7 +91,7 @@ public class ZoneDefence implements Cloneable {
             }
 
             // ATACK MODE
-            if (attack) {
+            if (attack.get()) {
                 attackBoid.setMovable(true);
                 PVector attackVector = enviromentalSimulation.returnTargetVector();
                 enviromentalSimulation.updateBoids(defenderBoids, attackBoids);
