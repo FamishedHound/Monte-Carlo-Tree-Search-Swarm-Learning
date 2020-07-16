@@ -66,7 +66,6 @@ public class PatternHandler {
                 }
                 buffer.remove(0);
             }
-
             buffer.add(cord);
         }
         return newpoints;
