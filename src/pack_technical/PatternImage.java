@@ -1,29 +1,20 @@
 package pack_technical;
 
-import javax.imageio.ImageIO;
+import processing.core.PVector;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class PatternImage {
 
 
     private final ArrayList<int[]> points = new ArrayList<>();
-
-    public ArrayList<int[]> getNewpoints() {
-        return newpoints;
-    }
-
     private final ArrayList<int[]> newpoints = new ArrayList<>();
     final BufferedImage image = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
     final BufferedImage image2 = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
-
     final Graphics2D graphics2D = image.createGraphics();
     final Graphics2D graphics2Di = image2.createGraphics();
-    Random rand = new Random();
 
     public PatternImage() {
         graphics2D.setPaint(Color.WHITE);
@@ -91,11 +82,20 @@ public class PatternImage {
         return newpoints;
     }
 
-    public void clearMe(){
-        points.clear();
-    }
+
     public ArrayList<int[]> getPoints() {
         return points;
     }
 
+    public void addPoints(PVector point) {
+
+    };
+
+    public ArrayList<int[]> getNewpoints() {
+        return newpoints;
+    }
+
+    public void clearMe(){
+        points.clear();
+    }
 }

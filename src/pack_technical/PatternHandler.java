@@ -52,7 +52,9 @@ public class PatternHandler {
 
     public int analyze() {
 
-        if (observations.size() >= 150) observations.clear();
+        if (observations.size() >= 150) {
+            observations.clear();
+        }
         if (observations.size() < 150 && observations.size() > 50) {
             PatternEntry circle = observations.get(0);
             PatternEntry base = new PatternEntry(Constants.TARGET);
