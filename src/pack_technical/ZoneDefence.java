@@ -11,13 +11,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-//TODO: rename delay2
-
 public class ZoneDefence implements Cloneable {
-
-    public ArrayList<BoidGeneric> getDefenderBoids() {
-        return defenderBoids;
-    }
 
     private final boolean defend = true;
     private final ArrayList<BoidGeneric> defenderBoids;
@@ -57,8 +51,8 @@ public class ZoneDefence implements Cloneable {
     public void run() {
         if (patternHandler.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
-            enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getImg().getNewpoints(), attackBoids, collisionHandler);
-            parameterSimulation = new ParameterSimulation(defenderBoids, patternHandler.getImg().getNewpoints(), enviromentalSimulation.getSimulator());
+            enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids, collisionHandler);
+            parameterSimulation = new ParameterSimulation(defenderBoids, patternHandler.getNewpoints(), enviromentalSimulation.getSimulator());
             patternHandler.setOnce(false);
         }
 
@@ -104,9 +98,6 @@ public class ZoneDefence implements Cloneable {
         for (BoidGeneric defenderBoid : defenderBoids) {
             if (defend) {
                 defenderBoid.update(patrollingScheme.patrol(defenderBoid.getLocation(), defenderBoid));
-                //velocity.limit(1);
-                //location.add(velocity.add(patrollingScheme.patrol(defenderBoid.getLocation(), defenderBoid)));
-                //acceleration.mult(0);
             } else {
                 defenderBoid.setStationary();
             }

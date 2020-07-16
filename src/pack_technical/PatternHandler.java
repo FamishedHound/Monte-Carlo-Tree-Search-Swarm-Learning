@@ -4,13 +4,15 @@ import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import pack_1.Constants;
 
 public class PatternHandler {
-    public ArrayList<PatternEntry> getObservations() {
-        return observations;
-    }
+
+    private boolean once = false; //For testing Envriomental simulation once delete later
+    private final List<PVector> points = new ArrayList<>();
+    private final List<PVector> newpoints = new ArrayList<>();
 
     public boolean isOnce() {
         return once;
@@ -20,25 +22,17 @@ public class PatternHandler {
         this.once = once;
     }
 
-    //For testing Envriomental simulation once delete later
-    private boolean once = false;
-
-
-    ArrayList<PatternEntry> observations = new ArrayList<>();
-    public float ERROR= 0.2f;
-
-    public float getRadius() {
-        return radius;
+    public void clearPoints() {
+        this.points.clear();
     }
 
-    public float radius;
-
-    public PatternImage getImg() {
-        return img;
+    public void addPoint(PVector point) {
+        this.points.add(point);
     }
 
-    public PatternImage img = new PatternImage();
-
+    public List<PVector> getNewpoints() {
+        return newpoints;
+    }
 
     public void newObservation(ArrayList<BoidGeneric> boids, int counter){
         if(counter%10==0) {
@@ -46,30 +40,36 @@ public class PatternHandler {
                     .map(boid -> boid.getLocation())
                     .reduce(new PVector(0,0), (a, b) -> PVector.add(a, b))
                     .div(boids.size());
-            img.addPoint(middleOfTheMass);
-            observations.add(new PatternEntry(middleOfTheMass));
+            addPoint(middleOfTheMass);
         }
     }
 
     public int analyze() {
-
-        if (observations.size() >= 150) {
-            observations.clear();
-        }
-        if (observations.size() < 150 && observations.size() > 50) {
-            PatternEntry circle = observations.get(0);
-            PatternEntry base = new PatternEntry(Constants.TARGET);
-
-            if(observations.size()==100) {
-                img.simplify();
-                img.clearPoints();
-                //img.clearMe();
-                radius = circle.difference(base);
-                once=true;
-                return 1;
-            }
+        if(points.size()==100) {
+            simplify();
+            clearPoints();
+            once=true;
+            return 1;
         }
         return 0;
     }
 
+    public List<PVector> simplify() {
+        List<PVector> buffer = new ArrayList<>();
+        for(PVector cord : this.points) {
+            if(buffer.size()==3 ) {
+                double degree = Math.toDegrees(buffer.get(2).sub(buffer.get(1)).heading() - buffer.get(1).sub(buffer.get(0)).heading());
+                // TODO if the amount is in degrees, why are we adding 2pi?!
+                //degree+=(2*Math.PI);
+                if (Math.abs(180-Math.abs(degree))>10) {
+                    newpoints.add(buffer.get(2));
+                }
+                buffer.remove(0);
+            }
+
+            buffer.add(cord);
+        }
+        return newpoints;
+    }
 }
+
