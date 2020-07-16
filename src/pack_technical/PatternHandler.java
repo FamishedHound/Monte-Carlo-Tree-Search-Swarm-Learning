@@ -42,10 +42,11 @@ public class PatternHandler {
 
     public void newObservation(ArrayList<BoidGeneric> boids, int counter){
         if(counter%10==0) {
-            PVector middleOfTheMass = boids.stream().map(boid -> boid.getLocation())
-                .reduce(new PVector(0,0), (a, b) -> PVector.add(a, b))
-                .div(boids.size());
-            img.getPoints().add(new int[]{(int)middleOfTheMass.x, (int)middleOfTheMass.y});
+            PVector middleOfTheMass = boids.stream()
+                    .map(boid -> boid.getLocation())
+                    .reduce(new PVector(0,0), (a, b) -> PVector.add(a, b))
+                    .div(boids.size());
+            img.addPoint(middleOfTheMass);
             observations.add(new PatternEntry(middleOfTheMass));
         }
     }

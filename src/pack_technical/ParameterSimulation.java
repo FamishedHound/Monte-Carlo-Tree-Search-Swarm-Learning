@@ -15,7 +15,7 @@ import java.util.*;
 public class ParameterSimulation extends Thread{
     private boolean once=true;
     private ArrayList<BoidGeneric> defenders;
-    private final ArrayList<int[]> pattern;
+    private final List<PVector> pattern;
     private final AI_type currentAi;
     private final Random rand = new Random();
     private PatrollingScheme scheme ;
@@ -71,7 +71,7 @@ public class ParameterSimulation extends Thread{
     int oldBegin=0;
     private final ArrayList<PVector> endingLocation = new ArrayList<>();
 
-    public ParameterSimulation(ArrayList<BoidGeneric> defenders , ArrayList<int[]> pattern, AI_type currentAi) {
+    public ParameterSimulation(ArrayList<BoidGeneric> defenders , List<PVector> pattern, AI_type currentAi) {
         this.currentAi=currentAi;
         this.scheme= new PatrollingScheme(currentAi.getWayPointForce());
         this.pattern=pattern;
@@ -119,8 +119,8 @@ public class ParameterSimulation extends Thread{
 
     public void setUpCheckPoints(){
 
-        for(int[] cord : pattern){
-            scheme.getWaypoints().add(new PVector(cord[0],cord[1]));
+        for(PVector cord : pattern){
+            scheme.getWaypoints().add(cord);
 //            fw.write(Arrays.toString(cord).replace(" ",""));
         }
         // THIS WILL BE CONTINUOUSLY ADDING WAYPOINTS???

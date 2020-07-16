@@ -4,6 +4,7 @@ import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //todo move maxTreeDepth to Constants
 
@@ -16,7 +17,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     int maxTreeDepth = 20;
     int actionCounter = 0;
 
-    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
+    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
         super(defenderBoids, waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
         defenderBoids = copyStateOfBoids(defenderBoids);
         this.flockManager = new FlockManager(true, true);

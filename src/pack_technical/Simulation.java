@@ -8,6 +8,7 @@ import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Simulation {
 
@@ -16,9 +17,9 @@ public abstract class Simulation {
     AI_type ai_type;
     PatrollingScheme patrollingScheme;
     CollisionHandler collisionHandler;
-    ArrayList<int[]> waypointCoords;
+    List<PVector> waypointCoords;
 
-    public Simulation(ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
+    public Simulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
         this.collisionHandler = collisionHandler;
         this.waypointCoords = waypointCoords;
         this.defenderBoids = defenderBoids;
@@ -53,8 +54,8 @@ public abstract class Simulation {
     }
 
     public void waypointSetup(ArrayList<BoidGeneric> defenders) {
-        for (int[] cord : waypointCoords) {
-            this.patrollingScheme.getWaypoints().add(new PVector(cord[0], cord[1]));
+        for (PVector cord : waypointCoords) {
+            this.patrollingScheme.getWaypoints().add(cord);
         }
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         // TODO - Magic numbers!!

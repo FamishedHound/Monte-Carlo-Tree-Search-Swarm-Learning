@@ -2,27 +2,24 @@ package pack_technical;
 
 import processing.core.PVector;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.ArrayList;
 
 public class PatternImage {
 
 
-    private final ArrayList<int[]> points = new ArrayList<>();
-    private final ArrayList<int[]> newpoints = new ArrayList<>();
+    private final List<PVector> points = new ArrayList<>();
+    private final List<PVector> newpoints = new ArrayList<>();
 
 
     public PatternImage() {
     }
 
-    public ArrayList<int[]> simplify() {
-        ArrayList<int[]> buffer = new ArrayList<>();
-        for(int[] cord : this.points) {
+    public List<PVector> simplify() {
+        List<PVector> buffer = new ArrayList<>();
+        for(PVector cord : this.points) {
             if(buffer.size()==3 ) {
-                double degree = Math.toDegrees(Math.atan2(buffer.get(2)[0] - buffer.get(1)[0], buffer.get(2)[1] - buffer.get(1)[1]) -
-                    Math.atan2(buffer.get(0)[0] - buffer.get(1)[0], buffer.get(0)[1] - buffer.get(1)[1]));
-
+                double degree = Math.toDegrees(buffer.get(2).sub(buffer.get(1)).heading() - buffer.get(1).sub(buffer.get(0)).heading());
                 // TODO if the amount is in degrees, why are we adding 2pi?!
                 //degree+=(360);
                 if (Math.abs(180-Math.abs(degree))>10) {
@@ -37,7 +34,7 @@ public class PatternImage {
     }
 
 
-    public ArrayList<int[]> getPoints() {
+    public List<PVector> getPoints() {
         return points;
     }
 
@@ -45,15 +42,11 @@ public class PatternImage {
         this.points.clear();
     }
 
-    public void addPoints(PVector point) {
-
-    };
-
-    public ArrayList<int[]> getNewpoints() {
-        return newpoints;
+    public void addPoint(PVector point) {
+        this.points.add(point);
     }
 
-    public void clearMe(){
-        points.clear();
+    public List<PVector> getNewpoints() {
+        return newpoints;
     }
 }
