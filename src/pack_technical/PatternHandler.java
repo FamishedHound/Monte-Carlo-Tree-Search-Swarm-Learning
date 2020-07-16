@@ -60,7 +60,8 @@ public class PatternHandler {
             PatternEntry base = new PatternEntry(Constants.TARGET);
 
             if(observations.size()==100) {
-                img.drawPattern();
+                img.simplify();
+                img.clearPoints();
                 //img.clearMe();
                 radius = circle.difference(base);
                 once=true;
