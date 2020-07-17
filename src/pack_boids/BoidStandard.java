@@ -1,6 +1,7 @@
 package pack_boids;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import pack_1.Launcher;
 import pack_AI.AI_internal_model;
@@ -38,7 +39,7 @@ public class BoidStandard extends BoidGeneric {
 	}
 
     @Override
-    public void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation) {
+    public void run(List<BoidGeneric> boids, boolean real_step, boolean simulation) {
         if (!Launcher.isPaused()) {
             isAlone = true; // is boid uninteracted with?
             move(boids); // sets isalone
@@ -68,8 +69,8 @@ public class BoidStandard extends BoidGeneric {
 
 	// Method to update location
 	protected void attempt_future() {
-		if (Launcher.getFlock().get_boid_count() > 0) {
-			mind_flock.import_imaginary_boids(Launcher.getFlock().get_all_boids(), internal_model);
+		if (Launcher.getFlock().getBoidCount() > 0) {
+			mind_flock.importImaginaryBoids(Launcher.getFlock().getAllBoids(), internal_model);
 			mind_flock.run(Launcher.HISTORY_LENGTH);
 			machine_learner.run(mind_flock);
 			mind_flock.reset();

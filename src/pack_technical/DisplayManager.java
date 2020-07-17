@@ -150,7 +150,7 @@ public class DisplayManager {
         parent.textSize(12);
         parent.fill(GREYCOLOUR);
         parent.textAlign(PConstants.RIGHT);
-        parent.text("Agent Count: " + flock_ref.get_boid_count(), parent.width - borderoffset - inneroffset, 35);
+        parent.text("Agent Count: " + flock_ref.getBoidCount(), parent.width - borderoffset - inneroffset, 35);
         if (parent.frameRate < Launcher.SPS - 5)
             parent.fill(220, 10, 10); // dropping frames gives red colour
         else
@@ -188,7 +188,7 @@ public class DisplayManager {
 
         parent.text("' r ' key -  resets the simulation, clearing all boids", parent.width - borderoffset - 70,
                 parent.height - 130);
-        parent.text("(" + flock_ref.get_boid_count() + ")", parent.width - borderoffset, parent.height - 130);
+        parent.text("(" + flock_ref.getBoidCount() + ")", parent.width - borderoffset, parent.height - 130);
 
         parent.text("' f ' key -  toggles the display of future location", parent.width - borderoffset - 70,
                 parent.height - 110);

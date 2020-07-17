@@ -4,6 +4,8 @@ import pack_1.Launcher;
 import pack_1.Utility;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import pack_AI.AI_internal_model;
 import pack_boids.*;
 import processing.core.PVector;
@@ -15,13 +17,12 @@ import processing.core.PVector;
  */
 public class FlockManager {
 
-    public ArrayList<BoidGeneric> getReal_boids() {
+    public List<BoidGeneric> getReal_boids() {
         return real_boids;
     }
 
-    ArrayList<BoidGeneric> real_boids; // An ArrayList for all the real_boids
-    ArrayList<BoidGeneric> imaginary_boids; // An ArrayList for all the real_boids
-    BoidObserver camera_boid;
+    List<BoidGeneric> real_boids; // An ArrayList for all the real_boids
+    List<BoidGeneric> imaginary_boids; // An ArrayList for all the real_boids
     boolean real;
     boolean simulation=false;
 
@@ -34,9 +35,6 @@ public class FlockManager {
         this.simulation=simulation;
         if (real) {
             if(!simulation)
-                camera_boid = new BoidObserver((float) Launcher.applet.width / 2, (float) Launcher.applet.height / 2,
-                    GameManager.getTeam_number() + 1);
-            // camera is the final team
             real_boids = new ArrayList<BoidGeneric>(); // Initialize the ArrayList
         } else {
             imaginary_boids = new ArrayList<BoidGeneric>(); // Initialize the ArrayList
@@ -45,19 +43,16 @@ public class FlockManager {
     }
 
     public void run(int steps) {
-        ArrayList<BoidGeneric> boids = get_all_boids();
+        List<BoidGeneric> boids = getAllBoids();
 
         for (BoidGeneric b : boids) {
             if (!b.isAlive()) {
-                remove_boid(b);
+                removeBoid(b);
                 break;
             }
         }
 
         for (int step = 0; step < steps; step++) {
-            // first run camera that does not interfere with the flockManager
-            if (camera_boid != null)
-                camera_boid.run(null, (step == 0), simulation);
             for (BoidGeneric b : boids) {
                 if (b instanceof BoidStandard) { // if real
                     b.run(boids, (step == 0), simulation);
@@ -68,31 +63,31 @@ public class FlockManager {
         }
     }
 
-    public ArrayList<BoidGeneric> get_all_boids() {
+    public List<BoidGeneric> getAllBoids() {
         return (real ? real_boids : imaginary_boids);
     }
 
-    public int get_boid_count() {
-        return get_all_boids().size();
+    public int getBoidCount() {
+        return getAllBoids().size();
     }
 
-    public BoidGeneric remove_boid(BoidGeneric b) {
-        get_all_boids().remove(b);
+    public BoidGeneric removeBoid(BoidGeneric b) {
+        getAllBoids().remove(b);
         return b;
     }
 
-    public BoidGeneric add_boid(BoidGeneric b) {
+    public BoidGeneric addBoid(BoidGeneric b) {
         // give the boid the ai derived from the team
-        get_all_boids().add(b);
+        getAllBoids().add(b);
         return b;
     }
 
     public void reset() {
-        get_all_boids().clear();
+        getAllBoids().clear();
     }
 
     // used in creating an imaginary universe in which the real_boids are not real
-    public void import_imaginary_boids(ArrayList<BoidGeneric> boids_in, AI_internal_model internal_model) {
+    public void importImaginaryBoids(List<BoidGeneric> boids_in, AI_internal_model internal_model) {
         for (BoidGeneric b : boids_in) {
             BoidImaginary b2 = new BoidImaginary(b.getLocationHistory().x, b.getLocationHistory().y, b.getTeam(), b);
             b2.setVelocity(b.getVelocityHistory());
@@ -100,38 +95,24 @@ public class FlockManager {
             b2.setAi(internal_model.get_ai_team(b.getTeam()));
             b2.setAngle(b.getAngleHistory());
             b2.setTeam(b.getTeam());
-            add_boid(b2);
+            addBoid(b2);
         }
     }
 
-    public BoidStandard get_nearest_boid(float selectDist) {
+    public BoidStandard getNearestBoid(float selectDist) {
         PVector mousePos = new PVector(Launcher.applet.mouseX, Launcher.applet.mouseY);
         BoidStandard nearestBoid = null;
         float selectDistSq = selectDist * selectDist;
         float distRecordSq = Float.MAX_VALUE;
-        // attempt select camera first, this is not part of the flockManager
-        float distSq = Utility.distSq(mousePos, camera_boid.getLocation());
-        if ((distSq < distRecordSq) && (distSq < selectDistSq)) {
-            nearestBoid = camera_boid;
-            distRecordSq = distSq;
-        }
         for (BoidGeneric b : real_boids) {
             if(!(b instanceof BoidStandard)) continue; // Only consider if it is a real boid
-            distSq = Utility.distSq(mousePos, b.getLocationHistory());
+            float distSq = Utility.distSq(mousePos, b.getLocationHistory());
             if ((distSq < distRecordSq) && (distSq < selectDistSq)) {
                 nearestBoid = (BoidStandard)b;
                 distRecordSq = distSq;
             }
         }
         return nearestBoid;
-    }
-
-    public BoidObserver getCamera_boid() {
-        return camera_boid;
-    }
-
-    public void setCamera_boid(BoidObserver camera_boid) {
-        this.camera_boid = camera_boid;
     }
 
 }

@@ -2,6 +2,7 @@ package pack_boids;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 import pack_1.Constants;
 import pack_1.Launcher;
@@ -60,7 +61,7 @@ public abstract class BoidGeneric {
 
     // if real_step is true all normal actions will happen, otherwise
     // rendering is disabled, this is for 'in-mind simulation'
-    public abstract void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation);
+    public abstract void run(List<BoidGeneric> boids, boolean real_step, boolean simulation);
     /** Render the boid */
     protected abstract void render();
 

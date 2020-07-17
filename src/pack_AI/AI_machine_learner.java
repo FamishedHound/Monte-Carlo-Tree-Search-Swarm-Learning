@@ -248,7 +248,7 @@ public class  AI_machine_learner {
     // takes the final state of the imaginary flock
     public void run(FlockManager mind_flock) {
         int observer_t = parent_boid.getTeam();
-        for (BoidGeneric in : mind_flock.get_all_boids()) {
+        for (BoidGeneric in : mind_flock.getAllBoids()) {
             BoidImaginary b = (BoidImaginary) in;
             int observed_t = b.getOriginal().getTeam();
             points = calculate_points(b);

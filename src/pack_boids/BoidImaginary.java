@@ -3,6 +3,8 @@ package pack_boids;
 import pack_1.Launcher;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import processing.core.PConstants;
 
 /**
@@ -23,7 +25,7 @@ public class BoidImaginary extends BoidGeneric {
     }
 
     @Override
-    public void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation) {
+    public void run(List<BoidGeneric> boids, boolean real_step, boolean simulation) {
         if (boids.get(0).isMoveable()) {
             recordHistory();
             isAlone = true; // is boid uninteracted with?

@@ -68,7 +68,7 @@ public class GameManager {
     public void spawn_boids(int team_n, int amount, PVector pos) {
         for (int i = 0; i < amount; i++) {
             BoidGeneric b = new BoidStandard(pos.x, pos.y, team_n,i);
-            flock_ref.add_boid(b);
+            flock_ref.addBoid(b);
             team[team_n].add(b);
         }
     }
