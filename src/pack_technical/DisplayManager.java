@@ -78,7 +78,7 @@ public class DisplayManager {
         parent.noFill();
         parent.stroke(GREYCOLOUR, TRANSPARENTALPHA);
         parent.pushMatrix();
-        parent.translate(b.getLocationHistory().x, b.getLocationHistory().y);
+        parent.translate(b.getOldestLocationInHistory().x, b.getOldestLocationInHistory().y);
         parent.rotate(parent.frameCount / 35);
         parent.rect(-visualRadius, -visualRadius, 2 * visualRadius, 2 * visualRadius);
         parent.popMatrix();

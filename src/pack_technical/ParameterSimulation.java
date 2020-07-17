@@ -555,7 +555,7 @@ public class ParameterSimulation extends Thread{
                     PVector acceleration =def.getAcceleration();
                     PVector velocity = def.getVelocity();
                     PVector location = def.getLocation();
-                    def.run(simulationBoids, true, true); //Alex Part where he applies all forces
+                    def.run(simulationBoids, true); //Alex Part where he applies all forces
 
                     velocity.limit(1);
                     //My force

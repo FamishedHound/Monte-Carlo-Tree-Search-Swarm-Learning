@@ -1,11 +1,6 @@
 package pack_boids;
 
-import pack_1.Launcher;
-
-import java.util.ArrayList;
 import java.util.List;
-
-import processing.core.PConstants;
 
 /**
  * a fake boid running inside the 'heads' of existing boids,
@@ -25,7 +20,7 @@ public class BoidImaginary extends BoidGeneric {
     }
 
     @Override
-    public void run(List<BoidGeneric> boids, boolean real_step, boolean simulation) {
+    public void run(List<BoidGeneric> boids, boolean simulation) {
         if (boids.get(0).isMoveable()) {
             recordHistory();
             isAlone = true; // is boid uninteracted with?
@@ -33,25 +28,6 @@ public class BoidImaginary extends BoidGeneric {
             recordAcceleration();
             update();
         }
-        if(!simulation && real_step) {
-            renderTrails(TrailType.DOTS);
-            render();
-        }
     }
 
-    // TODO - Boids shouldn't render. They don't apriori know anything about the applet
-    @Override
-    public void render() {
-        Launcher.applet.fill(fillColour.getRGB());
-        Launcher.applet.stroke(lineColour.getRGB());
-        Launcher.applet.pushMatrix();
-        Launcher.applet.translate(location.x, location.y);
-        Launcher.applet.rotate(velocity.heading());
-        Launcher.applet.beginShape(PConstants.TRIANGLES);
-        Launcher.applet.vertex(size, 0);
-        Launcher.applet.vertex(-size, size / 2);
-        Launcher.applet.vertex(-size, -size / 2);
-        Launcher.applet.endShape();
-        Launcher.applet.popMatrix();
-    }
 }

@@ -14,19 +14,11 @@ public class BoidObserver extends BoidStandard {
         velocity = new PVector(0, 0);
     }
 
-    @Override
-    protected void render() {
-        Launcher.applet.fill(fillColour.getRGB());
-        Launcher.applet.ellipse(location.x, location.y, size, size);
-        Launcher.applet.textSize(10);
-        Launcher.applet.textAlign(PConstants.CENTER);
-        Launcher.applet.text("camera", location.x, location.y - 6);
-    }
+
 
     @Override
-    public void run(List<BoidGeneric> boids, boolean real_step, boolean simulation) {
-        if (!simulation && real_step) {
-            render();
+    public void run(List<BoidGeneric> boids, boolean simulation) {
+        if (!simulation) {
             if(Launcher.getPredictState() != Launcher.PredictStates.NONE && (Launcher.getPredictState() == Launcher.PredictStates.ALL || GameManager.getSelected_boid() == this)) {
                 attempt_future();
             }

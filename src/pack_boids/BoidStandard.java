@@ -17,7 +17,7 @@ import processing.core.PVector;
 public class BoidStandard extends BoidGeneric {
 
 	// machine learning apparatus
-	FlockManager mind_flock = new FlockManager(false); // for inhead simulation
+	FlockManager mind_flock = new FlockManager(false, false); // for inhead simulation
 	AI_internal_model internal_model;
 	AI_machine_learner machine_learner;
 
@@ -39,7 +39,7 @@ public class BoidStandard extends BoidGeneric {
 	}
 
     @Override
-    public void run(List<BoidGeneric> boids, boolean real_step, boolean simulation) {
+    public void run(List<BoidGeneric> boids, boolean simulation) {
         if (!Launcher.isPaused()) {
             isAlone = true; // is boid uninteracted with?
             move(boids); // sets isalone
@@ -50,22 +50,11 @@ public class BoidStandard extends BoidGeneric {
             update();
         }
         if (!simulation) {
-            if(real_step) {
-                render();
                 if (Launcher.getPredictState() != Launcher.PredictStates.NONE && (Launcher.getPredictState() == Launcher.PredictStates.ALL || GameManager.getSelected_boid() == this)) {
                     attempt_future();
                 }
             }
         }
-    }
-
-    @Override
-    protected void render() {
-        if (Launcher.areTrailsDrawn()) {
-            renderTrails(TrailType.CURVE);
-        }
-        render_perfect_future();
-	}
 
 	// Method to update location
 	protected void attempt_future() {
@@ -81,21 +70,4 @@ public class BoidStandard extends BoidGeneric {
 		return internal_model;
 	}
 
-	void render_perfect_future() {
-		Launcher.applet.fill(fillColour.getRGB());
-		Launcher.applet.stroke(lineColour.getRGB(), 180);
-		Launcher.applet.pushMatrix();
-		Launcher.applet.translate(location.x, location.y);
-		Launcher.applet.rotate(velocity.heading());
-		Launcher.applet.beginShape(PConstants.TRIANGLES);
-		Launcher.applet.vertex(size, 0);
-		Launcher.applet.vertex(-size, size / 2);
-		Launcher.applet.vertex(-size, -size / 2);
-		Launcher.applet.endShape();
-		Launcher.applet.popMatrix();
-	}
-
-	public void setAi(AI_type ai) {
-		this.ai = ai;
-	}
 }
