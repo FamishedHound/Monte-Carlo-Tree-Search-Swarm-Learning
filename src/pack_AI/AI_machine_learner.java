@@ -40,7 +40,6 @@ public class  AI_machine_learner {
 
     AI_internal_model internal_model_ref; // the model to work with
     BoidStandard parent_boid; // the boid holding this internal model
-    BoidObserver parent_camera; // the boid holding this internal model
     int error = 0;
     float[][] points = new float[2][2];
     PVector imaginary_pos, original_pos;
