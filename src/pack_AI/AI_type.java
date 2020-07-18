@@ -34,14 +34,14 @@ public class AI_type {
 	Random rng = new Random();
 	int wb = AI_manager.getWeight_bound();
 
-	public AI_type(float sns, float ans, float cns, double sw, double aw, double cw,float wayPointForce) {
+	public AI_type(float separation, float align, float cohesion, double sepWeight, double alignWeight, double cohesionWeight, float wayPointForce) {
 		this.wayPointForce=wayPointForce;
-		separationForce = sns;
-		alignForce = ans;
-		cohesionForce = cns;
-		separationForceWeight = sw;
-		alignmentForceWeight = aw;
-		cohesionForceWeight = cw;
+		separationForce = separation;
+		alignForce = align;
+		cohesionForce = cohesion;
+		separationForceWeight = sepWeight;
+		alignmentForceWeight = alignWeight;
+		cohesionForceWeight = cohesionWeight;
 	}
 
 	public AI_type(float sns, float ans, float cns, double sw, double aw, double cw,float wayPointForce, String name) {
