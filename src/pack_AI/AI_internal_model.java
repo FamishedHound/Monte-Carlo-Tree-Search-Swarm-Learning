@@ -44,12 +44,12 @@ public class AI_internal_model {
 	}
 
 	void generate_perfect_ai(int t) {
-		float sns = AI_manager.get_team_ai(t).getSep_neighbourhood_size();
-		float ans = AI_manager.get_team_ai(t).getAli_neighbourhood_size();
-		float cns = AI_manager.get_team_ai(t).getCoh_neighbourhood_size();
-		double sw = AI_manager.get_team_ai(t).getSep_weight();
-		double aw = AI_manager.get_team_ai(t).getAli_weight();
-		double cw = AI_manager.get_team_ai(t).getCoh_weight();
+		float sns = AI_manager.get_team_ai(t).getSeparationForce();
+		float ans = AI_manager.get_team_ai(t).getAlignForce();
+		float cns = AI_manager.get_team_ai(t).getCohesionForce();
+		double sw = AI_manager.get_team_ai(t).getSeparationForceWeight();
+		double aw = AI_manager.get_team_ai(t).getAlignmentForceWeight();
+		double cw = AI_manager.get_team_ai(t).getCohesionForceWeight();
 		String ai_name = AI_manager.get_team_ai(t).getAi_name();
 		ai_s[t] = new AI_type(sns, ans, cns, sw, aw, cw,0, ai_name);
 	}
