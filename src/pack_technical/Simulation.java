@@ -1,5 +1,6 @@
 package pack_technical;
 
+import pack_1.Constants;
 import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
@@ -23,7 +24,7 @@ public abstract class Simulation {
         this.collisionHandler = collisionHandler;
         this.waypointCoords = waypointCoords;
         this.defenderBoids = defenderBoids;
-        this.ai_type = new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
+        this.ai_type = Constants.PERFECT_AI ? Constants.CORRECT_AI_PARAMS : new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
         this.attackBoids = attackBoids;
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
     }

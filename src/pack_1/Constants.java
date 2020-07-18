@@ -1,13 +1,42 @@
 package pack_1;
 
+import pack_AI.AI_type;
 import processing.core.PVector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Constants {
 
+    //note, a lot of this stuff isnt actually constants, coupled with most things being static
+    //and also non-final, this is probably bad OOP. A lot of this should be handled by
+    //ParameterGatherAndSetter really
 
     //new params should be added as a public static field in Constants and a new "case"
     //block added to Constants.setParamsFromProgramArgs to parse the program arguments accordingly
     //the value can then be used in the code wherever desired.
+
+
+    /**
+     * Switch for whether to give the move planner the correct boid parameters
+     * or whether it must use the learned boid parameters to simulate the defenders.
+     * To use the correct boid parameters pass -a or --perfect-ai in the args.
+     */
+    public static boolean PERFECT_AI = false;
+
+    public static final AI_type CORRECT_AI_PARAMS = new AI_type(30, 70, 70, 2.0f, 1.2f, 0.9f,0.04f, "basic");
+
+    /**
+     * Switch for whether to give the move planner the correct waypoints
+     * or whether it must use the learned waypoints to simulate the defenders.
+     * To use perfect way points pass -w or --perfect-waypoints in the args.
+     */
+    public static boolean PERFECT_WAYPOINTS = false;
+
+    /**
+     * Sets the perfect waypoints for the current run
+     */
+    public static List<PVector> DEFENDER_BOID_WAYPOINTS;
 
     /**
      * The time required for waypoints of the defenders to be adequately
@@ -15,7 +44,7 @@ public class Constants {
      * attacker should be frozen in place before this time.
      * This was set empirically.
      */
-    public static int warmUpTime = 200;
+    public static final int warmUpTime = 200;
 
     /**
      * The target for the attack boids.
@@ -81,6 +110,15 @@ public class Constants {
                     }
                     THREAD_PAUSE = Long.parseLong(args[++i])*1000;
                     break;
+                case "-w":
+                case "--perfect-waypoints":
+                    PERFECT_WAYPOINTS = true;
+                    break;
+                case "-a":
+                case "perfect-ai":
+                    PERFECT_AI = true;
+                    break;
+
             }
         }
     }

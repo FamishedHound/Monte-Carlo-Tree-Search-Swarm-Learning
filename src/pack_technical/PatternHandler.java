@@ -31,7 +31,7 @@ public class PatternHandler {
     }
 
     public List<PVector> getNewpoints() {
-        return newpoints;
+        return Constants.PERFECT_WAYPOINTS ? Constants.DEFENDER_BOID_WAYPOINTS : newpoints;
     }
 
     public void newObservation(ArrayList<BoidGeneric> boids, int counter){

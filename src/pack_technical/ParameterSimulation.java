@@ -3,6 +3,7 @@ package pack_technical;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoint;
 
+import pack_1.Constants;
 import pack_1.Utility;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
@@ -92,7 +93,7 @@ public class ParameterSimulation extends Thread{
     public void run(){
             setUpCheckPoints();
            // StringBuilder sb = new StringBuilder();
-        //System.out.println("I have start with these parameters " + currentAi.getSep_neighbourhood_size() + " " + currentAi.getAli_neighbourhood_size() + " " + currentAi.getCoh_neighbourhood_size() + " " + currentAi.getSep_weight()  + " " + currentAi.getAli_weight() + " " + currentAi.getCoh_weight() + " " + currentAi.getWayPointForce());
+        //System.out.println("I have start with these parameters " + currentAi.getSeparationForce() + " " + currentAi.getAlignForce() + " " + currentAi.getCohesionForce() + " " + currentAi.getSeparationForceWeight()  + " " + currentAi.getAlignmentForceWeight() + " " + currentAi.getCohesionForceWeight() + " " + currentAi.getWayPointForce());
            learnTheErrors(sepBoidError,1,observations.get(1));
        // System.out.println("1");
             calculateNewParameter(1);
@@ -112,7 +113,7 @@ public class ParameterSimulation extends Thread{
          fastLearningRate*=0.90;
             clearMapping();
 
-        //System.out.println("I have finished with  " + currentAi.getSep_neighbourhood_size() + " " + currentAi.getAli_neighbourhood_size() + " " + currentAi.getCoh_neighbourhood_size() + " " + currentAi.getSep_weight()  + " " + currentAi.getAli_weight() + " " + currentAi.getCoh_weight()+ " " + currentAi.getWayPointForce());
+        //System.out.println("I have finished with  " + currentAi.getSeparationForce() + " " + currentAi.getAlignForce() + " " + currentAi.getCohesionForce() + " " + currentAi.getSeparationForceWeight()  + " " + currentAi.getAlignmentForceWeight() + " " + currentAi.getCohesionForceWeight()+ " " + currentAi.getWayPointForce());
 
     }
 
@@ -266,8 +267,8 @@ public class ParameterSimulation extends Thread{
 
 
                     /*if (erased > boid.getValue().size() - 3) {
-                        estimation = currentAi.getSep_neighbourhood_size();
-                        while (estimation >= currentAi.getSep_neighbourhood_size() - 10 && estimation <= currentAi.getSep_neighbourhood_size() + 10) {
+                        estimation = currentAi.getSeparationForce();
+                        while (estimation >= currentAi.getSeparationForce() - 10 && estimation <= currentAi.getSeparationForce() + 10) {
                             estimation = randFloat(AI_manager.getNeighbourhoodLowerBound(), AI_manager.getNeighbourhoodUpperBound());
                         }
                     }
@@ -280,11 +281,11 @@ public class ParameterSimulation extends Thread{
                         for (int e = 1; e < 3; e++) {
                             //  System.out.println(" coef " + Arrays.toString(coefincients));
                             // power of zero can be ignored for calculating the gradient
-                            terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getSep_neighbourhood_size());
+                            terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getSeparationForce());
                             //   System.out.println("terms_total " + terms_toal);
 //                        if(terms_toal>= AI_manager.getNeighbourhoodUpperBound() || terms_toal <= AI_manager.getNeighbourhoodLowerBound()){
 //                            System.out.println("kappa");
-//                            terms_toal=currentAi.getSep_neighbourhood_size();
+//                            terms_toal=currentAi.getSeparationForce();
 //                            learningRate*=0.5;
 //                            learningRateParameters*=0.1;
 //                        } else {
@@ -294,14 +295,14 @@ public class ParameterSimulation extends Thread{
 
                         }
 
-                        estimation = currentAi.getSep_neighbourhood_size() - terms_toal * learningRate;
+                        estimation = currentAi.getSeparationForce() - terms_toal * learningRate;
 
                         //if(estimation>= AI_manager.getNeighbourhoodUpperBound() || estimation <= AI_manager.getNeighbourhoodLowerBound()){
                         //if(estimation <= 20 || estimation >= 40){
                         //if (estimation >= AI_manager.getNeighbourhoodUpperBound() || estimation <= AI_manager.getNeighbourhoodLowerBound()) {
                     if (estimation >= AI_manager.neighbourhoodSeparation_upper_bound || estimation <= AI_manager.neighbourhoodSeparation_lower_bound) {
                             // System.out.println("kappa");
-                            estimation = currentAi.getSep_neighbourhood_size();
+                            estimation = currentAi.getSeparationForce();
 
                         }
                     //}
@@ -313,7 +314,7 @@ public class ParameterSimulation extends Thread{
                 }
 
                 resultsInt.add((int)averageSep/sepEst.size());
-                currentAi.setSep_neighbourhood_size(averageSep /sepEst.size());
+                currentAi.setSeparationForce(averageSep /sepEst.size());
                 break;
             case 2:
                 for(Map.Entry<Integer,ArrayList<WeightedObservedPoint>> boid: aliBoidError.entrySet()){
@@ -323,11 +324,11 @@ public class ParameterSimulation extends Thread{
                     double terms_toal = 0;
                     for (int e = 1; e < 3; e++) {
                         // power of zero can be ignored for calculating the gradient
-                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getAli_neighbourhood_size());
+                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getAlignForce());
                     }
-                    double estimation = currentAi.getAli_neighbourhood_size()-terms_toal*fastLearningRate;
+                    double estimation = currentAi.getAlignForce()-terms_toal*fastLearningRate;
                     if(estimation>= AI_manager.getNeighbourhoodUpperBound() || estimation <= AI_manager.getNeighbourhoodLowerBound()){
-                        estimation=currentAi.getAli_neighbourhood_size();
+                        estimation=currentAi.getAlignForce();
                     }
                     aliEst.put(boid.getKey(),estimation);
 
@@ -337,7 +338,7 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 resultsInt.add((int)averageSep/aliEst.size());
-                currentAi.setAli_neighbourhood_size(averageSep /aliEst.size());
+                currentAi.setAlignForce(averageSep /aliEst.size());
                 break;
             case 3:
                 for(Map.Entry<Integer,ArrayList<WeightedObservedPoint>> boid: cohBoidError.entrySet()){
@@ -347,11 +348,11 @@ public class ParameterSimulation extends Thread{
                     double terms_toal = 0;
                     for (int e = 1; e < 3; e++) {
                         // power of zero can be ignored for calculating the gradient
-                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getCoh_neighbourhood_size());
+                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getCohesionForce());
                     }
-                    double estimation = currentAi.getCoh_neighbourhood_size()-terms_toal*fastLearningRate;
+                    double estimation = currentAi.getCohesionForce()-terms_toal*fastLearningRate;
                     if(estimation>= AI_manager.getNeighbourhoodUpperBound() || estimation <= AI_manager.getNeighbourhoodLowerBound()){
-                        estimation=currentAi.getCoh_neighbourhood_size();
+                        estimation=currentAi.getCohesionForce();
                     }
                     cohEst.put(boid.getKey(),estimation);
 
@@ -361,7 +362,7 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 resultsInt.add((int)averageSep/cohEst.size());
-                currentAi.setCoh_neighbourhood_size(averageSep /cohEst.size());
+                currentAi.setCohesionForce(averageSep /cohEst.size());
                 break;
 
             case 4:
@@ -372,11 +373,11 @@ public class ParameterSimulation extends Thread{
                     double terms_toal = 0;
                     for (int e = 1; e < 3; e++) {
                         // power of zero can be ignored for calculating the gradient
-                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getSep_weight());
+                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getSeparationForceWeight());
                     }
-                    double estimation = currentAi.getSep_weight()-terms_toal*learningRateParameters;
+                    double estimation = currentAi.getSeparationForceWeight()-terms_toal*learningRateParameters;
                     if(estimation>= 5 || estimation <= 0){
-                        estimation=currentAi.getSep_weight();
+                        estimation=currentAi.getSeparationForceWeight();
                     }
                     sepWEst.put(boid.getKey(),estimation);
 
@@ -386,7 +387,7 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 resultsFloat.add(averageSep /sepWEst.size());
-                currentAi.setSep_weight(averageSep /sepWEst.size());
+                currentAi.setSeparationForceWeight(averageSep /sepWEst.size());
                 break;
 
             case 5:
@@ -396,11 +397,11 @@ public class ParameterSimulation extends Thread{
                     double terms_toal = 0;
                     for (int e = 1; e < 3; e++) {
                         // power of zero can be ignored for calculating the gradient
-                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getAli_weight());
+                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getAlignmentForceWeight());
                     }
-                    double estimation = currentAi.getAli_weight()-terms_toal*learningRateParameters;
+                    double estimation = currentAi.getAlignmentForceWeight()-terms_toal*learningRateParameters;
                     if(estimation>= 5 || estimation <= 0){
-                        estimation=currentAi.getAli_weight();
+                        estimation=currentAi.getAlignmentForceWeight();
                     }
                     aliWEst.put(boid.getKey(),estimation);
 
@@ -410,7 +411,7 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 resultsFloat.add(averageSep /aliWEst.size());
-                currentAi.setAli_weight(averageSep /aliWEst.size());
+                currentAi.setAlignmentForceWeight(averageSep /aliWEst.size());
                 break;
 
             case 6:
@@ -421,11 +422,11 @@ public class ParameterSimulation extends Thread{
                     double terms_toal = 0;
                     for (int e = 1; e < 3; e++) {
                         // power of zero can be ignored for calculating the gradient
-                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getCoh_weight());
+                        terms_toal = terms_toal + create_new_term(e, coefincients[e], currentAi.getCohesionForceWeight());
                     }
-                    double estimation = currentAi.getCoh_weight()-terms_toal*learningRateParameters;
+                    double estimation = currentAi.getCohesionForceWeight()-terms_toal*learningRateParameters;
                     if(estimation>= 5 || estimation <= 0){
-                        estimation=currentAi.getCoh_weight();
+                        estimation=currentAi.getCohesionForceWeight();
                     }
                     cohWEst.put(boid.getKey(),estimation);
 
@@ -435,7 +436,7 @@ public class ParameterSimulation extends Thread{
                     averageSep+=sep.getValue();
                 }
                 resultsFloat.add(averageSep /cohWEst.size());
-                currentAi.setCoh_weight(averageSep /cohWEst.size());
+                currentAi.setCohesionForceWeight(averageSep /cohWEst.size());
                 break;
 
             case 7:
@@ -526,25 +527,25 @@ public class ParameterSimulation extends Thread{
             ArrayList<BoidGeneric> simulationBoids = copyTheStateOfAttackBoids(defenders,0);
             switch (mode) {
                 case 1:
-                    sepAi = new AI_type( xValue, currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type( xValue, currentAi.getAlignForce(), currentAi.getCohesionForce(), currentAi.getSeparationForceWeight(), currentAi.getAlignmentForceWeight(), currentAi.getCohesionForceWeight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 2:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(),  xValue, currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSeparationForce(),  xValue, currentAi.getCohesionForce(),currentAi.getSeparationForceWeight(), currentAi.getAlignmentForceWeight(), currentAi.getCohesionForceWeight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 3:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(),  xValue,currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSeparationForce(), currentAi.getAlignForce(),  xValue,currentAi.getSeparationForceWeight(), currentAi.getAlignmentForceWeight(), currentAi.getCohesionForceWeight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 4:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), xValue, currentAi.getAli_weight(), currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSeparationForce(), currentAi.getAlignForce(), currentAi.getCohesionForce(), xValue, currentAi.getAlignmentForceWeight(), currentAi.getCohesionForceWeight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 5:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(), currentAi.getSep_weight(), xValue, currentAi.getCoh_weight(),currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSeparationForce(), currentAi.getAlignForce(), currentAi.getCohesionForce(), currentAi.getSeparationForceWeight(), xValue, currentAi.getCohesionForceWeight(),currentAi.getWayPointForce(), ":(");
                     break;
                 case 6:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), xValue,currentAi.getWayPointForce(), ":(");
+                    sepAi = new AI_type(currentAi.getSeparationForce(), currentAi.getAlignForce(), currentAi.getCohesionForce(),currentAi.getSeparationForceWeight(), currentAi.getAlignmentForceWeight(), xValue,currentAi.getWayPointForce(), ":(");
                     break;
                 case 7:
-                    sepAi = new AI_type(currentAi.getSep_neighbourhood_size(), currentAi.getAli_neighbourhood_size(), currentAi.getCoh_neighbourhood_size(),currentAi.getSep_weight(), currentAi.getAli_weight(), currentAi.getCoh_weight(),xValue, ":(");
+                    sepAi = new AI_type(currentAi.getSeparationForce(), currentAi.getAlignForce(), currentAi.getCohesionForce(),currentAi.getSeparationForceWeight(), currentAi.getAlignmentForceWeight(), currentAi.getCohesionForceWeight(),xValue, ":(");
                     break;
             }
 
@@ -572,41 +573,46 @@ public class ParameterSimulation extends Thread{
         }
     }
 
+
+    //todo: cant just keep bolting on arbitrary functionality to ParamSim.observe, please tidy
     public int observe(ArrayList<BoidGeneric> defenders) {
-        int numFrames = 20;
-        if(stack.size()<numFrames) {
-            stack.add(copyTheStateOfAttackBoids(defenders,0));
-            end = (end + 1) % numFrames;
+        if (!Constants.PERFECT_AI) {
+            int numFrames = 20;
+            if (stack.size() < numFrames) {
+                stack.add(copyTheStateOfAttackBoids(defenders, 0));
+                end = (end + 1) % numFrames;
+            } else {
+                begin = (begin + 1) % numFrames;
+                copyTheStateOfAttackBoids(stack.get(begin), 0);
+                end = (end + 1) % numFrames;
+                stack.set(end, copyTheStateOfAttackBoids(defenders, 0));
+            }
+
+            if (stack.size() == numFrames && once) {
+                frameCount = numFrames;
+                ArrayList<BoidGeneric> initialStateForCalculation = stack.get(begin);
+                ArrayList<BoidGeneric> endStateForCalculation = stack.get(end);
+                observations.put(1, initialStateForCalculation); //initial state
+                observations.put(2, endStateForCalculation);//end state
+                observing = false;
+                new Thread(this).start();
+                once = false;
+            }
+
+            if (observations.size() == 0 && !once) {
+                k++;
+                once = true;
+                return 1;
+            }
         } else {
-            begin = (begin + 1) % numFrames;
-            copyTheStateOfAttackBoids(stack.get(begin),0);
-            end = (end + 1) % numFrames;
-            stack.set(end,copyTheStateOfAttackBoids(defenders,0));
-        }
-
-        if(stack.size()== numFrames && once) {
-            frameCount=numFrames;
-            ArrayList<BoidGeneric> initialStateForCalculation = stack.get(begin);
-            ArrayList<BoidGeneric> endStateForCalculation = stack.get(end);
-            observations.put(1, initialStateForCalculation); //initial state
-            observations.put(2, endStateForCalculation);//end state
-            observing = false;
-            new Thread(this).start();
-            once=false;
-        }
-
-        if(observations.size()==0  && !once) {
-            k++;
-            once=true;
             return 1;
         }
-
         return 0;
     }
 
     // TODO - In what way does this update AI? Surely it gets AI.
-    public AI_type updateAi(){
-        return currentAi;
+    public AI_type getAi(){
+        return Constants.PERFECT_AI ? Constants.CORRECT_AI_PARAMS : currentAi;
     }
 
     public ArrayList<BoidGeneric> copyTheStateOfAttackBoids(ArrayList<BoidGeneric> boids, int mode) {

@@ -165,9 +165,9 @@ public abstract class BoidGeneric {
         PVector cohesion = cohesion(boids);
 
         // Arbitrarily weight these forces
-        separation.mult((float) ai.getSep_weight());
-        alignment.mult((float) ai.getAli_weight());
-        cohesion.mult((float) ai.getCoh_weight());
+        separation.mult((float) ai.getSeparationForceWeight());
+        alignment.mult((float) ai.getAlignmentForceWeight());
+        cohesion.mult((float) ai.getCohesionForceWeight());
 
         // Add the force vectors to acceleration
         if(moveable) {
@@ -190,7 +190,7 @@ public abstract class BoidGeneric {
             float d = Utility.distSq(location, other.location);
             // If the distance is greater than 0 and less than an arbitrary amount (0 when
             // you are yourself)
-            if ((d > 0) && (d < ai.getSep_neighbourhood_size() * ai.getSep_neighbourhood_size())) {
+            if ((d > 0) && (d < ai.getSeparationForce() * ai.getSeparationForce())) {
                 isAlone = false;
                 // Calculate vector pointing away from neighbor
                 PVector diff = PVector.sub(location, other.location);
@@ -225,7 +225,7 @@ public abstract class BoidGeneric {
         int count = 0;
         for (BoidGeneric other : boids) {
             float d = Utility.distSq(location, other.location);
-            if ((d > 0) && (d < ai.getAli_neighbourhood_size() * ai.getAli_neighbourhood_size())) {
+            if ((d > 0) && (d < ai.getAlignForce() * ai.getAlignForce())) {
                 isAlone = false;
                 sum.add(other.velocity);
                 count++;
@@ -252,7 +252,7 @@ public abstract class BoidGeneric {
         int count = 0;
         for (BoidGeneric other : boids) {
             float d = Utility.distSq(location, other.location);
-            if ((d > 0) && (d < ai.getCoh_neighbourhood_size() * ai.getCoh_neighbourhood_size())) {
+            if ((d > 0) && (d < ai.getCohesionForce() * ai.getCohesionForce())) {
                 isAlone = false;
                 sum.add(other.location); // Add location
                 count++;

@@ -58,8 +58,8 @@ public class ZoneDefence implements Cloneable {
 
         if (enviromentalSimulation != null) {
             if (parameterSimulation.observe(defenderBoids) == 1) {
-                enviromentalSimulation.setAiToInnerSimulation(parameterSimulation.updateAi());
-                parameterGatherAndSetter.sendParameters(parameterSimulation.updateAi());
+                enviromentalSimulation.setAiToInnerSimulation(parameterSimulation.getAi());
+                parameterGatherAndSetter.sendParameters(parameterSimulation.getAi());
                 attack.set(true);
                 writer14.write("I started to attack " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + counter + "\n");
                 writer14.flush();
