@@ -13,7 +13,7 @@ import processing.core.PVector;
 
 import java.util.*;
 
-public class ParameterSimulation extends Thread{
+public class ParameterSimulation extends Thread implements ParameterSimulator{
     private boolean once=true;
     private ArrayList<BoidGeneric> defenders;
     private final List<PVector> pattern;
@@ -573,46 +573,41 @@ public class ParameterSimulation extends Thread{
         }
     }
 
-
-    //todo: cant just keep bolting on arbitrary functionality to ParamSim.observe, please tidy
+    @Override
     public int observe(ArrayList<BoidGeneric> defenders) {
-        if (!Constants.PERFECT_AI) {
-            int numFrames = 20;
-            if (stack.size() < numFrames) {
-                stack.add(copyTheStateOfAttackBoids(defenders, 0));
-                end = (end + 1) % numFrames;
-            } else {
-                begin = (begin + 1) % numFrames;
-                copyTheStateOfAttackBoids(stack.get(begin), 0);
-                end = (end + 1) % numFrames;
-                stack.set(end, copyTheStateOfAttackBoids(defenders, 0));
-            }
-
-            if (stack.size() == numFrames && once) {
-                frameCount = numFrames;
-                ArrayList<BoidGeneric> initialStateForCalculation = stack.get(begin);
-                ArrayList<BoidGeneric> endStateForCalculation = stack.get(end);
-                observations.put(1, initialStateForCalculation); //initial state
-                observations.put(2, endStateForCalculation);//end state
-                observing = false;
-                new Thread(this).start();
-                once = false;
-            }
-
-            if (observations.size() == 0 && !once) {
-                k++;
-                once = true;
-                return 1;
-            }
+        int numFrames = 20;
+        if (stack.size() < numFrames) {
+            stack.add(copyTheStateOfAttackBoids(defenders, 0));
+            end = (end + 1) % numFrames;
         } else {
+            begin = (begin + 1) % numFrames;
+            copyTheStateOfAttackBoids(stack.get(begin), 0);
+            end = (end + 1) % numFrames;
+            stack.set(end, copyTheStateOfAttackBoids(defenders, 0));
+        }
+
+        if (stack.size() == numFrames && once) {
+            frameCount = numFrames;
+            ArrayList<BoidGeneric> initialStateForCalculation = stack.get(begin);
+            ArrayList<BoidGeneric> endStateForCalculation = stack.get(end);
+            observations.put(1, initialStateForCalculation); //initial state
+            observations.put(2, endStateForCalculation);//end state
+            observing = false;
+            new Thread(this).start();
+            once = false;
+        }
+
+        if (observations.size() == 0 && !once) {
+            k++;
+            once = true;
             return 1;
         }
         return 0;
     }
 
-    // TODO - In what way does this update AI? Surely it gets AI.
+    @Override
     public AI_type getAi(){
-        return Constants.PERFECT_AI ? Constants.CORRECT_AI_PARAMS : currentAi;
+        return currentAi;
     }
 
     public ArrayList<BoidGeneric> copyTheStateOfAttackBoids(ArrayList<BoidGeneric> boids, int mode) {

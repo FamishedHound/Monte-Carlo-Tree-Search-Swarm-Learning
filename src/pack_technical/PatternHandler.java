@@ -8,16 +8,18 @@ import java.util.List;
 
 import pack_1.Constants;
 
-public class PatternHandler {
+public class PatternHandler implements PatternLearning {
 
     private boolean once = false; //For testing Envriomental simulation once delete later
     private final List<PVector> points = new ArrayList<>();
     private final List<PVector> newpoints = new ArrayList<>();
 
+    @Override
     public boolean isOnce() {
         return once;
     }
 
+    @Override
     public void setOnce(boolean once) {
         this.once = once;
     }
@@ -30,10 +32,12 @@ public class PatternHandler {
         this.points.add(point);
     }
 
+    @Override
     public List<PVector> getNewpoints() {
-        return Constants.PERFECT_WAYPOINTS ? Constants.DEFENDER_BOID_WAYPOINTS : newpoints;
+        return newpoints;
     }
 
+    @Override
     public void newObservation(ArrayList<BoidGeneric> boids, int counter){
         if(counter%10==0) {
             PVector middleOfTheMass = boids.stream()
@@ -44,6 +48,7 @@ public class PatternHandler {
         }
     }
 
+    @Override
     public int analyze() {
         if(points.size()==100) {
             simplify();

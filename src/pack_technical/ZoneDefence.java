@@ -20,7 +20,7 @@ public class ZoneDefence implements Cloneable {
     boolean flag = true;
     int warmUpTimer = 0;
     CollisionHandler collisionHandler;
-    PatternHandler patternHandler;
+    PatternLearning patternHandler;
     //timing simulation/real world
     long startTime = 0;
     private final PatrollingScheme patrollingScheme = new PatrollingScheme(0.04f);
@@ -28,7 +28,7 @@ public class ZoneDefence implements Cloneable {
     EnviromentalSimulation enviromentalSimulation;
     private final AtomicBoolean attack = new AtomicBoolean();
     FlockManager flockManager;
-    ParameterSimulation parameterSimulation;
+    ParameterSimulator parameterSimulation;
     ParameterGatherAndSetter parameterGatherAndSetter;
 
 
@@ -40,7 +40,11 @@ public class ZoneDefence implements Cloneable {
         this.collisionHandler = collision;
         defenderBoids = GameManager.get_team(0);
         attackBoids = GameManager.get_team(1);
-        patternHandler = new PatternHandler();
+        if (Constants.PERFECT_WAYPOINTS) {
+            patternHandler = new DummyPatternHandler();
+        } else {
+            patternHandler = new PatternHandler();
+        }
         this.parameterGatherAndSetter = parameterGatherAndSetter;
         waypoints.addAll(parameterGatherAndSetter.returnDifficulty());
         patrollingScheme.getWaypointsA().add(Constants.TARGET.copy());
@@ -52,7 +56,11 @@ public class ZoneDefence implements Cloneable {
         if (patternHandler.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
             enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids, collisionHandler);
-            parameterSimulation = new ParameterSimulation(defenderBoids, patternHandler.getNewpoints(), enviromentalSimulation.getSimulator());
+            if (Constants.PERFECT_AI) {
+                parameterSimulation = new DummyParameterSimulation();
+            } else {
+                parameterSimulation = new ParameterSimulation(defenderBoids, patternHandler.getNewpoints(), enviromentalSimulation.getSimulator());
+            }
             patternHandler.setOnce(false);
         }
 
