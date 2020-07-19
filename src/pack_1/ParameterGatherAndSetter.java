@@ -64,6 +64,7 @@ public class ParameterGatherAndSetter {
         //game.spawn_boids(1,1,new PVector(1200,510));
 
         createDifficulties();
+        Constants.DEFENDER_BOID_WAYPOINTS = returnDifficulty();
     }
 
     public void createDifficulties(){
@@ -141,14 +142,14 @@ public class ParameterGatherAndSetter {
         if(startTimeWithoutwait < 0){
             startTimeWithoutwait=System.nanoTime();
         }
-        historyOfLearning.add(currentAi.getSep_neighbourhood_size() + "," + currentAi.getAli_neighbourhood_size() + "," + currentAi.getCoh_neighbourhood_size() + "," + currentAi.getSep_weight()  + "," + currentAi.getAli_weight() + "," + currentAi.getCoh_weight() + "," +Math.pow(currentAi.getSep_neighbourhood_size()-30,2)+","+Math.pow(currentAi.getAli_neighbourhood_size()-70,2) + "," + Math.pow(currentAi.getCoh_neighbourhood_size()-70,2) + "," + Math.pow(currentAi.getSep_weight()-2,2) + "," + Math.pow(currentAi.getAli_weight()-1.2,2)  + "," + Math.pow(currentAi.getCoh_weight()-0.9f,2) +  "," + Math.pow(currentAi.getWayPointForce()-0.04,2)+"\n");
+        historyOfLearning.add(currentAi.getSeparationForce() + "," + currentAi.getAlignForce() + "," + currentAi.getCohesionForce() + "," + currentAi.getSeparationForceWeight()  + "," + currentAi.getAlignmentForceWeight() + "," + currentAi.getCohesionForceWeight() + "," +Math.pow(currentAi.getSeparationForce()-30,2)+","+Math.pow(currentAi.getAlignForce()-70,2) + "," + Math.pow(currentAi.getCohesionForce()-70,2) + "," + Math.pow(currentAi.getSeparationForceWeight()-2,2) + "," + Math.pow(currentAi.getAlignmentForceWeight()-1.2,2)  + "," + Math.pow(currentAi.getCohesionForceWeight()-0.9f,2) +  "," + Math.pow(currentAi.getWayPointForce()-0.04,2)+"\n");
     }
 
     public void generateEndingStatement(int v) throws IOException {
         if(Constants.OUTPUT_FILE == null) return;
 
         ArrayList<String> lines = new ArrayList<>();
-        lines.add(AI_manager.getAi_basic().getSep_neighbourhood_size() + "," + AI_manager.getAi_basic().getAli_neighbourhood_size() + "," + AI_manager.getAi_basic().getCoh_neighbourhood_size() + "," + AI_manager.getAi_basic().getSep_weight()  + "," + AI_manager.getAi_basic().getAli_weight() + "," + AI_manager.getAi_basic().getCoh_weight() );
+        lines.add(AI_manager.getAi_basic().getSeparationForce() + "," + AI_manager.getAi_basic().getAlignForce() + "," + AI_manager.getAi_basic().getCohesionForce() + "," + AI_manager.getAi_basic().getSeparationForceWeight()  + "," + AI_manager.getAi_basic().getAlignmentForceWeight() + "," + AI_manager.getAi_basic().getCohesionForceWeight() );
         lines.add(v+","+Math.round((System.nanoTime()-startTime)/1000000000)+","+Math.round((System.nanoTime()-startTimeWithoutwait)/1000000000)+","+ iterations + "," + difficulty+","+amountOfBoids+","+attackerStartPosition.x+","+attackerStartPosition.y+"\n");
         lines.addAll(historyOfLearning);
 

@@ -2,6 +2,7 @@ package pack_boids;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 import pack_1.Constants;
 import pack_1.Launcher;
@@ -11,6 +12,7 @@ import pack_technical.GameManager;
 
 import processing.core.PVector;
 
+//
 // the generic boid class holds functions common to all boid types
 public abstract class BoidGeneric {
 
@@ -26,6 +28,7 @@ public abstract class BoidGeneric {
 
     /** Current location of the boid */
     protected PVector location;
+
     /** History of the locations of the boid */
     protected ArrayList<PVector> locationHistory = new ArrayList<PVector>();
 
@@ -60,9 +63,7 @@ public abstract class BoidGeneric {
 
     // if real_step is true all normal actions will happen, otherwise
     // rendering is disabled, this is for 'in-mind simulation'
-    public abstract void run(ArrayList<BoidGeneric> boids, boolean real_step, boolean simulation);
-    /** Render the boid */
-    protected abstract void render();
+    public abstract void run(List<BoidGeneric> boids, boolean simulation);
 
     /**
      * Create a new boid
@@ -164,9 +165,9 @@ public abstract class BoidGeneric {
         PVector cohesion = cohesion(boids);
 
         // Arbitrarily weight these forces
-        separation.mult((float) ai.getSep_weight());
-        alignment.mult((float) ai.getAli_weight());
-        cohesion.mult((float) ai.getCoh_weight());
+        separation.mult((float) ai.getSeparationForceWeight());
+        alignment.mult((float) ai.getAlignmentForceWeight());
+        cohesion.mult((float) ai.getCohesionForceWeight());
 
         // Add the force vectors to acceleration
         if(moveable) {
@@ -189,7 +190,7 @@ public abstract class BoidGeneric {
             float d = Utility.distSq(location, other.location);
             // If the distance is greater than 0 and less than an arbitrary amount (0 when
             // you are yourself)
-            if ((d > 0) && (d < ai.getSep_neighbourhood_size() * ai.getSep_neighbourhood_size())) {
+            if ((d > 0) && (d < ai.getSeparationForce() * ai.getSeparationForce())) {
                 isAlone = false;
                 // Calculate vector pointing away from neighbor
                 PVector diff = PVector.sub(location, other.location);
@@ -224,7 +225,7 @@ public abstract class BoidGeneric {
         int count = 0;
         for (BoidGeneric other : boids) {
             float d = Utility.distSq(location, other.location);
-            if ((d > 0) && (d < ai.getAli_neighbourhood_size() * ai.getAli_neighbourhood_size())) {
+            if ((d > 0) && (d < ai.getAlignForce() * ai.getAlignForce())) {
                 isAlone = false;
                 sum.add(other.velocity);
                 count++;
@@ -251,7 +252,7 @@ public abstract class BoidGeneric {
         int count = 0;
         for (BoidGeneric other : boids) {
             float d = Utility.distSq(location, other.location);
-            if ((d > 0) && (d < ai.getCoh_neighbourhood_size() * ai.getCoh_neighbourhood_size())) {
+            if ((d > 0) && (d < ai.getCohesionForce() * ai.getCohesionForce())) {
                 isAlone = false;
                 sum.add(other.location); // Add location
                 count++;
@@ -280,52 +281,7 @@ public abstract class BoidGeneric {
 		return steer;
 	}
 
-    /** The type of boid trail to draw */
-    protected static enum TrailType {
-        /** Periodic dots */DOTS,
-        /** Smooth curve */CURVE,
-        /** Straight line */STRAIGHT
-    }
-    /**
-     * Draw the trail of past location of the boid
-     * @param type Type of trail to draw
-     */
-    void renderTrails(TrailType type) {
-        if (locationHistory.size() > 0) {
-            switch (type) {
-                case DOTS:
-                    int index = 0;
-                    Launcher.applet.stroke(fillColour.getRGB());
-                    for (PVector vect : locationHistory) {
-                        index++;
-                        if ((index + Launcher.applet.frameCount) % 5 == 0)
-                            Launcher.applet.point(vect.x, vect.y);
-                    }
-                    break;
-                case CURVE:
-                    Launcher.applet.noFill();
-                    Launcher.applet.beginShape();
-                    for (PVector vect : locationHistory) {
-                        Launcher.applet.stroke(fillColour.getRGB(), 75); // set colour and opacity;
-                        Launcher.applet.vertex(vect.x, vect.y);
-                    }
-                    Launcher.applet.endShape();
-                    break;
-                case STRAIGHT:
-                    if (locationHistory.size() > 0) {
-                        Launcher.applet.noFill();
-                        Launcher.applet.stroke(fillColour.getRGB(), 75); // set colour and opacity;
-                        if (Utility.distSq(locationHistory.get(0), locationHistory.get(locationHistory.size() - 1)) < 200 * 200)
-                            Launcher.applet.line(locationHistory.get(0).x, locationHistory.get(0).y,
-                                locationHistory.get(locationHistory.size() - 1).x,
-                                locationHistory.get(locationHistory.size() - 1).y);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+
 
     // Getters and setters
 
@@ -347,6 +303,7 @@ public abstract class BoidGeneric {
     public AI_type getAi() {
         return ai;
     }
+
 	public void setAi(AI_type ai) {
 		this.ai = ai;
 	}
@@ -364,12 +321,17 @@ public abstract class BoidGeneric {
 		this.acceleration = acceleration.copy();
 	}
 
-    public PVector getLocationHistory() {
+    public PVector getOldestLocationInHistory() {
         if (locationHistory.size() > 0)
             return locationHistory.get(0).copy();
 		else
 			return location;
 	}
+
+    public ArrayList<PVector> getLocationHistory() {
+        return locationHistory;
+    }
+
 	public PVector getLocation() {
 		return location;
     }
@@ -377,7 +339,7 @@ public abstract class BoidGeneric {
 		this.location = location.copy();
 	}
 
-    public PVector getVelocityHistory() {
+    public PVector getOldestVelocityInHistory() {
 		if (velocityHistory.size() > 0)
 			return new PVector(velocityHistory.get(0).x, velocityHistory.get(0).y);
 		else
@@ -390,7 +352,7 @@ public abstract class BoidGeneric {
 		this.velocity = velocity.copy();
 	}
 
-    public double getAngleHistory() {
+    public double getOldestAngleInHistory() {
 		if (angleHistory.size() > 0)
 			return angleHistory.get(0);
 		else

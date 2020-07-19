@@ -10,7 +10,7 @@ import processing.event.MouseEvent;
 
 /*
  * handles inputs and outputs, mainly inputs. Input is taken from the launcher class and handed to various managers,
- * for instance telling the display manager do highlight a boid when the flock determines a close boid is hovered over.
+ * for instance telling the display manager do highlight a boid when the flockManager determines a close boid is hovered over.
 */
 public class IOManager {
 
@@ -33,8 +33,8 @@ public class IOManager {
 	}
 
 	public void attempt_highlight_closest() {
-		if (flock_ref.get_boid_count() > 0) {
-			closest_boid = flock_ref.get_nearest_boid(SELECTDISTANCE);
+		if (flock_ref.getBoidCount() > 0) {
+			closest_boid = flock_ref.getNearestBoid(SELECTDISTANCE);
 			if (closest_boid != null)
 				display_sys_ref.highlight_boid(closest_boid, DisplayManager.HOVERVISUALRADIUS);
 		}

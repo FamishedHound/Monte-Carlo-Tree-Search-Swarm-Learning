@@ -9,6 +9,7 @@ import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Simulation {
 
@@ -17,21 +18,13 @@ public abstract class Simulation {
     AI_type ai_type;
     PatrollingScheme patrollingScheme;
     CollisionHandler collisionHandler;
-    ArrayList<int[]> waypointCoords;
+    List<PVector> waypointCoords;
 
-    public Simulation(ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
-        ArrayList<int[]> correctCoords = new ArrayList<>();
-        //only works on medium, chamnge hardcodes for others
-        int[] wp1 = new int[]{(int) PVector.add(Constants.TARGET, new PVector(-100, 50)).x, (int) PVector.add(Constants.TARGET, new PVector(-100, 50)).y};
-        int[] wp2 = new int[]{(int) PVector.add(Constants.TARGET, new PVector(100, 0)).x, (int) PVector.add(Constants.TARGET, new PVector(100, 0)).y};
-        int[] wp3 = new int[]{(int) PVector.add(Constants.TARGET, new PVector(-100, -95)).x, (int) PVector.add(Constants.TARGET, new PVector(-100, 95)).y};
-        correctCoords.add(wp1);
-        correctCoords.add(wp2);
-        correctCoords.add(wp3);
+    public Simulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
         this.collisionHandler = collisionHandler;
-        this.waypointCoords = correctCoords;
+        this.waypointCoords = waypointCoords;
         this.defenderBoids = defenderBoids;
-        this.ai_type = new AI_type(30, 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
+        this.ai_type = Constants.PERFECT_AI ? Constants.CORRECT_AI_PARAMS : new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
         this.attackBoids = attackBoids;
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
     }
@@ -62,8 +55,8 @@ public abstract class Simulation {
     }
 
     public void waypointSetup(ArrayList<BoidGeneric> defenders) {
-        for (int[] cord : waypointCoords) {
-            this.patrollingScheme.getWaypoints().add(new PVector(cord[0], cord[1]));
+        for (PVector cord : waypointCoords) {
+            this.patrollingScheme.getWaypoints().add(cord);
         }
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         // TODO - Magic numbers!!

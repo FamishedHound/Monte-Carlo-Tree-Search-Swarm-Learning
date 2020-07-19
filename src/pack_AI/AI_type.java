@@ -12,13 +12,12 @@ import java.util.Random;
  */
 public class AI_type {
 
-	private float ali_neighbourhood_size, sep_neighbourhood_size, coh_neighbourhood_size;
-	private double db_ali_neighbourhood_size, db_sep_neighbourhood_size, db_coh_neighbourhood_size;
-
-
-
-	// the doubles have advanced precicion, and can change by very small values.
-	private double sep_weight, ali_weight, coh_weight;
+	private float alignForce;
+	private float separationForce;
+	private float cohesionForce;
+	private double separationForceWeight;
+	private double alignmentForceWeight;
+	private double cohesionForceWeight;
 
     public float getWayPointForce() {
 		return wayPointForce;
@@ -33,87 +32,75 @@ public class AI_type {
 	private final double param_a = 0.0001; // learning factor for parameters
 	private final double neighbourhood_a = 0.0001; // learning factor for parameters
 	Random rng = new Random();
-	int nub = AI_manager.getNeighbourhoodUpperBound();
-	int nlb = AI_manager.getNeighbourhoodLowerBound();
 	int wb = AI_manager.getWeight_bound();
 
-	public AI_type(float sns, float ans, float cns, double sw, double aw, double cw,float wayPointForce, String name) {
+	public AI_type(float separation, float align, float cohesion, double sepWeight, double alignWeight, double cohesionWeight, float wayPointForce) {
 		this.wayPointForce=wayPointForce;
-		sep_neighbourhood_size = sns;
-		ali_neighbourhood_size = ans;
-		coh_neighbourhood_size = cns;
-		db_sep_neighbourhood_size = sep_neighbourhood_size;
-		db_ali_neighbourhood_size = ali_neighbourhood_size;
-		db_coh_neighbourhood_size = coh_neighbourhood_size;
-		sep_weight = sw;
-		ali_weight = aw;
-		coh_weight = cw;
+		separationForce = separation;
+		alignForce = align;
+		cohesionForce = cohesion;
+		separationForceWeight = sepWeight;
+		alignmentForceWeight = alignWeight;
+		cohesionForceWeight = cohesionWeight;
+	}
+
+	public AI_type(float sns, float ans, float cns, double sw, double aw, double cw,float wayPointForce, String name) {
+		this(sns, ans, cns, sw, aw, cw, wayPointForce);
 		ai_name = name;
 	}
 
-	public void randomise() {
-		System.out.println("double "+ rng.nextDouble());
-		db_sep_neighbourhood_size = db_sep_neighbourhood_size+rng.nextDouble();
-		db_ali_neighbourhood_size = rng.nextInt(nub - nlb) + nlb;
-		db_coh_neighbourhood_size = rng.nextInt(nub - nlb) + nlb;
-		sep_weight = rng.nextInt(1 + 2 * wb) - wb;
-		ali_weight = rng.nextInt(1 + 2 * wb) - wb;
-		coh_weight = rng.nextInt(1 + 2 * wb) - wb;
-
-	}
-
 	public String get_desc_string() {
-		return "      name: " + ai_name + "      sns: " + sep_neighbourhood_size + "      sw: " + sep_weight
-				+ "      ans: " + ali_neighbourhood_size + "      aw: " + ali_weight + "      cns: "
-				+ coh_neighbourhood_size + "      cw: " + coh_weight;
+		return "      name: " + ai_name + "      sns: " + separationForce + "      sw: " + separationForceWeight
+				+ "      ans: " + alignForce + "      aw: " + alignmentForceWeight + "      cns: "
+				+ cohesionForce + "      cw: " + cohesionForceWeight;
 	}
 
-	public float getAli_neighbourhood_size() {
-		return ali_neighbourhood_size;
+	public float getAlignForce() {
+		return alignForce;
 	}
 
-	public void setAli_neighbourhood_size(float ali_neighbourhood_size) {
-		this.ali_neighbourhood_size = ali_neighbourhood_size;
+	public void setAlignForce(float alignForce) {
+		this.alignForce = alignForce;
 	}
 
-	public float getSep_neighbourhood_size() {
-		return sep_neighbourhood_size;
+	public float getSeparationForce() {
+		return separationForce;
 	}
 
-	public void setSep_neighbourhood_size(float sep_neighbourhood_size) {
-		this.sep_neighbourhood_size = sep_neighbourhood_size;
+	public void setSeparationForce(float separationForce) {
+		this.separationForce = separationForce;
 	}
 
-	public float getCoh_neighbourhood_size() {
-		return coh_neighbourhood_size;
+	public float getCohesionForce() {
+		return cohesionForce;
 	}
 
-	public void setCoh_neighbourhood_size(float coh_neighbourhood_size) {
-		this.coh_neighbourhood_size = coh_neighbourhood_size;
+	public void setCohesionForce(float cohesionForce) {
+		this.cohesionForce = cohesionForce;
 	}
 
-	public double getSep_weight() {
-		return sep_weight;
+	public double getSeparationForceWeight() {
+		return separationForceWeight;
 	}
 
-	public void setSep_weight(float sep_weight) {
-		this.sep_weight = sep_weight;
+	public void setSeparationForceWeight(float separationForceWeight) {
+		this.separationForceWeight = separationForceWeight;
 	}
 
-	public double getAli_weight() {
-		return ali_weight;
+	public double getAlignmentForceWeight() {
+		return alignmentForceWeight;
 	}
 
-	public void setAli_weight(float ali_weight) {
-		this.ali_weight = ali_weight;
+	public void setAlignmentForceWeight(float alignmentForceWeight) {
+		this.alignmentForceWeight = alignmentForceWeight;
 	}
 
-	public double getCoh_weight() {
-		return coh_weight;
+	public double getCohesionForceWeight() {
+		return cohesionForceWeight;
 	}
 
-	public void setCoh_weight(float coh_weight) {
-		this.coh_weight = coh_weight;
+	public void setCohesionForceWeight(float cohesionForceWeight) {
+		this.cohesionForceWeight = cohesionForceWeight;
 	}
 
 	public String getAi_name() {
@@ -125,16 +112,11 @@ public class AI_type {
 	}
 
 	public void constrain_parameters() {
-		sep_weight = Math.min(Math.max(sep_weight, -wb), wb);
-		ali_weight = Math.min(Math.max(ali_weight, -wb), wb);
-		coh_weight = Math.min(Math.max(coh_weight, -wb), wb);
-		db_sep_neighbourhood_size = Math.min(Math.max(db_sep_neighbourhood_size, nlb), nub);
-		db_ali_neighbourhood_size = Math.min(Math.max(db_ali_neighbourhood_size, nlb), nub);
-		db_coh_neighbourhood_size = Math.min(Math.max(db_coh_neighbourhood_size, nlb), nub);
+		separationForceWeight = Math.min(Math.max(separationForceWeight, -wb), wb);
+		alignmentForceWeight = Math.min(Math.max(alignmentForceWeight, -wb), wb);
+		cohesionForceWeight = Math.min(Math.max(cohesionForceWeight, -wb), wb);
+
 		// round the double counterparts to fit onto pixel units
-		sep_neighbourhood_size = (int) Math.round(db_sep_neighbourhood_size);
-		ali_neighbourhood_size = (int) Math.round(db_ali_neighbourhood_size);
-		coh_neighbourhood_size = (int) Math.round(db_coh_neighbourhood_size);
 	}
 
 	public void learning_update(double[] derivatives) {
@@ -151,9 +133,7 @@ public class AI_type {
 		int factor = 2;
 		if (rng.nextInt(2) == 0)
 			factor = -factor; // negative
-		db_sep_neighbourhood_size = db_sep_neighbourhood_size + factor * rng.nextFloat();
-		db_ali_neighbourhood_size = db_ali_neighbourhood_size + factor * rng.nextFloat();
-		db_coh_neighbourhood_size = db_coh_neighbourhood_size + factor * rng.nextFloat();
+
 
 	}
 
@@ -168,35 +148,22 @@ public class AI_type {
 				mods[i] = neighbourhood_a * derivatives[i];// 5 point precision
 			// the old and new positions are interpolated by a_value
 		}
-		sep_weight = sep_weight - mods[0];
-		ali_weight = ali_weight - mods[1];
-		coh_weight = coh_weight - mods[2];
-		db_sep_neighbourhood_size = db_sep_neighbourhood_size - mods[3];
-		db_ali_neighbourhood_size = db_ali_neighbourhood_size - mods[4];
-		db_coh_neighbourhood_size = db_coh_neighbourhood_size - mods[5];
-	}
-	public void setDb_ali_neighbourhood_size(double db_ali_neighbourhood_size) {
-		this.db_ali_neighbourhood_size = db_ali_neighbourhood_size;
-	}
+		separationForceWeight = separationForceWeight - mods[0];
+		alignmentForceWeight = alignmentForceWeight - mods[1];
+		cohesionForceWeight = cohesionForceWeight - mods[2];
 
-	public void setDb_sep_neighbourhood_size(double db_sep_neighbourhood_size) {
-		this.db_sep_neighbourhood_size = db_sep_neighbourhood_size;
-	}
-
-	public void setDb_coh_neighbourhood_size(double db_coh_neighbourhood_size) {
-		this.db_coh_neighbourhood_size = db_coh_neighbourhood_size;
 	}
 
 	public void setSep_weight(double sep_weight) {
-		this.sep_weight = sep_weight;
+		this.separationForceWeight = sep_weight;
 	}
 
 	public void setAli_weight(double ali_weight) {
-		this.ali_weight = ali_weight;
+		this.alignmentForceWeight = ali_weight;
 	}
 
 	public void setCoh_weight(double coh_weight) {
-		this.coh_weight = coh_weight;
+		this.cohesionForceWeight = coh_weight;
 	}
 
 }

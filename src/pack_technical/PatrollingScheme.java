@@ -79,6 +79,11 @@ public class PatrollingScheme {
     }
 
     public PVector patrol(PVector location, BoidGeneric b){
+        //from the usage in ZoneDefence defBoid updating i.e. location.add(velocity.add(patrol(...)))
+        //I think this must return a velocity vector. However, due to the velocity and acceleration
+        //being clamped the return can safely be used with BoidGeneric.update() which updates
+        //the acceleration rather than the velocity and also applies clamping.
+        //**Bugs may or may not occur if that ever changes!**
         currWaypoint = waypoints.get(currentPosition);//iterator.next();
         // TODO Magic Numbers!!
         if(Utility.distSq(location,currWaypoint) <= 5 * 5) { // was 2

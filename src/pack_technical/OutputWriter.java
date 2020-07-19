@@ -17,7 +17,7 @@ public class OutputWriter {
     // camera is team -1
     // list of all the writers
     static ArrayList<PrintWriter> writers = new ArrayList<PrintWriter>();
-    // plot param,error
+    // plot parameterSimulation,error
     static ArrayList<PrintWriter> PARAM_separation_weight_writers = new ArrayList<PrintWriter>();
     static ArrayList<PrintWriter> PARAM_alignment_weight_writers = new ArrayList<PrintWriter>();
     static ArrayList<PrintWriter> PARAM_cohesion_weight_writers = new ArrayList<PrintWriter>();
@@ -56,7 +56,7 @@ public class OutputWriter {
         for (int observer = 0; observer <= GameManager.getTeam_number()+1; observer++) {
             for (int observed = 0; observed <= GameManager.getTeam_number()+1; observed++) {
                 try {
-                    // param writers
+                    // parameterSimulation writers
                     sw = new PrintWriter(get_file_name(observer, observed, "param_sw") + ".txt", "UTF-8");
                     PARAM_separation_weight_writers.add(sw);
                     writers.add(sw);

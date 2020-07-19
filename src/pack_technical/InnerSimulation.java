@@ -6,6 +6,7 @@ import pack_boids.BoidStandard;
 import processing.core.PVector;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import pack_1.Constants;
@@ -42,7 +43,7 @@ public class InnerSimulation extends Simulation {
         randomAccelerationAction.setMag(0.1f);
     }
 
-    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler, int nodeDepth) {
+    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler, int nodeDepth) {
         super(copyStateOfBoids(defenderBoids), waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
         this.ai_type = ai;
         this.nodeDepth = nodeDepth;

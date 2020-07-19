@@ -1,11 +1,10 @@
 package pack_technical;
-import pack_1.Utility;
-import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import processing.core.PVector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //todo move maxTreeDepth to Constants
 
@@ -15,16 +14,13 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     FlockManager flockManager;
     double startTime;
     AI_type ai_type;
-    final int maxTreeDepth = 2147483647;
+    int maxTreeDepth = 20;
     int actionCounter = 0;
-    private volatile int maxSimulationIter;
-    private volatile int simulationCount;
 
-    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, ArrayList<int[]> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler, int maxSimulationIter) {
+    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
         super(defenderBoids, waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
         defenderBoids = copyStateOfBoids(defenderBoids);
         this.flockManager = new FlockManager(true, true);
-        this.maxSimulationIter = maxSimulationIter;
 
         for (BoidGeneric defenderBoid : defenderBoids) {
             defenderBoid.setAi(this.ai_type);
@@ -38,12 +34,9 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
 
     public void setAiToInnerSimulation(AI_type t) {
-        ai_type = new AI_type(30, 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");;
+        ai_type = t;
     }
 
-    public int getMaxSimulationIter() {
-        return maxSimulationIter;
-    }
 
     public boolean isSimulating() {
         return true;
@@ -56,17 +49,11 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
      *
      * @return
      */
-    public PVector returnTargetVector(ArrayList<BoidGeneric> defenders, ArrayList<BoidGeneric> attacker) {
-        if(simulationCount < maxSimulationIter && maxSimulationIter != 0) {
-            return null;
-        } else {
-            simulationCount = 0;
-        }
+    public PVector returnTargetVector() {
         Node bestSim = MCT.bestAvgVal();
         PVector bestVector = bestSim.accelerationAction;
         try {
             MCT.root = new Node(0, "root", 0, 0, attackBoids);
-            updateBoids(defenders, attacker);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,9 +80,6 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
     public void run() {
         while (true) {
-            if (simulationCount >= maxSimulationIter && maxSimulationIter != 0) {
-                continue;
-            }
             Node node = MCT.UCT(MCT.root, -1);
             InnerSimulation newSim;
             if(node.parent == null){
@@ -121,8 +105,6 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             String nodeName = node.name + "." + node.children.size();
             Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
             childNode.backPropagate(simVal);
-            simulationCount++;
-            System.out.println(simulationCount);
         }
     }
 }

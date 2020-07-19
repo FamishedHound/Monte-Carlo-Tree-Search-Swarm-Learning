@@ -14,7 +14,7 @@ import processing.core.PVector;
 
 /*
  * does game logic sysems, such as holding teams, team colours and can perform higher level game
- * functions such as telling the flock to spawn groups of boids on a team, or start a round.
+ * functions such as telling the flockManager to spawn groups of boids on a team, or start a round.
  * 
  * The game manager also creates an AI manager which creates all the AI profiles, which the game
  * manager will load into each team so that they have a common AI type.
@@ -68,7 +68,7 @@ public class GameManager {
     public void spawn_boids(int team_n, int amount, PVector pos) {
         for (int i = 0; i < amount; i++) {
             BoidGeneric b = new BoidStandard(pos.x, pos.y, team_n,i);
-            flock_ref.add_boid(b);
+            flock_ref.addBoid(b);
             team[team_n].add(b);
         }
     }

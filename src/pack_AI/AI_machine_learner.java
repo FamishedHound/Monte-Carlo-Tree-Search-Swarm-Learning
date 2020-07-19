@@ -40,7 +40,6 @@ public class  AI_machine_learner {
 
     AI_internal_model internal_model_ref; // the model to work with
     BoidStandard parent_boid; // the boid holding this internal model
-    BoidObserver parent_camera; // the boid holding this internal model
     int error = 0;
     float[][] points = new float[2][2];
     PVector imaginary_pos, original_pos;
@@ -108,12 +107,12 @@ public class  AI_machine_learner {
     }
 
     private void record_error_for_observation_of(int observed_t) {
-        double param_sw = internal_model_ref.ai_s[observed_t].getSep_weight();
-        double param_aw = internal_model_ref.ai_s[observed_t].getAli_weight();
-        double param_cw = internal_model_ref.ai_s[observed_t].getCoh_weight();
-        float param_sns = internal_model_ref.ai_s[observed_t].getSep_neighbourhood_size();
-        float param_ans = internal_model_ref.ai_s[observed_t].getAli_neighbourhood_size();
-        float param_cns = internal_model_ref.ai_s[observed_t].getCoh_neighbourhood_size();
+        double param_sw = internal_model_ref.ai_s[observed_t].getSeparationForceWeight();
+        double param_aw = internal_model_ref.ai_s[observed_t].getAlignmentForceWeight();
+        double param_cw = internal_model_ref.ai_s[observed_t].getCohesionForceWeight();
+        float param_sns = internal_model_ref.ai_s[observed_t].getSeparationForce();
+        float param_ans = internal_model_ref.ai_s[observed_t].getAlignForce();
+        float param_cns = internal_model_ref.ai_s[observed_t].getCohesionForce();
         // add observed_t points for the observed_t entity
         obs_sw[observed_t].add(param_sw, error); // todo intentionally wrong
         obs_aw[observed_t].add(param_aw, error);
@@ -202,27 +201,27 @@ public class  AI_machine_learner {
         switch (param) {
         case "sw":
             coeffs = coeff_sw[observed_t];
-            param_x = parent_ai.getSep_weight();
+            param_x = parent_ai.getSeparationForceWeight();
             break;
         case "aw":
             coeffs = coeff_aw[observed_t];
-            param_x = parent_ai.getAli_weight();
+            param_x = parent_ai.getAlignmentForceWeight();
             break;
         case "cw":
             coeffs = coeff_cw[observed_t];
-            param_x = parent_ai.getCoh_weight();
+            param_x = parent_ai.getCohesionForceWeight();
             break;
         case "sns":
             coeffs = coeff_sns[observed_t];
-            param_x = parent_ai.getSep_neighbourhood_size();
+            param_x = parent_ai.getSeparationForce();
             break;
         case "ans":
             coeffs = coeff_ans[observed_t];
-            param_x = parent_ai.getAli_neighbourhood_size();
+            param_x = parent_ai.getAlignForce();
             break;
         case "cns":
             coeffs = coeff_cns[observed_t];
-            param_x = parent_ai.getCoh_neighbourhood_size();
+            param_x = parent_ai.getCohesionForce();
             break;
         default:
             System.out.println("error: not a real term arguement");
@@ -248,7 +247,7 @@ public class  AI_machine_learner {
     // takes the final state of the imaginary flock
     public void run(FlockManager mind_flock) {
         int observer_t = parent_boid.getTeam();
-        for (BoidGeneric in : mind_flock.get_all_boids()) {
+        for (BoidGeneric in : mind_flock.getAllBoids()) {
             BoidImaginary b = (BoidImaginary) in;
             int observed_t = b.getOriginal().getTeam();
             points = calculate_points(b);
