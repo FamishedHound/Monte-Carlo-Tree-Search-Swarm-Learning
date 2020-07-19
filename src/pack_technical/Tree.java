@@ -4,7 +4,9 @@ import pack_boids.BoidGeneric;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Tree {
     //root.depth is always 0
