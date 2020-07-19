@@ -46,24 +46,8 @@ public class Node {
         return parent;
     }
 
-    public int getVisits() {
-        return this.visits;
-    }
-
-    public void incrementTimesVisited() {
-        this.visits++;
-    }
-
-    public PVector getAccelerationAction() {
-        return accelerationAction.copy();
-    }
-
-    /**
-     * Returns a deep copy of the attacker.
-     * @return
-     */
-    public BoidGeneric getAttackBoids() {
-        return new BoidStandard(this.attackBoids.get(0));
+    public void setParent(Node parent) {
+        this.parent = parent;
     }
 
     public Node getRandomChild() {
@@ -89,6 +73,81 @@ public class Node {
         return childNode;
     }
 
+    public int getVisits() {
+        return this.visits;
+    }
+
+    public void incrementTimesVisited() {
+        this.visits++;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
+    }
+
+    public boolean isMaxChildren() {
+        return maxChildren;
+    }
+
+    public void setMaxChildren(boolean maxChildren) {
+        this.maxChildren = maxChildren;
+    }
+
+    public double getNodeSimValue() {
+        return nodeSimValue;
+    }
+
+    public void setNodeSimValue(double nodeSimValue) {
+        this.nodeSimValue = nodeSimValue;
+    }
+
+    public double getRolloutReward() {
+        return rolloutReward;
+    }
+
+    public void setRolloutReward(double rolloutReward) {
+        this.rolloutReward = rolloutReward;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public PVector getAccelerationAction() {
+        return accelerationAction.copy();
+    }
+
+    public void setAccelerationAction(PVector accelerationAction) {
+        this.accelerationAction = accelerationAction;
+    }
+
+    /**
+     * Returns a deep copy of the attacker.
+     * @return
+     */
+    public BoidGeneric getAttackBoids() {
+        return new BoidStandard(this.attackBoids.get(0));
+    }
+
+    public void setAttackBoids(BoidGeneric attackBoids) {
+        this.attackBoids.add(0, attackBoids);
+    }
 
     public double getCumuValue() {
         return cumuValue;
