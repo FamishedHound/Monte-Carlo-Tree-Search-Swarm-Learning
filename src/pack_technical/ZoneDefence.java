@@ -95,8 +95,14 @@ public class ZoneDefence implements Cloneable {
             // ATACK MODE
             if (attack.get()) {
                 attackBoid.setMovable(true);
-                PVector attackVector = enviromentalSimulation.returnTargetVector();
-                enviromentalSimulation.updateBoids(defenderBoids, attackBoids);
+                while(enviromentalSimulation.simulations < enviromentalSimulation.maxSimulation) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                PVector attackVector = enviromentalSimulation.returnTargetVector(defenderBoids, attackBoids);
                 attackBoid.update(attackVector);
             } else {
                 attackBoid.setStationary();

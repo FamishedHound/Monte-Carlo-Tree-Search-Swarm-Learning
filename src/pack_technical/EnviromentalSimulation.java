@@ -16,6 +16,8 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     AI_type ai_type;
     int maxTreeDepth = 20;
     int actionCounter = 0;
+    final int maxSimulation = 100;
+    int simulations = 0;
 
     public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
         super(defenderBoids, waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
@@ -49,11 +51,13 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
      *
      * @return
      */
-    public PVector returnTargetVector() {
+    public PVector returnTargetVector(ArrayList<BoidGeneric> defenderBoids, ArrayList<BoidGeneric> attackBoids) {
         Node bestSim = MCT.bestAvgVal();
         PVector bestVector = bestSim.accelerationAction;
         try {
+            updateBoids(defenderBoids, attackBoids);
             MCT.root = new Node(0, "root", 0, 0, attackBoids);
+            simulations = 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,6 +109,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             String nodeName = node.name + "." + node.children.size();
             Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
             childNode.backPropagate(simVal);
+            simulations++;
         }
     }
 }
