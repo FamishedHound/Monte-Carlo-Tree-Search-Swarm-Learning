@@ -15,7 +15,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     FlockManager flockManager;
     double startTime;
     AI_type ai_type;
-    int maxTreeDepth = 20;
+    int maxTreeDepth = 2147483647;
     int actionCounter = 0;
     final int maxSimulation = Constants.DEBUG_SIM_LIMIT;
     int simulations = 0;
@@ -87,12 +87,12 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 
     public void run() {
         while (true) {
-            Node node = MCT.UCT(MCT.root, -1);
+            Node node = MCT.UCT(MCT.getRoot(), -1);
             InnerSimulation newSim;
-            if(node.parent == null){
-                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, attackBoids, collisionHandler, node.depth);
+            if(node.getParent() == null){
+                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, attackBoids, collisionHandler, node.getDepth());
             }else {
-                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, node.parent.attackBoids, collisionHandler, node.depth);
+                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, node.getParent().getAttackBoids(), collisionHandler, node.getDepth());
             }
             newSim.run();
 
@@ -109,7 +109,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 }
             }
 
-            String nodeName = node.name + "." + node.children.size();
+            String nodeName = node.getName() + "." + node.getChildren().size();
             Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
             childNode.backPropagate(simVal);
         }
