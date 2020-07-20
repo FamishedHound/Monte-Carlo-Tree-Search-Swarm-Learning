@@ -141,8 +141,8 @@ public class Node {
      * Returns a deep copy of the attacker.
      * @return
      */
-    public BoidGeneric getAttackBoids() {
-        return new BoidStandard(this.attackBoids.get(0));
+    public ArrayList<BoidGeneric> getAttackBoids() {
+        return this.attackBoids;
     }
 
     public void setAttackBoids(BoidGeneric attackBoids) {
