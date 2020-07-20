@@ -11,16 +11,18 @@ import java.util.List;
 
 
 public class Node {
-    Node parent;
-    List<Node> children;
-    int visits = 0;
-    int depth;
-    double nodeSimValue;
-    double cumuValue = 0;
-    double rolloutReward;
-    String name; //debug only
-    PVector accelerationAction;
-    ArrayList<BoidGeneric> attackBoids;
+    private Node parent;
+    private List<Node> children;
+    private int visits = 0;
+    private int depth;
+    private boolean expanded = false;
+    private boolean maxChildren;
+    private double nodeSimValue;
+    private double cumuValue = 0;
+    private double rolloutReward;
+    private String name; //debug only
+    private PVector accelerationAction;
+    private ArrayList<BoidGeneric> attackBoids;
 
     /**
      * Constructor of Node, assigns internal values and initialises storage for children. If not provided, stores a zeroed random acceleration action.
@@ -70,6 +72,10 @@ public class Node {
 
     public List<Node> getChildren() {
         return children;
+    }
+
+    public Node getChild(int i) {
+        return children.get(i);
     }
 
     /**

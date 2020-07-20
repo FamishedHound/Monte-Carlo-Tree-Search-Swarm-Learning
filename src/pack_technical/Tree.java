@@ -8,9 +8,33 @@ import java.util.Optional;
 
 public class Tree {
     //root.depth is always 0
-    Node root;
-    int maxTreeDepth;
-    int maxNodeChildren = 12;
+    private Node root;
+    private int maxTreeDepth;
+    private int maxNodeChildren = 12;
+
+    public Node getRoot() {
+        return root;
+    }
+
+    public void setRoot(Node root) {
+        this.root = root;
+    }
+
+    public int getMaxTreeDepth() {
+        return maxTreeDepth;
+    }
+
+    public void setMaxTreeDepth(int maxTreeDepth) {
+        this.maxTreeDepth = maxTreeDepth;
+    }
+
+    public int getMaxNodeChildren() {
+        return maxNodeChildren;
+    }
+
+    public void setMaxNodeChildren(int maxNodeChildren) {
+        this.maxNodeChildren = maxNodeChildren;
+    }
 
 
     public Tree(int maxTreeDepth, ArrayList<BoidGeneric> attackBoids) {
@@ -20,7 +44,7 @@ public class Tree {
 
     public Node UCT(Node currentNode, double epsilon) {
         do {
-            if(currentNode.children.size() < maxNodeChildren){
+            if(currentNode.getChildren().size() < maxNodeChildren){
                 return currentNode;
             }
 
@@ -38,18 +62,21 @@ public class Tree {
 
 
     public Node bestAvgVal() {
-        if(root.children.size() == 0){
+        if(root.getChildren().size() == 0){
             return root;
         }
-        double bestNode = root.children.get(0).calcUCT();
+        double bestNode = root.getChildren().get(0).calcUCT();
         int bestNodePos = 0;
-        for (int i=0; i<root.children.size()-1; i++){
-            if(root.children.get(i).calcUCT() > bestNode){
-                bestNode = root.children.get(i).calcUCT();
+        for (int i=0; i<root.getChildren().size()-1; i++){
+            if(root.getChildren().get(i).calcUCT() > bestNode){
+                bestNode = root.getChildren().get(i).calcUCT();
                 bestNodePos = i;
+            }
+            if(root.getChild(i).getNodeSimValue() >= 1){
+                return root.getChild(i);
             }
         }
         //System.out.println("Node Name: " + root.children.get(bestNodePos).name);
-        return root.children.get(bestNodePos);
+        return root.getChild(bestNodePos);
     }
 }
