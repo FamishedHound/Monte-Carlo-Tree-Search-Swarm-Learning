@@ -16,6 +16,7 @@ public class Constants {
     //block added to Constants.setParamsFromProgramArgs to parse the program arguments accordingly
     //the value can then be used in the code wherever desired.
 
+    public static PVector ATTACKER_START_POSITION;
 
     /**
      * Switch for whether to give the move planner the correct boid parameters
