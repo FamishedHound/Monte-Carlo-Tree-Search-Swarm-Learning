@@ -1,4 +1,5 @@
 package pack_technical;
+import pack_1.Constants;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import processing.core.PVector;
@@ -16,7 +17,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     AI_type ai_type;
     int maxTreeDepth = 20;
     int actionCounter = 0;
-    final int maxSimulation = 100;
+    final int maxSimulation = Constants.DEBUG_SIM_LIMIT;
     int simulations = 0;
 
     public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {

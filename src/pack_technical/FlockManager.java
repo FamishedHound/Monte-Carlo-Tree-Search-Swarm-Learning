@@ -52,7 +52,9 @@ public class FlockManager {
         for (int step = 0; step < steps; step++) {
             for (BoidGeneric boid : boids) {
                 if (boid instanceof BoidStandard) { // if real
-                    boid.run(boids, simulation);
+                    if(boid.getTeam() != 1) {
+                        boid.run(boids, simulation);
+                    }
                     if (step == 0) {
                         if (Launcher.areTrailsDrawn()) {
                             renderTrails(boid, TrailType.CURVE);

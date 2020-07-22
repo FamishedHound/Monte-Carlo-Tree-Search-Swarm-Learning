@@ -95,11 +95,13 @@ public class ZoneDefence implements Cloneable {
             // ATACK MODE
             if (attack.get()) {
                 attackBoid.setMovable(true);
-                while(enviromentalSimulation.simulations < enviromentalSimulation.maxSimulation) {
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                if(Constants.DEBUG_SIM_LIMIT != 0) {
+                    while(enviromentalSimulation.simulations < enviromentalSimulation.maxSimulation) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 PVector attackVector = enviromentalSimulation.returnTargetVector(defenderBoids, attackBoids);
