@@ -1,5 +1,6 @@
 package pack_1;
 
+import org.apache.commons.math3.analysis.function.Constant;
 import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_technical.CollisionHandler;
@@ -128,7 +129,7 @@ public class ParameterGatherAndSetter {
                 generateEndingStatement(1);
                 String finalMessage = "Simulation took " + Math.round((System.nanoTime()-startTime)/1000000000) + " s and was a victory";
                 Launcher.quit(finalMessage, 0);
-            } else if(Math.round((System.nanoTime()-startTime)/1000000000)==300){//timeout after 300 s
+            } else if(Math.round((System.nanoTime()-startTime)/1000000000)==300 && Constants.DEBUG_SIM_LIMIT == 0){//timeout after 300 s
                 generateEndingStatement(2);
                 String finalMessage = "Timeout";
                 Launcher.quit(finalMessage, 1);
