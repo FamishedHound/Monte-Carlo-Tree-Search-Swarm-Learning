@@ -15,7 +15,7 @@ public class Node {
     private List<Node> children;
     private int visits = 0;
     private int depth;
-    private boolean expanded = false;
+    private boolean expanded;
     private boolean maxChildren;
     private double nodeSimValue;
     private double cumuValue = 0;

@@ -1,6 +1,7 @@
 package pack_technical;
 
 import pack_boids.BoidGeneric;
+import processing.core.PVector;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,8 +41,18 @@ public class Tree {
 
 
     public Tree(int maxTreeDepth, ArrayList<BoidGeneric> attackBoids) {
-        this.root = new Node(0, "ROOT", 0, 0, attackBoids);
+        resetRoot(attackBoids);
         this.maxTreeDepth = maxTreeDepth;
+    }
+
+    public void resetRoot(ArrayList<BoidGeneric> attackBoids) {
+        this.root = new Node(0, "ROOT", 0, 0, attackBoids);
+    }
+
+    public Node addChild(Node node, double simulationValue, String name, double childRolloutValue, ArrayList<BoidGeneric> attackBoids, PVector accelerationAction) {
+        Node childNode = node.addChild(simulationValue, name, childRolloutValue, attackBoids, accelerationAction);
+        childNode.addChild(Node.Action.TOWARDS_TARGET);
+        return childNode;
     }
 
     public Node UCT(Node currentNode, double epsilon) {
