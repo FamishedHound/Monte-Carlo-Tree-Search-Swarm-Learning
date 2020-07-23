@@ -20,7 +20,7 @@ public class InnerSimulation extends Simulation {
 
     boolean victory = false;
     Random randG = new Random();
-    PVector chosenAccelerationAction = new PVector(0,0);
+    PVector chosenAccelerationAction;
     PVector randomAccelerationAction;
     float closestDistanceToTarget;
     float currentDistanceToTarget;
@@ -43,6 +43,10 @@ public class InnerSimulation extends Simulation {
         randomAccelerationAction.setMag(0.1f);
     }
 
+    public PVector getRandomAccelerationAction() {
+        return randomAccelerationAction.copy();
+    }
+
     public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler, int nodeDepth) {
         super(copyStateOfBoids(defenderBoids), waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
         this.ai_type = ai;
@@ -61,6 +65,7 @@ public class InnerSimulation extends Simulation {
 
             for (BoidGeneric defenderBoid : defenderBoids) {
                 //For each layer in the MCTS, moves every defender boid one iteration
+                //probs should be done via flockManager
                 for(int i=0; i < nodeDepth; i++) {
                     defenderBoid.move(defenderBoids);
                     defenderBoid.update();
@@ -76,7 +81,7 @@ public class InnerSimulation extends Simulation {
                 simulating = false;
             }
 
-            getAttackBoid().update(randomAccelerationAction);
+            getAttackBoid().update(getRandomAccelerationAction());
             // TODO - Could replace this dist with distSq, but that will change all of the currentDistance etc. vars to be currentDistanceSq
 
             for (BoidGeneric defenderBoid : defenderBoids) {
@@ -90,7 +95,7 @@ public class InnerSimulation extends Simulation {
 
             if (!getAttackBoid().hasFailed()) {
                 if (currentDistanceToTarget < closestDistanceToTarget) {
-                    theClosest = randomAccelerationAction;
+                    theClosest = getRandomAccelerationAction();
                     closestDistanceToTarget = currentDistanceToTarget;
                 }
                 if (!simulating) {
@@ -108,8 +113,8 @@ public class InnerSimulation extends Simulation {
                 rolloutReward = 0;
 
                 for(int j=0; j<1000; j++){
-                    rolloutAttackBoid.update(randomAccelerationAction);
-                    if(Utility.distSq(rolloutAttackBoid.getLocation(), Constants.TARGET) < 20 * 20) {
+                    rolloutAttackBoid.update(getRandomAccelerationAction());
+                    if(Utility.distSq(rolloutAttackBoid.getLocation(), Constants.TARGET) < Constants.HIT_DISTANCE_SQ) {
                         rolloutReward = 1;
                         break;
                     } else {

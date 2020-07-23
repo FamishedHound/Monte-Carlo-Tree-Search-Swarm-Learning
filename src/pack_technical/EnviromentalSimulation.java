@@ -110,7 +110,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             }
 
             String nodeName = node.getName() + "." + node.getChildren().size();
-            Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.randomAccelerationAction);
+            Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.getRandomAccelerationAction());
             childNode.backPropagate(simVal);
         }
     }

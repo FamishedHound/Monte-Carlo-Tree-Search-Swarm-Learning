@@ -139,9 +139,12 @@ public abstract class BoidGeneric {
      * @param acceleration The new acceleration to apply to the boid
      */
     public void update(PVector acceleration) {
-        this.setAcceleration(acceleration);
-        this.update();
-        velocity.limit(Constants.Boids.MAX_SPEED_ATTACK);
+        velocity.add(acceleration);
+        // Limit speed
+        velocity.limit(Constants.Boids.MAX_SPEED);
+        location.add(velocity);
+        // Reset acceleration to 0 each cycle
+        acceleration.mult(0);
     }
 
     /**
