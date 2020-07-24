@@ -47,6 +47,7 @@ public class Tree {
 
     public void resetRoot(ArrayList<BoidGeneric> attackBoids) {
         this.root = new Node(0, "ROOT", 0, 0, attackBoids);
+        this.root.addChild(Node.Action.TOWARDS_TARGET);
     }
 
     public Node addChild(Node node, double simulationValue, String name, double childRolloutValue, ArrayList<BoidGeneric> attackBoids, PVector accelerationAction) {

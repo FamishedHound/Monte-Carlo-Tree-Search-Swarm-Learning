@@ -75,9 +75,6 @@ public class Constants {
     public static final int HIT_DISTANCE = 10;
     public static final int HIT_DISTANCE_SQ = HIT_DISTANCE * HIT_DISTANCE;
 
-    /** Distance required to count as collision between boids and its square */
-    public static final float COLLISION_DISTANCE = 6;
-    public static final float COLLISION_DISTANCE_SQ = COLLISION_DISTANCE * COLLISION_DISTANCE;
 
     public static class Boids {
         public static final float MAX_STEER = 0.02f;

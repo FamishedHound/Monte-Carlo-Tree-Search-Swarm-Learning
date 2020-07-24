@@ -145,6 +145,10 @@ public class Node {
         return this.attackBoids;
     }
 
+    public ArrayList<BoidGeneric> getAttackBoidsForSimulation() {
+        return this.isExpanded() || this.getParent() == null ? this.getAttackBoids() : this.getParent().getAttackBoids();
+    }
+
     public void setAttackBoids(BoidGeneric attackBoids) {
         this.attackBoids.add(0, attackBoids);
     }

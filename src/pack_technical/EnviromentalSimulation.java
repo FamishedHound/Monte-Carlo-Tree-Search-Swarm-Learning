@@ -6,12 +6,14 @@ import processing.core.PVector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 //todo move maxTreeDepth to Constants
 
 public class EnviromentalSimulation extends Simulation implements Runnable {
 
     Tree MCT;
+    Random random = new Random();
     double startTime;
     AI_type ai_type;
     int maxTreeDepth = 2147483647;
@@ -81,32 +83,15 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     }
 
 
+    //do we need to store a CollisionHandler as a field?
     public void run() {
         while (true) {
             Node node = MCT.UCT(MCT.getRoot(), -1);
-            InnerSimulation newSim;
-            if(node.getParent() == null){
-                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, attackBoids, collisionHandler, node.getDepth());
-            }else {
-                newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, node.getParent().getAttackBoids(), collisionHandler, node.getDepth());
-            }
+            InnerSimulation newSim = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node);
             newSim.run();
-
-            boolean dangerClose = newSim.rolloutReward < 0;
-
-            double simVal = 0;
-            if (newSim.getAttackBoid().hasFailed()) {
-                simVal = -1 ;
-            } else if (newSim.victory) {
-                simVal = 1;
-            } else {
-                if(!dangerClose) {
-                    simVal = 0.5 - (newSim.currentDistanceToTarget / 6000);
-                }
-            }
-
+            double simVal = newSim.getSimulationValue();
             String nodeName = node.getName() + "." + node.getChildren().size();
-            Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.getRandomAccelerationAction());
+            Node childNode = MCT.addChild(node, simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.getAccelerationAction());
             childNode.backPropagate(simVal);
             simulations++;
         }

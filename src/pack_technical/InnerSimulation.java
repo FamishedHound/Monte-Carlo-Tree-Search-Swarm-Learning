@@ -36,11 +36,9 @@ public class InnerSimulation extends Simulation {
         this.simulating = simulating;
     }
 
-    public void createSimulationsAndRandomVectors(){
-        float rand = randG.nextFloat() * 1;
-        float rand2 = randG.nextFloat() * 1;
-        randomAccelerationAction = new PVector(-1+2*rand, -1+2*rand2);
-        randomAccelerationAction.setMag(Constants.Boids.MAX_ACC_ATTACK);
+    public PVector createRandomVector() {
+        PVector randomAcceleration = new PVector(random.nextFloat() * 2 - 1, random.nextFloat() * 2 - 1);
+        return randomAcceleration.setMag(0.1f);
     }
 
     public PVector getRandomAccelerationAction() {
@@ -81,15 +79,6 @@ public class InnerSimulation extends Simulation {
                 simulating = false;
             }
 
-            getAttackBoid().updateAttack(getRandomAccelerationAction());
-            // TODO - Could replace this dist with distSq, but that will change all of the currentDistance etc. vars to be currentDistanceSq
-
-            for (BoidGeneric defenderBoid : defenderBoids) {
-                if (Utility.distSq(defenderBoid.getLocation(), getAttackBoid().getLocation()) < 16 * 16) {  // was 3
-                    rolloutReward = -1;
-                    return;
-                }
-            }
             currentDistanceToTarget = PVector.dist(currentAttackerLocation, Constants.TARGET);
 
 
@@ -104,30 +93,13 @@ public class InnerSimulation extends Simulation {
                     victory = CollisionHandler.doesReachTarget(attackBoids, 5);
             } else {
                 simulating = false;
+                rolloutReward = -1;
             }
 
-            if(simulating && !victory) {
-                BoidGeneric rolloutAttackBoid = new BoidStandard(getAttackBoid());
-                rolloutReward = 0;
+            //maybe return the below?
+            rolloutReward = simulating && !victory && nodeExpanded ? rollout() : rolloutReward;
 
-                for(int j=0; j<1000; j++){
-                    rolloutAttackBoid.updateAttack(getRandomAccelerationAction());
-                    if(Utility.distSq(rolloutAttackBoid.getLocation(), Constants.TARGET) < Constants.HIT_DISTANCE_SQ) {
-                        rolloutReward = 1;
-                        break;
-                    } else {
-                        for (BoidGeneric defenderBoid : defenderBoids) {
-                            if (Utility.distSq(defenderBoid.getLocation(), rolloutAttackBoid.getLocation()) < 16 * 16) {  // was 3
-                                rolloutReward = -1;
-                                break;
-                            }
-                        }
-                        if(rolloutReward < 0){
-                            break;
-                        }
-                    }
-                }
-            }
+
         }
     }
 }
