@@ -11,6 +11,7 @@ public class CollisionHandler {
     ArrayList<BoidGeneric> team1;
     ArrayList<BoidGeneric> team2;
     // TODO Can this be removed?
+
     private final float mass=5;
 
     public boolean isLose() {
@@ -30,9 +31,34 @@ public class CollisionHandler {
         team2 = GameManager.get_team(1);
     }
 
-    public boolean doesCollide(BoidGeneric boid1, BoidGeneric boid2){
+    public static boolean doesCollide(ArrayList<BoidGeneric> attackBoids, ArrayList<BoidGeneric> defenderBoids, float buffer) {
+        for(BoidGeneric attackBoid : attackBoids){
+            for (BoidGeneric defenderBoid : defenderBoids){
+                if(doesCollide(attackBoid, defenderBoid, buffer)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean doesReachTarget(ArrayList<BoidGeneric> attackBoids, float buffer) {
+        for(BoidGeneric attackBoid : attackBoids){
+            if((Utility.distSq(attackBoid.getLocation(), Constants.TARGET) <= (Constants.HIT_DISTANCE + buffer) * (Constants.HIT_DISTANCE + buffer))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean doesCollide(BoidGeneric boid1, BoidGeneric boid2){
         float d = Utility.distSq(boid1.getLocation(),boid2.getLocation());
         return d < ((boid1.getSize() + boid2.getSize()) * (boid1.getSize() + boid2.getSize()));
+    }
+
+    public static boolean doesCollide(BoidGeneric boid1, BoidGeneric boid2, float buffer){
+        float d = Utility.distSq(boid1.getLocation(),boid2.getLocation());
+        return d < ((boid1.getSize() + boid2.getSize() + buffer) * (boid1.getSize() + boid2.getSize()) + buffer);
     }
 
     public void checkCollisions(){ //Elastic collisions

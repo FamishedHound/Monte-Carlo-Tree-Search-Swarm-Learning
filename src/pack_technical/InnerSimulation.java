@@ -20,7 +20,7 @@ public class InnerSimulation extends Simulation {
 
     boolean victory = false;
     Random randG = new Random();
-    PVector chosenAccelerationAction;
+//PVector chosenAccelerationAction;
     PVector randomAccelerationAction;
     float closestDistanceToTarget;
     float currentDistanceToTarget;
@@ -59,7 +59,7 @@ public class InnerSimulation extends Simulation {
 
     public void run(){
         if (simulating) {
-            PVector theClosest = new PVector(0,0);
+            //PVector theClosest = new PVector(0,0);
             closestDistanceToTarget = 2000;
             PVector currentAttackerLocation = getAttackBoid().getLocation();
 
@@ -94,16 +94,14 @@ public class InnerSimulation extends Simulation {
 
 
             if (!getAttackBoid().hasFailed()) {
-                if (currentDistanceToTarget < closestDistanceToTarget) {
-                    theClosest = getRandomAccelerationAction();
-                    closestDistanceToTarget = currentDistanceToTarget;
-                }
-                if (!simulating) {
-                    chosenAccelerationAction = theClosest;
-                }
-                if(currentDistanceToTarget < 15){
-                    victory = true;
-                }
+//                if (currentDistanceToTarget < closestDistanceToTarget) {
+//                    theClosest = getRandomAccelerationAction();
+//                    closestDistanceToTarget = currentDistanceToTarget;
+//                }
+//                if (!simulating) {
+//                    chosenAccelerationAction = theClosest;
+//                }
+                    victory = CollisionHandler.doesReachTarget(attackBoids, 5);
             } else {
                 simulating = false;
             }

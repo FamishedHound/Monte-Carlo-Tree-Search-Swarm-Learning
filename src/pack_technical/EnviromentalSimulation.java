@@ -12,7 +12,6 @@ import java.util.List;
 public class EnviromentalSimulation extends Simulation implements Runnable {
 
     Tree MCT;
-    FlockManager flockManager;
     double startTime;
     AI_type ai_type;
     int maxTreeDepth = 2147483647;
@@ -21,9 +20,8 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     int simulations = 0;
 
     public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
-        super(defenderBoids, waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
+        super(copyStateOfBoids(defenderBoids), waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
         defenderBoids = copyStateOfBoids(defenderBoids);
-        this.flockManager = new FlockManager(true, true);
 
         for (BoidGeneric defenderBoid : defenderBoids) {
             defenderBoid.setAi(this.ai_type);

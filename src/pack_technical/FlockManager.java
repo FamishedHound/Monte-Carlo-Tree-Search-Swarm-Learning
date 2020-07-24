@@ -36,6 +36,16 @@ public class FlockManager {
         } else {
             imaginary_boids = new ArrayList<BoidGeneric>(); // Initialize the ArrayList
         }
+    }
+
+    public FlockManager(boolean real, boolean simulation, ArrayList<BoidGeneric> boids) {
+        this(real, simulation);
+        if (real && !simulation) {
+            real_boids.addAll(boids);
+        }
+        else {
+            imaginary_boids.addAll(boids);
+        }
 
     }
 
@@ -59,7 +69,9 @@ public class FlockManager {
                         if (Launcher.areTrailsDrawn()) {
                             renderTrails(boid, TrailType.CURVE);
                         }
-                        renderBoid(boid);
+                        if(real) {
+                            renderBoid(boid);
+                        }
                     }
                 } else { // if imaginary
                     boid.run(boids, simulation);

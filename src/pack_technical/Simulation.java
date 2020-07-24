@@ -19,14 +19,16 @@ public abstract class Simulation {
     PatrollingScheme patrollingScheme;
     CollisionHandler collisionHandler;
     List<PVector> waypointCoords;
+    FlockManager flockManager;
 
     public Simulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
         this.collisionHandler = collisionHandler;
         this.waypointCoords = waypointCoords;
-        this.defenderBoids = defenderBoids;
+        this.defenderBoids = copyStateOfBoids(defenderBoids);
         this.ai_type = Constants.PERFECT_AI ? Constants.CORRECT_AI_PARAMS : new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
-        this.attackBoids = attackBoids;
+        this.attackBoids = copyStateOfBoids(attackBoids);
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
+        this.flockManager = new FlockManager(false, true, this.defenderBoids);
     }
 
     public static ArrayList<BoidGeneric> copyStateOfBoids(ArrayList<BoidGeneric> boids) {
