@@ -128,7 +128,7 @@ public abstract class BoidGeneric {
 		// Update velocity
 		velocity.add(acceleration);
 		// Limit speed
-		velocity.limit(Constants.Boids.MAX_SPEED);
+		velocity.limit(getTeam() == 1 ? Constants.Boids.MAX_SPEED_ATTACK : Constants.Boids.MAX_SPEED_DEF);
 		location.add(velocity);
         // Reset acceleration to 0 each cycle
 		acceleration.mult(0);
@@ -227,7 +227,7 @@ public abstract class BoidGeneric {
 
         // As long as the vector is greater than 0
         if (steer.magSq() > 0) {
-            steer.setMag(Constants.Boids.MAX_BOID_ACC);
+            steer.setMag(Constants.Boids.MAX_SPEED_DEF);
             steer.sub(velocity);
             steer.limit(Constants.Boids.MAX_STEER);
         }
@@ -253,7 +253,7 @@ public abstract class BoidGeneric {
         }
         if (count > 0) {
             sum.div((float) count);
-            sum.setMag(Constants.Boids.MAX_BOID_ACC);
+            sum.setMag(Constants.Boids.MAX_SPEED_DEF);
             PVector steer = PVector.sub(sum, velocity);
             steer.limit(Constants.Boids.MAX_STEER);
             return steer;
@@ -294,7 +294,7 @@ public abstract class BoidGeneric {
 	private PVector seek(PVector target) {
 		PVector desired = PVector.sub(target, location); // A vector pointing from the location to the target
 		// Scale to maximum speed
-		desired.setMag(Constants.Boids.MAX_BOID_ACC);
+		desired.setMag(Constants.Boids.MAX_SPEED_DEF);
 		// Steering = Desired minus Velocity
 		PVector steer = PVector.sub(desired, velocity);
 		steer.limit(Constants.Boids.MAX_STEER); // Limit to maximum steering force

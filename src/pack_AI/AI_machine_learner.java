@@ -178,7 +178,7 @@ public class  AI_machine_learner {
     }
 
     int max_distance() {
-        return (int) ((Constants.Boids.MAX_SPEED * 2) * Launcher.HISTORY_LENGTH);
+        return (int) ((Constants.Boids.MAX_SPEED_DEF * 2) * Launcher.HISTORY_LENGTH);
     }
 
     private double create_new_term(int exponent, double coeffs, double param_x) {

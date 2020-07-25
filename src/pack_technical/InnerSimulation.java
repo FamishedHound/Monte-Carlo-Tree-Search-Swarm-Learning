@@ -96,13 +96,15 @@ public class InnerSimulation extends Simulation {
                 defenderBoid.update();
             }
         }
+
+
         getAttackBoid().update(getAccelerationAction());
 
-        if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 0)) {
+        if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 2)) {
             getAttackBoid().setHasFailed(true);
         }
 
-        if(CollisionHandler.doesReachTarget(getAttackBoid(), 0) && !getAttackBoid().hasFailed()) {
+        if(CollisionHandler.doesReachTarget(getAttackBoid(), 5) && !getAttackBoid().hasFailed()) {
             simulating = false;
         }
 
