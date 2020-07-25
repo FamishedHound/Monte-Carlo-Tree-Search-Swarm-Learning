@@ -80,6 +80,7 @@ public class Constants {
         public static final float MAX_STEER = 0.02f;
         public static final float MAX_SPEED = 1.0f;
         public static final float MAX_ACC_ATTACK = 0.1f;
+        public static final float MAX_BOID_ACC = 1.0f;
         public static final float SIZE = 6.0f;
         public static final float MAX_SPEED_ATTACK = 1.75f;
     }
