@@ -16,30 +16,35 @@ public class Node {
     private int visits = 0;
     private int depth;
     private boolean expanded;
-    private boolean maxChildren;
-    private double nodeSimValue;
+    private double simulationValue;
     private double cumuValue = 0;
     private double rolloutReward;
     private String name; //debug only
     private PVector accelerationAction;
-    private ArrayList<BoidGeneric> attackBoids;
+    private BoidGeneric attackBoid;
+
+    enum Action {
+        TOWARDS_TARGET;
+
+    }
 
     /**
      * Constructor of Node, assigns internal values and initialises storage for children. If not provided, stores a zeroed random acceleration action.
      */
-    public Node(double simulationValue, String name, int depth, double rolloutReward, ArrayList<BoidGeneric> attackBoids) {
+    public Node(double simulationValue, String name, int depth, double rolloutReward, BoidGeneric attackBoids) {
         this.children = new ArrayList<>();
-        this.nodeSimValue = simulationValue;
+        this.simulationValue = simulationValue;
         this.name = name;
         this.depth = depth;
         this.rolloutReward = rolloutReward;
-        this.attackBoids = attackBoids;
+        this.setAttackBoids(attackBoids);
+        this.expanded = true;
         this.accelerationAction = new PVector(0, 0, 0);
     }
 
-    public Node(double simulationValue, String name, int depth, double rolloutReward, ArrayList<BoidGeneric> attackBoids, PVector randomAccelerationAction) {
+    public Node(double simulationValue, String name, int depth, double rolloutReward, BoidGeneric attackBoids, PVector accelerationAction) {
         this(simulationValue, name, depth, rolloutReward, attackBoids);
-        this.accelerationAction = randomAccelerationAction;
+        this.accelerationAction = accelerationAction;
     }
 
     public Node getParent() {
@@ -66,10 +71,30 @@ public class Node {
      * Adds a node to the list of children for the calling parent node.
      * @return
      */
-    public Node addChild(double simulationValue, String name, double childRolloutValue, ArrayList<BoidGeneric> attackBoids, PVector randomAccelerationAction) {
-        Node childNode = new Node(simulationValue, name, this.depth+1, childRolloutValue, attackBoids, randomAccelerationAction);
+    public Node addChild(InnerSimulation iS) {
+        Node childNode = new Node(iS.calcSimulationValue(), generateChildName(), this.depth+1, iS.getRolloutReward(), iS.getAttackBoid(), iS.getAccelerationAction());
         childNode.parent = this;
         this.children.add(childNode);
+        return childNode;
+    }
+
+    public Node addChild(Node childNode) {
+        childNode.parent = this;
+        this.children.add(childNode);
+        return childNode;
+    }
+
+    public Node addPresetActionNode(Action action) {
+        Node childNode;
+        switch(action) {
+            case TOWARDS_TARGET:
+                childNode = new Node(0, generateChildName(), getDepth(), 0, getAttackBoids(), PVector.sub(Constants.TARGET, attackBoid.getLocation()));
+                childNode.setExpanded(false);
+                this.addChild(childNode);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + action);
+        }
         return childNode;
     }
 
@@ -89,6 +114,10 @@ public class Node {
         this.depth = depth;
     }
 
+    public void incrementDepth() {
+        this.depth++;
+    }
+
     public boolean isExpanded() {
         return expanded;
     }
@@ -97,20 +126,13 @@ public class Node {
         this.expanded = expanded;
     }
 
-    public boolean isMaxChildren() {
-        return maxChildren;
+
+    public double getSimulationValue() {
+        return simulationValue;
     }
 
-    public void setMaxChildren(boolean maxChildren) {
-        this.maxChildren = maxChildren;
-    }
-
-    public double getNodeSimValue() {
-        return nodeSimValue;
-    }
-
-    public void setNodeSimValue(double nodeSimValue) {
-        this.nodeSimValue = nodeSimValue;
+    public void setSimulationValue(double simulationValue) {
+        this.simulationValue = simulationValue;
     }
 
     public double getRolloutReward() {
@@ -137,20 +159,16 @@ public class Node {
         this.accelerationAction = accelerationAction;
     }
 
-    /**
-     * Returns a deep copy of the attacker.
-     * @return
-     */
-    public ArrayList<BoidGeneric> getAttackBoids() {
-        return this.attackBoids;
+    public BoidGeneric getAttackBoids() {
+        return this.attackBoid;
     }
 
-    public ArrayList<BoidGeneric> getAttackBoidsForSimulation() {
+    public BoidGeneric getAttackBoidsForSimulation() {
         return this.isExpanded() || this.getParent() == null ? this.getAttackBoids() : this.getParent().getAttackBoids();
     }
 
-    public void setAttackBoids(BoidGeneric attackBoids) {
-        this.attackBoids.add(0, attackBoids);
+    public void setAttackBoids(BoidGeneric attackBoid) {
+        this.attackBoid = new BoidStandard(attackBoid);
     }
 
     public double getCumuValue() {
@@ -192,5 +210,16 @@ public class Node {
             return this.getCumuValue() / visits + 1/Constants.SQRT2 * Math.sqrt(2 * Math.log(this.getParent().getVisits()) / visits);
     }
 
+    public String generateChildName() {
+        return getName() + "." + getChildren().size();
+    }
+
+    public void expandAndStoreState(InnerSimulation innerSimulation) {
+        this.setExpanded(true);
+        this.setSimulationValue(innerSimulation.calcSimulationValue());
+        this.setRolloutReward(innerSimulation.getRolloutReward());
+        this.incrementDepth();
+        this.setAttackBoids(attackBoid);
+    }
 
 }

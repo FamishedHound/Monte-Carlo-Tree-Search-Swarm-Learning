@@ -10,18 +10,16 @@ import java.util.List;
 import java.util.Random;
 
 import pack_1.Constants;
-import pack_1.Utility;
 
-
-//NOTE: why is the collision handling done manually and the collisionHandler not used?
-//TODO: rename r0acceleration & r0velocity local variables
+//todo: would be nice to have relevant getters be fail or be otherwise hidden if InnerSimulation.run has not been ran
 
 public class InnerSimulation extends Simulation {
 
     boolean victory = false;
-    Random randG = new Random();
+    boolean nodeExpanded;
+    Random random = new Random();
 //PVector chosenAccelerationAction;
-    PVector randomAccelerationAction;
+    PVector accelerationAction;
     float closestDistanceToTarget;
     float currentDistanceToTarget;
     double rolloutReward;
@@ -41,65 +39,83 @@ public class InnerSimulation extends Simulation {
         return randomAcceleration.setMag(0.1f);
     }
 
-    public PVector getRandomAccelerationAction() {
-        return randomAccelerationAction.copy();
+    public PVector getAccelerationAction() {
+        return accelerationAction.copy();
     }
 
-    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler, int nodeDepth) {
-        super(copyStateOfBoids(defenderBoids), waypointCoords, copyStateOfBoids(attackBoids), collisionHandler);
+    public double getRolloutReward() {
+        return this.rolloutReward;
+    }
+
+    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, Node node) {
+        super(defenderBoids, waypointCoords, node.getAttackBoidsForSimulation(), collisionHandler);
         this.ai_type = ai;
-        this.nodeDepth = nodeDepth;
+        this.nodeExpanded = node.isExpanded();
+        this.nodeDepth = node.getDepth();
         waypointSetup(defenderBoids);
-        createSimulationsAndRandomVectors();
+        accelerationAction = node.isExpanded() ? createRandomVector() : node.getAccelerationAction();
     }
 
+    public double calcSimulationValue() {
+        if (getAttackBoid().hasFailed()) {
+            return -1;
+        } else if (victory) {
+            return 1;
+        } else if (rolloutReward > 0) {
+            return 0.5 - (currentDistanceToTarget / 6000);
+        }
+        return 0;
+    }
 
+    public double rollout() {
+        BoidGeneric rolloutAttackBoid = new BoidStandard(getAttackBoid());
+        for(int j=0; j<1000; j++){
+            rolloutAttackBoid.update(getAccelerationAction());
+            if(CollisionHandler.doesReachTarget(rolloutAttackBoid, 5)) {
+                return 1;
+            }
+            for (BoidGeneric defenderBoid : defenderBoids) {
+                if (CollisionHandler.doesCollide(rolloutAttackBoid, defenderBoid, 0)) {
+                    return -1;
+                    }
+                }
+            }
+        return 0;
+    }
 
     public void run(){
-        if (simulating) {
-            //PVector theClosest = new PVector(0,0);
-            closestDistanceToTarget = 2000;
-            PVector currentAttackerLocation = getAttackBoid().getLocation();
+        //PVector theClosest = new PVector(0,0);
+        closestDistanceToTarget = 2000;
+        PVector currentAttackerLocation = getAttackBoid().getLocation();
 
-            for (BoidGeneric defenderBoid : defenderBoids) {
-                //For each layer in the MCTS, moves every defender boid one iteration
-                //probs should be done via flockManager
-                for(int i=0; i < nodeDepth; i++) {
-                    defenderBoid.move(defenderBoids);
-                    defenderBoid.update();
-                }
-                if (Utility.distSq(defenderBoid.getLocation(), getAttackBoid().getLocation()) < Constants.COLLISION_DISTANCE_SQ) {
-                    getAttackBoid().setHasFailed(true);
-                }
+        for (BoidGeneric defenderBoid : defenderBoids) {
+            //For each layer in the MCTS, moves every defender boid one iteration
+            //probs should be done via flockManager
+            for(int i=0; i < nodeDepth; i++) {
+                defenderBoid.move(defenderBoids);
+                defenderBoid.update();
             }
-
-            //there was a check to see if attackBoid had moved certain distance in tree lifetime,
-            //but it was wrong in its current form so it was removed
-            if((Utility.distSq(currentAttackerLocation, Constants.TARGET) <= Constants.HIT_DISTANCE_SQ) && !getAttackBoid().hasFailed() ){
-                simulating = false;
-            }
-
-            currentDistanceToTarget = PVector.dist(currentAttackerLocation, Constants.TARGET);
-
-
-            if (!getAttackBoid().hasFailed()) {
-//                if (currentDistanceToTarget < closestDistanceToTarget) {
-//                    theClosest = getRandomAccelerationAction();
-//                    closestDistanceToTarget = currentDistanceToTarget;
-//                }
-//                if (!simulating) {
-//                    chosenAccelerationAction = theClosest;
-//                }
-                    victory = CollisionHandler.doesReachTarget(attackBoids, 5);
-            } else {
-                simulating = false;
-                rolloutReward = -1;
-            }
-
-            //maybe return the below?
-            rolloutReward = simulating && !victory && nodeExpanded ? rollout() : rolloutReward;
-
-
         }
+        getAttackBoid().update(getAccelerationAction());
+
+        if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 0)) {
+            getAttackBoid().setHasFailed(true);
+        }
+
+        if(CollisionHandler.doesReachTarget(getAttackBoid(), 0) && !getAttackBoid().hasFailed()) {
+            simulating = false;
+        }
+
+        currentDistanceToTarget = PVector.dist(currentAttackerLocation, Constants.TARGET);
+
+        if (!getAttackBoid().hasFailed()) {
+                victory = CollisionHandler.doesReachTarget(getAttackBoid(), 0);
+        } else {
+            simulating = false;
+            rolloutReward = -1;
+        }
+
+        //maybe return the below?
+        rolloutReward = simulating && !victory && nodeExpanded ? rollout() : rolloutReward;
     }
 }

@@ -27,6 +27,7 @@ public class ZoneDefence implements Cloneable {
     private final ArrayList<PVector> waypoints = patrollingScheme.getWaypoints();
     EnviromentalSimulation enviromentalSimulation;
     private final AtomicBoolean attack = new AtomicBoolean();
+    FlockManager flockManager;
     ParameterSimulator parameterSimulation;
     ParameterGatherAndSetter parameterGatherAndSetter;
 
@@ -35,6 +36,7 @@ public class ZoneDefence implements Cloneable {
     public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 
     public ZoneDefence(CollisionHandler collision, FlockManager flockManager, ParameterGatherAndSetter parameterGatherAndSetter) throws IOException {
+        this.flockManager = flockManager;
         this.collisionHandler = collision;
         defenderBoids = GameManager.get_team(0);
         attackBoids = GameManager.get_team(1);
@@ -102,7 +104,7 @@ public class ZoneDefence implements Cloneable {
                         }
                     }
                 }
-                PVector attackVector = enviromentalSimulation.returnTargetVector(defenderBoids, attackBoids);
+                PVector attackVector = enviromentalSimulation.returnTargetVector(defenderBoids, attackBoids.get(0));
                 attackBoid.updateAttack(attackVector);
             } else {
                 attackBoid.setStationary();

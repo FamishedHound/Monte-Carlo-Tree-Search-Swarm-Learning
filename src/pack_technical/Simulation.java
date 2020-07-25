@@ -14,19 +14,19 @@ import java.util.List;
 public abstract class Simulation {
 
     ArrayList<BoidGeneric> defenderBoids;
-    ArrayList<BoidGeneric> attackBoids;
+    BoidGeneric attackBoid;
     AI_type ai_type;
     PatrollingScheme patrollingScheme;
     CollisionHandler collisionHandler;
     List<PVector> waypointCoords;
     FlockManager flockManager;
 
-    public Simulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, ArrayList<BoidGeneric> attackBoids, CollisionHandler collisionHandler) {
+    public Simulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler) {
         this.collisionHandler = collisionHandler;
         this.waypointCoords = waypointCoords;
         this.defenderBoids = copyStateOfBoids(defenderBoids);
         this.ai_type = Constants.PERFECT_AI ? Constants.CORRECT_AI_PARAMS : new AI_type(Utility.randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
-        this.attackBoids = copyStateOfBoids(attackBoids);
+        this.attackBoid = new BoidStandard(attackBoid);
         this.patrollingScheme = new PatrollingScheme(ai_type.getWayPointForce());
         this.flockManager = new FlockManager(false, true, this.defenderBoids);
     }
@@ -49,11 +49,7 @@ public abstract class Simulation {
     }
 
     public BoidGeneric getAttackBoid() {
-        return attackBoids.get(0);
-    }
-
-    public BoidGeneric getAttackBoid(int index) {
-        return attackBoids.get(index);
+        return attackBoid;
     }
 
     public void waypointSetup(ArrayList<BoidGeneric> defenders) {
@@ -82,7 +78,4 @@ public abstract class Simulation {
             patrollingScheme.setCurrWaypoint(patrollingScheme.getIterator().next());
         }
     }
-
-
-
 }

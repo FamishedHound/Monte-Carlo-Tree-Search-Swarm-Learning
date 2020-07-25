@@ -1,13 +1,6 @@
 package pack_technical;
 
 import pack_boids.BoidGeneric;
-import processing.core.PVector;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class Tree {
     //root.depth is always 0
@@ -40,19 +33,19 @@ public class Tree {
     }
 
 
-    public Tree(int maxTreeDepth, ArrayList<BoidGeneric> attackBoids) {
-        resetRoot(attackBoids);
+    public Tree(int maxTreeDepth, BoidGeneric attackBoid) {
+        resetRoot(attackBoid);
         this.maxTreeDepth = maxTreeDepth;
     }
 
-    public void resetRoot(ArrayList<BoidGeneric> attackBoids) {
-        this.root = new Node(0, "ROOT", 0, 0, attackBoids);
-        this.root.addChild(Node.Action.TOWARDS_TARGET);
+    public void resetRoot(BoidGeneric attackBoid) {
+        this.root = new Node(0, "ROOT", 0, 0, attackBoid);
+        this.root.addPresetActionNode(Node.Action.TOWARDS_TARGET);
     }
 
-    public Node addChild(Node node, double simulationValue, String name, double childRolloutValue, ArrayList<BoidGeneric> attackBoids, PVector accelerationAction) {
-        Node childNode = node.addChild(simulationValue, name, childRolloutValue, attackBoids, accelerationAction);
-        childNode.addChild(Node.Action.TOWARDS_TARGET);
+    public Node addChild(Node node, InnerSimulation innerSimulation) {
+        Node childNode = node.addChild(innerSimulation);
+        childNode.addPresetActionNode(Node.Action.TOWARDS_TARGET);
         return childNode;
     }
 
@@ -86,7 +79,7 @@ public class Tree {
                 bestNode = root.getChildren().get(i).calcUCT();
                 bestNodePos = i;
             }
-            if(root.getChild(i).getNodeSimValue() >= 1){
+            if(root.getChild(i).getSimulationValue() >= 1){
                 return root.getChild(i);
             }
         }

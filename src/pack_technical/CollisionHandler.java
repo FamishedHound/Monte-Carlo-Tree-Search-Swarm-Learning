@@ -38,36 +38,30 @@ public class CollisionHandler {
         return d < ((boid1.getSize() + boid2.getSize() + buffer) * (boid1.getSize() + boid2.getSize()) + buffer);
     }
 
-    public static boolean doesCollide(BoidGeneric boid1, BoidGeneric boid2){
-        float d = Utility.distSq(boid1.getLocation(),boid2.getLocation());
-        return d < ((boid1.getSize() + boid2.getSize()) * (boid1.getSize() + boid2.getSize()));
-    }
 
     public static boolean doesReachTarget(BoidGeneric attackBoid, float buffer) {
         return (Utility.distSq(attackBoid.getLocation(), Constants.TARGET) <= (Constants.HIT_DISTANCE + buffer) * (Constants.HIT_DISTANCE + buffer)) ? true : false;
+    }
+
+    public static boolean checkCollisions(BoidGeneric attackBoid, ArrayList<BoidGeneric> defenderBoids, float buffer) {
+        for (BoidGeneric defenderBoid : defenderBoids){
+            if(doesCollide(attackBoid, defenderBoid, buffer)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void checkCollisions(){ //Elastic collisions
 
         for(BoidGeneric b1 : team1){
             for (BoidGeneric b2 : team2){
-                if(doesCollide(b1,b2)){
+                if(doesCollide(b1,b2, 0)){
                     lose=true;
                 } else if(Utility.distSq(b2.getLocation(), Constants.TARGET) <= Constants.HIT_DISTANCE_SQ) {
                     victory=true;
                 }
             }
         }
-    }
-
-    public static boolean checkCollisions(ArrayList<BoidGeneric> attackBoids, ArrayList<BoidGeneric> defenderBoids, float buffer) {
-        for(BoidGeneric attackBoid : attackBoids){
-            for (BoidGeneric defenderBoid : defenderBoids){
-                if(doesCollide(attackBoid, defenderBoid, buffer)){
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }
