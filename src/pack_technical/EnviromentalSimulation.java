@@ -51,8 +51,6 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
      * To prevent memory issues it also runs garbage collection every 10 calls.
      *
      * @return
-     * @param defenderBoids
-     * @param attackBoids
      */
     public PVector returnTargetVector(ArrayList<BoidGeneric> defenderBoids, ArrayList<BoidGeneric> attackBoids) {
         Node bestNode = MCT.bestAvgVal();
@@ -112,6 +110,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             String nodeName = node.getName() + "." + node.getChildren().size();
             Node childNode = node.addChild(simVal, nodeName, newSim.rolloutReward, newSim.attackBoids, newSim.getRandomAccelerationAction());
             childNode.backPropagate(simVal);
+            simulations++;
         }
     }
 }

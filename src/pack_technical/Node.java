@@ -15,6 +15,8 @@ public class Node {
     private List<Node> children;
     private int visits = 0;
     private int depth;
+    private boolean expanded = false;
+    private boolean maxChildren;
     private double nodeSimValue;
     private double cumuValue = 0;
     private double rolloutReward;
@@ -87,6 +89,21 @@ public class Node {
         this.depth = depth;
     }
 
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
+    }
+
+    public boolean isMaxChildren() {
+        return maxChildren;
+    }
+
+    public void setMaxChildren(boolean maxChildren) {
+        this.maxChildren = maxChildren;
+    }
 
     public double getNodeSimValue() {
         return nodeSimValue;
