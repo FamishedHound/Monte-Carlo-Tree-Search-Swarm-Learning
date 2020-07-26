@@ -88,7 +88,7 @@ public class Node {
         Node childNode;
         switch(action) {
             case TOWARDS_TARGET:
-                childNode = new Node(0, generateChildName(), getDepth(), 0, getAttackBoids(), PVector.sub(Constants.TARGET, attackBoid.getLocation()));
+                childNode = new Node(0, generateChildName(), getDepth(), 0, getAttackBoids(), PVector.sub(Constants.TARGET, attackBoid.getLocation()).setMag(0.1f));
                 childNode.setExpanded(false);
                 this.addChild(childNode);
                 break;

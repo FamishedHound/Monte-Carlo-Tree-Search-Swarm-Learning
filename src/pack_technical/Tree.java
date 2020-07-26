@@ -12,10 +12,6 @@ public class Tree {
         return root;
     }
 
-    public void setRoot(Node root) {
-        this.root = root;
-    }
-
     public int getMaxTreeDepth() {
         return maxTreeDepth;
     }

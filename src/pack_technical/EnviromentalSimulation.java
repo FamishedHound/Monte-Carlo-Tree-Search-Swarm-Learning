@@ -60,7 +60,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
         PVector bestVector = bestNode.getAccelerationAction();
         try {
             updateBoids(defenderBoids, attackBoid);
-            MCT.setRoot(new Node(0, "root", 0, 0, attackBoid));
+            MCT.resetRoot(attackBoid);
             simulations = 0;
         } catch (Exception e) {
             e.printStackTrace();
