@@ -36,7 +36,7 @@ public class InnerSimulation extends Simulation {
 
     public PVector createRandomVector() {
         PVector randomAcceleration = new PVector(random.nextFloat() * 2 - 1, random.nextFloat() * 2 - 1);
-        return randomAcceleration.setMag(0.1f);
+        return randomAcceleration.setMag(Constants.Boids.MAX_ACC_ATTACK);
     }
 
     public PVector getAccelerationAction() {
@@ -70,7 +70,7 @@ public class InnerSimulation extends Simulation {
     public double rollout() {
         BoidGeneric rolloutAttackBoid = new BoidStandard(getAttackBoid());
         for(int j=0; j<1000; j++){
-            rolloutAttackBoid.update(getAccelerationAction());
+            rolloutAttackBoid.updateAttack(getAccelerationAction());
             if(CollisionHandler.doesReachTarget(rolloutAttackBoid, 5)) {
                 return 1;
             }
@@ -98,7 +98,7 @@ public class InnerSimulation extends Simulation {
         }
 
 
-        getAttackBoid().update(getAccelerationAction());
+        getAttackBoid().updateAttack(getAccelerationAction());
 
         if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 2)) {
             getAttackBoid().setHasFailed(true);
