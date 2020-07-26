@@ -1,5 +1,6 @@
 package pack_1;
 
+import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import processing.core.PVector;
 
@@ -25,7 +26,7 @@ public class Constants {
      */
     public static boolean PERFECT_AI = false;
 
-    public static final AI_type CORRECT_AI_PARAMS = new AI_type(30, 70, 70, 2.0f, 1.2f, 0.9f,0.04f, "basic");
+    public static final AI_type CORRECT_AI_PARAMS = AI_manager.getAi_basic();
 
     /**
      * Switch for whether to give the move planner the correct waypoints
@@ -81,8 +82,9 @@ public class Constants {
     public static class Boids {
         public static final float MAX_STEER = 0.02f;
         public static final float MAX_SPEED = 1.0f;
-        public static final float MAX_SPEED_ATTACK = 1f;
+        public static final float MAX_ACC_ATTACK = 0.1f;
         public static final float SIZE = 6.0f;
+        public static final float MAX_SPEED_ATTACK = 1.75f;
     }
 
     public static final double SQRT2 = Math.sqrt(2);

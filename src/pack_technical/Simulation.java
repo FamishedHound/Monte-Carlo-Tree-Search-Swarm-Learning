@@ -33,7 +33,7 @@ public abstract class Simulation {
         ArrayList<BoidGeneric> boidListClone = new ArrayList<>();
 
         for (BoidGeneric boid : boids) {
-            BoidGeneric bi = new BoidStandard(boid.getLocation().x, boid.getLocation().y, 6, 10);
+            BoidGeneric bi = new BoidStandard(boid);
             bi.setAcceleration(boid.getAcceleration());
             bi.setVelocity(boid.getVelocity());
             bi.setLocation(boid.getLocation());

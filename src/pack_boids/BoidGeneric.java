@@ -139,9 +139,26 @@ public abstract class BoidGeneric {
      * @param acceleration The new acceleration to apply to the boid
      */
     public void update(PVector acceleration) {
+        this.acceleration.add(acceleration);
+        update();
+    }
+
+    /**
+     * Same as above but for the attacker.
+     * n.b. this function exists because there is a bug where changing
+     * the max boid speed in Constants increases the acceleration
+     * of the swarm resulting in the swarm flying all over the place.
+     * Left as it is, the attacker moves way too slowly.
+     * I was having issues finding a fix for the slow attacker
+     * that also preserved the current behaviour as a swarm,
+     * so the function below is a temporary fix and should be removed
+     * when an actual fix is developed.
+     */
+    public void updateAttack(PVector acceleration) {
+        // Update velocity
         velocity.add(acceleration);
         // Limit speed
-        velocity.limit(Constants.Boids.MAX_SPEED);
+        velocity.limit(Constants.Boids.MAX_SPEED_ATTACK);
         location.add(velocity);
         // Reset acceleration to 0 each cycle
         acceleration.mult(0);

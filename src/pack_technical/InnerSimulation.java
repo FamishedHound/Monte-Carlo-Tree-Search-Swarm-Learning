@@ -40,7 +40,7 @@ public class InnerSimulation extends Simulation {
         float rand = randG.nextFloat() * 1;
         float rand2 = randG.nextFloat() * 1;
         randomAccelerationAction = new PVector(-1+2*rand, -1+2*rand2);
-        randomAccelerationAction.setMag(0.1f);
+        randomAccelerationAction.setMag(Constants.Boids.MAX_ACC_ATTACK);
     }
 
     public PVector getRandomAccelerationAction() {
@@ -81,7 +81,7 @@ public class InnerSimulation extends Simulation {
                 simulating = false;
             }
 
-            getAttackBoid().update(getRandomAccelerationAction());
+            getAttackBoid().updateAttack(getRandomAccelerationAction());
             // TODO - Could replace this dist with distSq, but that will change all of the currentDistance etc. vars to be currentDistanceSq
 
             for (BoidGeneric defenderBoid : defenderBoids) {
@@ -113,7 +113,7 @@ public class InnerSimulation extends Simulation {
                 rolloutReward = 0;
 
                 for(int j=0; j<1000; j++){
-                    rolloutAttackBoid.update(getRandomAccelerationAction());
+                    rolloutAttackBoid.updateAttack(getRandomAccelerationAction());
                     if(Utility.distSq(rolloutAttackBoid.getLocation(), Constants.TARGET) < Constants.HIT_DISTANCE_SQ) {
                         rolloutReward = 1;
                         break;
