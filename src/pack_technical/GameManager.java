@@ -24,7 +24,8 @@ public class GameManager {
     static BoidStandard selected_boid = null;
 
     private static final int team_number = Launcher.applet.width / 75; // not all of these will be used
-    private final FlockManager flock_ref;
+    private final FlockManager flockDefence;
+    private final FlockManager flockAttack;
 
     @SuppressWarnings("unchecked")
     static ArrayList<BoidGeneric>[] team = new ArrayList[getTeam_number()];
@@ -32,8 +33,9 @@ public class GameManager {
     static AI_type[] team_ai = new AI_type[getTeam_number()]; // Array for the teams, index is team, colour is held
     static boolean isSwitched = false;
 
-    public GameManager(FlockManager f) {
-        flock_ref = f;
+    public GameManager(FlockManager flockDefence, FlockManager flockAttack) {
+        this.flockDefence = flockDefence;
+        this.flockAttack = flockAttack;
         // assign team colours and ai's
         for (int i = 0; i < getTeam_number(); i++) { // for every team
             team_cols[i] = generate_teamcolour(i);
@@ -68,7 +70,11 @@ public class GameManager {
     public void spawn_boids(int team_n, int amount, PVector pos) {
         for (int i = 0; i < amount; i++) {
             BoidGeneric b = new BoidStandard(pos.x, pos.y, team_n,i);
-            flock_ref.addBoid(b);
+            if (team_n == 1) {
+                flockAttack.addBoid(b);
+            } else {
+                flockDefence.addBoid(b);
+            }
             team[team_n].add(b);
         }
     }
@@ -125,8 +131,12 @@ public class GameManager {
         return 0;
     }
 
-    public FlockManager getFlock_ref() {
-        return flock_ref;
+    public FlockManager getFlockDefence() {
+        return flockDefence;
+    }
+
+    public FlockManager getFlockAttack() {
+        return flockAttack;
     }
 
     public static ArrayList<BoidGeneric>[] getTeam() {

@@ -24,6 +24,10 @@ public class IOManager {
 	Launcher launcher;
 	int amountBoidsToSpawn=10;
 	boolean flag = true;
+
+	//due to hacky patches arising from fixing the attack boid  experiencing boid forces from
+    //defenders and vice versa, the attackBoid will not be able to be highlighted in the app
+    //as it is in a difference FlockManager instance (flockManagerAttack in launcher)
 	public IOManager(PApplet p, FlockManager f, DisplayManager d, GameManager g,Launcher l) {
 		this.launcher = l;
 		parent = p;

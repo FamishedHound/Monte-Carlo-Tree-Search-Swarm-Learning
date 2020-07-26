@@ -42,7 +42,8 @@ public class Launcher extends PApplet {
     private DisplayManager displayManager;
     private GameManager gameManager;
     private IOManager ioManager;
-    private static FlockManager flockManager;
+    private static FlockManager flockManagerDefence;
+    private static FlockManager flockManagerAttack;
     private CollisionHandler collisionHandler;
     private ParameterGatherAndSetter parameterGatherer;
 
@@ -97,15 +98,16 @@ public class Launcher extends PApplet {
         System.out.println("Client size: " + width + ", " + height);
         new AI_manager();
         //new OutputWriter(); fix or remove, creates loads of empty files, not sure if needed anymore
-        flockManager = new FlockManager(true, false);
-        displayManager = new DisplayManager(this, flockManager, createFont("Lucida Sans", 12), createFont("Comic Sans MS", 12));
-        gameManager = new GameManager(flockManager);
-        ioManager = new IOManager(this, flockManager, displayManager, gameManager, Launcher.this);
+        flockManagerDefence = new FlockManager(true, false);
+        flockManagerAttack = new FlockManager(true, false);
+        displayManager = new DisplayManager(this, flockManagerDefence, createFont("Lucida Sans", 12), createFont("Comic Sans MS", 12));
+        gameManager = new GameManager(flockManagerDefence, flockManagerAttack);
+        ioManager = new IOManager(this, flockManagerDefence, displayManager, gameManager, Launcher.this);
         collisionHandler = new CollisionHandler();
 
         try {
             parameterGatherer = new ParameterGatherAndSetter(gameManager,collisionHandler,args);
-            zone = new ZoneDefence(collisionHandler,flockManager,parameterGatherer);
+            zone = new ZoneDefence(collisionHandler, flockManagerDefence,parameterGatherer);
         } catch(IllegalArgumentException e) {
             Launcher.quit(e.getMessage(), 1);
         } catch (IOException e) {
@@ -123,8 +125,9 @@ public class Launcher extends PApplet {
             background(60);
             collisionHandler.checkCollisions();
             parameterGatherer.gather();
-            flockManager.run(simSpeed);
-            writeLocations(flockManager);
+            flockManagerDefence.run(simSpeed);
+            flockManagerAttack.run(simSpeed);
+            writeLocations(flockManagerDefence);
             ioManager.run();
             zone.run();
             displayManager.draw();
@@ -158,7 +161,7 @@ public class Launcher extends PApplet {
 
     // Getters and setters
     public static FlockManager getFlock() {
-        return flockManager;
+        return flockManagerDefence;
     }
 
     public boolean isToBeDisplayed() {

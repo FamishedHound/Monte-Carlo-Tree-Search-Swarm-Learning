@@ -22,14 +22,14 @@ public class DisplayManager {
     static final int HOVERVISUALRADIUS = 8;
     static final int SELECTVISUALRADIUS = 12;
     final int CURSORSIZE = 5;
-    private FlockManager flock_ref = null;
+    private FlockManager flockDefence = null;
     final int borderoffset = 5;
     final int inneroffset = 2;
     PApplet parent; // the processing app (allows access to its functions)
 
     public DisplayManager(PApplet p, FlockManager f, PFont f1, PFont f2) {
         parent = p;
-        flock_ref = f;
+        flockDefence = f;
         font_1 = f1;
         font_2 = f2;
     }
@@ -150,7 +150,7 @@ public class DisplayManager {
         parent.textSize(12);
         parent.fill(GREYCOLOUR);
         parent.textAlign(PConstants.RIGHT);
-        parent.text("Agent Count: " + flock_ref.getBoidCount(), parent.width - borderoffset - inneroffset, 35);
+        parent.text("Defender Count: " + flockDefence.getBoidCount(), parent.width - borderoffset - inneroffset, 35);
         if (parent.frameRate < Launcher.SPS - 5)
             parent.fill(220, 10, 10); // dropping frames gives red colour
         else
@@ -188,7 +188,7 @@ public class DisplayManager {
 
         parent.text("' r ' key -  resets the simulation, clearing all boids", parent.width - borderoffset - 70,
                 parent.height - 130);
-        parent.text("(" + flock_ref.getBoidCount() + ")", parent.width - borderoffset, parent.height - 130);
+        parent.text("(" + flockDefence.getBoidCount() + ")", parent.width - borderoffset, parent.height - 130);
 
         parent.text("' f ' key -  toggles the display of future location", parent.width - borderoffset - 70,
                 parent.height - 110);
