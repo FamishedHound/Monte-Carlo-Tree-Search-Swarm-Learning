@@ -47,6 +47,8 @@ public class InnerSimulation extends Simulation {
         return this.rolloutReward;
     }
 
+
+
     public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, Node node) {
         super(defenderBoids, waypointCoords, node.getAttackBoidsForSimulation(), collisionHandler);
         this.ai_type = ai;
@@ -69,13 +71,13 @@ public class InnerSimulation extends Simulation {
 
     public double rollout() {
         BoidGeneric rolloutAttackBoid = new BoidStandard(getAttackBoid());
-        for(int j=0; j<1000; j++){
+        for(int j=0; j<1000; j++) {
             rolloutAttackBoid.updateAttack(getAccelerationAction());
-            if(CollisionHandler.doesReachTarget(rolloutAttackBoid, 5)) {
+            if(CollisionHandler.doesReachTarget(rolloutAttackBoid, 10)) {
                 return 1;
             }
             for (BoidGeneric defenderBoid : defenderBoids) {
-                if (CollisionHandler.doesCollide(rolloutAttackBoid, defenderBoid, 0)) {
+                if (CollisionHandler.doesCollide(rolloutAttackBoid, defenderBoid, 4)) {
                     return -1;
                     }
                 }
@@ -94,17 +96,19 @@ public class InnerSimulation extends Simulation {
             for(int i=0; i < nodeDepth; i++) {
                 defenderBoid.move(defenderBoids);
                 defenderBoid.update();
+                if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 0)) {
+                    getAttackBoid().setHasFailed(true);
+                }
             }
         }
 
-
         getAttackBoid().updateAttack(getAccelerationAction());
 
-        if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 2)) {
+        if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 0)) {
             getAttackBoid().setHasFailed(true);
         }
 
-        if(CollisionHandler.doesReachTarget(getAttackBoid(), 5) && !getAttackBoid().hasFailed()) {
+        if(CollisionHandler.doesReachTarget(getAttackBoid(), 0) && !getAttackBoid().hasFailed()) {
             simulating = false;
         }
 

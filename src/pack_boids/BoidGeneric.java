@@ -155,6 +155,7 @@ public abstract class BoidGeneric {
      * when an actual fix is developed.
      */
     public void updateAttack(PVector acceleration) {
+        this.acceleration.add(acceleration);
         // Update velocity
         velocity.add(acceleration);
         // Limit speed
