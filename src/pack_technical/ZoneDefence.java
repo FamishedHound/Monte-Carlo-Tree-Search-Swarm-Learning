@@ -55,7 +55,7 @@ public class ZoneDefence implements Cloneable {
     public void run() {
         if (patternHandler.isOnce()) {
             //after sim constructor has completed is the point where the MCTS is running.
-            enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids, collisionHandler);
+            enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler);
             if (Constants.PERFECT_AI) {
                 parameterSimulation = new DummyParameterSimulation();
             } else {
