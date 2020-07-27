@@ -59,11 +59,14 @@ public abstract class Simulation {
         //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         // TODO - Magic numbers!!
         float shortestDistanceSq = 3000 * 3000;
+        int counter = 0;
         int positionInTheList = 0;
         for (PVector checkpoint : this.patrollingScheme.getWaypoints()) {
             float distanceSq = Utility.distSq(defenders.get(0).getLocation(), checkpoint);
+            counter++;
             if (distanceSq < shortestDistanceSq) {
                 shortestDistanceSq = distanceSq;
+                positionInTheList = counter;
             }
         }
 
