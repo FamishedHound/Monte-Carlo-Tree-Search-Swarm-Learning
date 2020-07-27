@@ -51,12 +51,16 @@ public class Tree {
             }
 
             Node selectedNode = currentNode.getRandomChild();
-            double randomNum = Math.random();
+            //logic for epsilon greedy is slightly wrong,
+            //not used atm so doesnt matter but should be fixed at some point
+//            double randomNum = Math.random();
             for(Node node : currentNode.getChildren()) {
-                if(randomNum < epsilon) {
-                    continue;
+//                if(randomNum < epsilon) {
+//                    continue;
+//                }
+                if(node.getRolloutReward() != 1 && node.getRolloutReward() != -1) {
+                    selectedNode = node.calcUCT() > selectedNode.calcUCT() ? node : selectedNode;
                 }
-                selectedNode = node.calcUCT() > selectedNode.calcUCT() ? node : selectedNode;
             }
             currentNode = selectedNode;
         } while(true);
