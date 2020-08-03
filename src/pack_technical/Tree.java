@@ -2,11 +2,18 @@ package pack_technical;
 
 import pack_boids.BoidGeneric;
 
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
 public class Tree {
     //root.depth is always 0
     private Node root;
     private int maxTreeDepth;
     private int maxNodeChildren = 12;
+    public ReentrantLock lock = new ReentrantLock();
+
 
     public Node getRoot() {
         return root;
@@ -59,7 +66,7 @@ public class Tree {
 //                if(randomNum < epsilon) {
 //                    continue;
 //                }
-                if(node.getRolloutReward() != 1 && node.getRolloutReward() != -1) {
+                if(node.getSimulationValue() != 1 && node.getSimulationValue() != -1) {
                     selectedNode = node.calcUCT() > selectedNode.calcUCT() ? node : selectedNode;
                 }
             }
@@ -67,23 +74,25 @@ public class Tree {
         } while(true);
     }
 
-
     public Node bestAvgVal() {
         if(root.getChildren().size() == 0){
             return root;
         }
-        double bestNode = root.getChildren().get(0).calcUCT();
-        int bestNodePos = 0;
-        for (int i=0; i<root.getChildren().size()-1; i++){
-            if(root.getChildren().get(i).calcUCT() > bestNode){
-                bestNode = root.getChildren().get(i).calcUCT();
-                bestNodePos = i;
-            }
-            if(root.getChild(i).getSimulationValue() >= 1){
-                return root.getChild(i);
-            }
+
+        Optional<Node> successfulNode = root.getChildren()
+                .stream()
+                .filter(n -> n.getSimulationValue() == 1)
+                .max(Comparator.comparing(Node::calcUCT));
+
+        if (successfulNode.isPresent()) {
+            return successfulNode.get();
         }
-        //System.out.println("Node Name: " + root.children.get(bestNodePos).name);
-        return root.getChild(bestNodePos);
+
+        successfulNode = root.getChildren()
+                .stream()
+                .filter(n -> n.getSimulationValue() != -1)
+                .max(Comparator.comparing(Node::calcUCT));
+
+        return successfulNode.isPresent() ? successfulNode.get() : root;
     }
 }

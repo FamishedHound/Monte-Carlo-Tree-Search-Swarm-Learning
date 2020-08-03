@@ -66,13 +66,13 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             e.printStackTrace();
         }
 
-        if(actionCounter > 10){
-            System.gc();
-            System.runFinalization();
-            actionCounter = 0;
-        }else{
-            actionCounter++;
-        }
+//        if(actionCounter > 10){
+//            System.gc();
+//            System.runFinalization();
+//            actionCounter = 0;
+//        }else{
+//            actionCounter++;
+//        }
 
 
         return bestVector;
