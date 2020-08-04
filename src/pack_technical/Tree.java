@@ -12,7 +12,6 @@ public class Tree {
     private Node root;
     private int maxTreeDepth;
     private int maxNodeChildren = 12;
-    public ReentrantLock lock = new ReentrantLock();
 
 
     public Node getRoot() {
