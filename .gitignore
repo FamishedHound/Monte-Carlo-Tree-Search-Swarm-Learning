@@ -1,6 +1,7 @@
 .idea/
 .vscode/
 output/
+defender_loc_parse/
 out/
 records/
 MyCode.jar
