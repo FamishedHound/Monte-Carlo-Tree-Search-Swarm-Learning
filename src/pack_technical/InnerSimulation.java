@@ -25,7 +25,6 @@ public class InnerSimulation extends Simulation {
     double rolloutReward;
     int nodeDepth;
     boolean simulating=true;
-
     public boolean isSimulating() {
         return simulating;
     }
@@ -59,11 +58,11 @@ public class InnerSimulation extends Simulation {
     }
 
     public double calcSimulationValue() {
-        if (getAttackBoid().hasFailed()) {
+        if (getAttackBoid().hasFailed() || rolloutReward == -1) {
             return -1;
-        } else if (victory) {
+        } else if (victory || rolloutReward == 1) {
             return 1;
-        } else if (rolloutReward > 0) {
+        } else if (rolloutReward == 0) {
             return 0.5 - (currentDistanceToTarget / 6000);
         }
         return 0;
@@ -73,11 +72,11 @@ public class InnerSimulation extends Simulation {
         BoidGeneric rolloutAttackBoid = new BoidStandard(getAttackBoid());
         for(int j=0; j<1000; j++) {
             rolloutAttackBoid.updateAttack(getAccelerationAction());
-            if(CollisionHandler.doesReachTarget(rolloutAttackBoid, 10)) {
+            if(CollisionHandler.doesReachTarget(rolloutAttackBoid, 0)) {
                 return 1;
             }
             for (BoidGeneric defenderBoid : defenderBoids) {
-                if (CollisionHandler.doesCollide(rolloutAttackBoid, defenderBoid, 4)) {
+                if (CollisionHandler.doesCollide(rolloutAttackBoid, defenderBoid, 0)) {
                     return -1;
                     }
                 }
@@ -96,9 +95,6 @@ public class InnerSimulation extends Simulation {
             for(int i=0; i < nodeDepth; i++) {
                 defenderBoid.move(defenderBoids);
                 defenderBoid.update();
-                if (CollisionHandler.checkCollisions(attackBoid, defenderBoids, 0)) {
-                    getAttackBoid().setHasFailed(true);
-                }
             }
         }
 

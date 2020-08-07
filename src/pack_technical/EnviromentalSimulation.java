@@ -62,8 +62,10 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
             updateBoids(defenderBoids, attackBoid);
             MCT.resetRoot(attackBoid);
             simulations = 0;
+            return bestVector;
         } catch (Exception e) {
-            e.printStackTrace();
+            return new PVector(0,0);
+            //e.printStackTrace();
         }
 
 //        if(actionCounter > 10){
@@ -75,7 +77,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
 //        }
 
 
-        return bestVector;
+
     }
 
 
@@ -96,7 +98,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
                 node.expandAndStoreState(innerSimulation);
                 continue;
             }
-            double simVal = innerSimulation.calcSimulationValue();
+            double simVal =  innerSimulation.calcSimulationValue();
             Node childNode = MCT.addChild(node, innerSimulation);
             childNode.backPropagate(simVal);
             simulations++;
