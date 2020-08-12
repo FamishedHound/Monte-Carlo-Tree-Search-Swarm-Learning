@@ -14,7 +14,7 @@ import processing.core.PVector;
 
 //
 // the generic boid class holds functions common to all boid types
-public abstract class BoidGeneric {
+public abstract class BoidGeneric implements Cloneable {
 
     /** Unique ID of the boid */
     private final int id;
@@ -162,7 +162,19 @@ public abstract class BoidGeneric {
         velocity.limit(Constants.Boids.MAX_SPEED_ATTACK);
         location.add(velocity);
         // Reset acceleration to 0 each cycle
-        acceleration.mult(0);
+        this.acceleration.mult(0);
+    }
+
+    public PVector updateAttack(PVector acceleration,int something) {
+        this.acceleration.add(acceleration);
+        // Update velocity
+        velocity.add(acceleration);
+        // Limit speed
+        velocity.limit(Constants.Boids.MAX_SPEED_ATTACK);
+        location.add(velocity);
+        // Reset acceleration to 0 each cycle
+        this.acceleration.mult(0);
+        return location;
     }
 
     /**

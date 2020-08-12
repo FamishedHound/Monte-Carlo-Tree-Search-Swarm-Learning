@@ -48,12 +48,11 @@ public class InnerSimulation extends Simulation {
 
 
 
-    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, Node node) {
-        super(defenderBoids, waypointCoords, node.getAttackBoidsForSimulation(), collisionHandler);
-        this.ai_type = ai;
+    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, Node node,List<PVector> waypoints) {
+        super(defenderBoids, waypointCoords, node.getAttackBoidsForSimulation(), collisionHandler,waypoints);
+        this.simulation_ai = ai;
         this.nodeExpanded = node.isExpanded();
         this.nodeDepth = node.getDepth();
-        waypointSetup(defenderBoids);
         accelerationAction = node.isExpanded() ? createRandomVector() : node.getAccelerationAction();
     }
 

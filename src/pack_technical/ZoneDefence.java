@@ -2,12 +2,15 @@ package pack_technical;
 
 import pack_1.Constants;
 import pack_1.ParameterGatherAndSetter;
+import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
+import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -30,87 +33,111 @@ public class ZoneDefence implements Cloneable {
     FlockManager flockManager;
     ParameterSimulator parameterSimulation;
     ParameterGatherAndSetter parameterGatherAndSetter;
+    PApplet parent;
 
-
+    AI_type ai;
     //TODO fix this hardcoded path
-    public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
+    //public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 
-    public ZoneDefence(CollisionHandler collision, FlockManager flockManager, ParameterGatherAndSetter parameterGatherAndSetter) throws IOException {
+    public ZoneDefence(PApplet parent , CollisionHandler collision, FlockManager flockManager, ParameterGatherAndSetter parameterGatherAndSetter) throws IOException {
         this.flockManager = flockManager;
         this.collisionHandler = collision;
+        this.parent = parent;
         defenderBoids = GameManager.get_team(0);
         attackBoids = GameManager.get_team(1);
         if (Constants.PERFECT_WAYPOINTS) {
-            patternHandler = new DummyPatternHandler();
+            this.patternHandler = new DummyPatternHandler();
         } else {
-            patternHandler = new PatternHandler();
+            this.patternHandler = new PatternHandler();
         }
         this.parameterGatherAndSetter = parameterGatherAndSetter;
         waypoints.addAll(parameterGatherAndSetter.returnDifficulty());
         patrollingScheme.getWaypointsA().add(Constants.TARGET.copy());
         patrollingScheme.setup();
+        enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler,parameterGatherAndSetter.returnDifficulty());
+        this.ai = enviromentalSimulation.getAi_type();
+        attack.set(true);
+
     }
 
 
     public void run() {
-        if (patternHandler.isOnce()) {
-            //after sim constructor has completed is the point where the MCTS is running.
-            enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler);
-            if (Constants.PERFECT_AI) {
-                parameterSimulation = new DummyParameterSimulation();
-            } else {
-                parameterSimulation = new ParameterSimulation(defenderBoids, patternHandler.getNewpoints(), enviromentalSimulation.getSimulator());
-            }
-            patternHandler.setOnce(false);
-        }
+        parameterGatherAndSetter.sendParameters(this.ai);
+        updateAttacker();
+        updateDefenders();
+        parameterGatherAndSetter.incrementIterations();
+    }
 
-        if (enviromentalSimulation != null) {
-            if (parameterSimulation.observe(defenderBoids) == 1) {
-                enviromentalSimulation.setAiToInnerSimulation(parameterSimulation.getAi());
-                parameterGatherAndSetter.sendParameters(parameterSimulation.getAi());
-                attack.set(true);
-                writer14.write("I started to attack " + "," + Math.round((System.nanoTime() - startTime) / 1000000) + "," + counter + "\n");
-                writer14.flush();
-            }
-        }
-
+    private void updateAttacker() {
         for (BoidGeneric attackBoid : attackBoids) {
-            //the placement of these counters assume only one attackboid
-            //also the magic numbers arent great
-            counter++;
-            if (counter >= Constants.warmUpTime / 8 && counter <= Constants.warmUpTime * 2) {
-                if (!attack.get()) attackBoid.setMovable(false);
-                attackBoid.setStationary();
-                warmUpTimer++;
-            }
 
-            if (warmUpTimer >= Constants.warmUpTime) {
-                patternHandler.newObservation(defenderBoids, counter);
-                if (attackBoids != null && flag && patternHandler.analyze() == 1) {
-                    flag = false;
-                    startTime = System.nanoTime();
-                }
-            }
+            handleWarmup(attackBoid);
+            attackMode(attackBoid);
+        }
+    }
 
-            // ATACK MODE
-            if (attack.get()) {
-                attackBoid.setMovable(true);
-                if(Constants.DEBUG_SIM_LIMIT != 0) {
-                    while(enviromentalSimulation.simulations < enviromentalSimulation.maxSimulation) {
-                        try {
-                            Thread.sleep(1);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                PVector attackVector = enviromentalSimulation.returnTargetVector(defenderBoids, attackBoids.get(0));
-                attackBoid.updateAttack(attackVector);
-            } else {
-                attackBoid.setStationary();
-            }
+    private void attackMode(BoidGeneric attackBoid) {
+        if (attack.get()) {
+            attackBoid.setMovable(true);
+            debugSimulationLimit();
+            applyMCTSVector(attackBoid);
+            debugDrawMCTSVectors(attackBoid);
+
+
+        } else {
+            attackBoid.setStationary();
+        }
+    }
+
+    private void handleWarmup(BoidGeneric attackBoid) {
+        counter++;
+        if (counter >= Constants.warmUpTime / 8 && counter <= Constants.warmUpTime * 2) {
+            if (!attack.get()) attackBoid.setMovable(false);
+            attackBoid.setStationary();
+            warmUpTimer++;
         }
 
+        if (warmUpTimer >= Constants.warmUpTime) {
+            patternHandler.newObservation(defenderBoids, counter);
+            if (attackBoids != null && flag && patternHandler.analyze() == 1) {
+                flag = false;
+                startTime = System.nanoTime();
+            }
+        }
+    }
+
+    private void applyMCTSVector(BoidGeneric attackBoid) {
+        PVector attackVector = enviromentalSimulation.returnTargetVector(defenderBoids, attackBoids.get(0));
+        attackBoid.updateAttack(attackVector);
+    }
+
+    private void debugSimulationLimit() {
+        if(Constants.DEBUG_SIM_LIMIT != 0) {
+            while(enviromentalSimulation.simulations < enviromentalSimulation.maxSimulation) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void debugDrawMCTSVectors(BoidGeneric attackBoid) {
+        parent.fill(255,255,30);
+        PVector randomAcceleration1 = new PVector(new Random().nextFloat() * 2 - 1, new Random().nextFloat() * 2 - 1);
+        PVector randomAcceleration2 = new PVector(new Random().nextFloat() * 2 - 1, new Random().nextFloat() * 2 - 1);
+
+        PVector randomAcceleration3 = new PVector(new Random().nextFloat() * 2 - 1, new Random().nextFloat() * 2 - 1);
+
+        parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + attackBoid.getVelocity().x*100, attackBoid.getLocation().y + attackBoid.getVelocity().y*100);
+        parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + randomAcceleration1.x*100, attackBoid.getLocation().y + randomAcceleration1.y*100);
+//                for (Node n : enviromentalSimulation.getRoot().getChildren()){
+//                    parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + attackBoid.getVelocity().x*100, attackBoid.getLocation().y + attackBoid.getVelocity().y*100);
+//                }
+    }
+
+    private void updateDefenders() {
         for (BoidGeneric defenderBoid : defenderBoids) {
             if (defend) {
                 defenderBoid.update(patrollingScheme.patrol(defenderBoid.getLocation(), defenderBoid));
@@ -118,6 +145,5 @@ public class ZoneDefence implements Cloneable {
                 defenderBoid.setStationary();
             }
         }
-        parameterGatherAndSetter.incrementIterations();
     }
 }

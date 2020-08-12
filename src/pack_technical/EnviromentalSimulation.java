@@ -11,7 +11,7 @@ import java.util.Random;
 
 //todo move maxTreeDepth to Constants
 
-public class EnviromentalSimulation extends Simulation implements Runnable {
+public class EnviromentalSimulation extends Simulation implements Runnable,BoidsCloneable {
 
     Tree MCT;
     Random random = new Random();
@@ -21,24 +21,25 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     int actionCounter = 0;
     final int maxSimulation = Constants.DEBUG_SIM_LIMIT;
     int simulations = 0;
-
-    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler) {
-        super(copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler);
-        defenderBoids = copyStateOfBoids(defenderBoids);
-
+    AI_type ai;
+    List<PVector> waypoints;
+    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler,List<PVector> waypoints) {
+        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler,waypoints);
+        defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
+        this.waypoints = waypoints;
         for (BoidGeneric defenderBoid : defenderBoids) {
-            defenderBoid.setAi(this.ai_type);
+            defenderBoid.setAi(simulation_ai);
         }
+        this.ai = simulation_ai;
 
-        waypointSetup(defenderBoids);
         startTime = System.nanoTime();
         MCT = new Tree(maxTreeDepth, this.attackBoid);
         new Thread(this).start();
     }
 
 
-    public void setAiToInnerSimulation(AI_type t) {
-        ai_type = t;
+    public AI_type getAi_type() {
+        return simulation_ai;
     }
 
 
@@ -58,31 +59,17 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     public PVector returnTargetVector(ArrayList<BoidGeneric> defenderBoids, BoidGeneric attackBoid) {
         Node bestNode = MCT.bestAvgVal();
         PVector bestVector = bestNode.getAccelerationAction();
-        try {
-            updateBoids(defenderBoids, attackBoid);
-            MCT.resetRoot(attackBoid);
-            simulations = 0;
-            return bestVector;
-        } catch (Exception e) {
-            return new PVector(0,0);
-            //e.printStackTrace();
-        }
 
-//        if(actionCounter > 10){
-//            System.gc();
-//            System.runFinalization();
-//            actionCounter = 0;
-//        }else{
-//            actionCounter++;
-//        }
-
-
+        updateBoids(defenderBoids, attackBoid);
+        MCT.resetRoot(attackBoid);
+        simulations = 0;
+        return bestVector;
 
     }
 
 
     public void updateBoids(ArrayList<BoidGeneric> defenders, BoidGeneric attacker) {
-        this.defenderBoids = copyStateOfBoids(defenders);
+        this.defenderBoids = BoidsCloneable.copyStateOfBoids(defenders);
         this.attackBoid = new BoidStandard(attacker);
 
     }
@@ -92,7 +79,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable {
     public void run() {
         while (true) {
             Node node = MCT.UCT(MCT.getRoot(), -1);
-            InnerSimulation innerSimulation = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node);
+            InnerSimulation innerSimulation = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node,waypoints);
             innerSimulation.run();
             if (!node.isExpanded()) {
                 node.expandAndStoreState(innerSimulation);

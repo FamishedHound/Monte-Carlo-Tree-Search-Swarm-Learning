@@ -76,8 +76,7 @@ public class ParameterSimulation extends Thread implements ParameterSimulator{
         this.currentAi=currentAi;
         this.scheme= new PatrollingScheme(currentAi.getWayPointForce());
         this.pattern=pattern;
-        //scheme.getWaypoints().add(new PVector(550,535));
-        //scheme.getWaypoints().add(new PVector(550,485));
+
     }
 
 
@@ -92,28 +91,16 @@ public class ParameterSimulation extends Thread implements ParameterSimulator{
     }
     public void run(){
             setUpCheckPoints();
-           // StringBuilder sb = new StringBuilder();
-        //System.out.println("I have start with these parameters " + currentAi.getSeparationForce() + " " + currentAi.getAlignForce() + " " + currentAi.getCohesionForce() + " " + currentAi.getSeparationForceWeight()  + " " + currentAi.getAlignmentForceWeight() + " " + currentAi.getCohesionForceWeight() + " " + currentAi.getWayPointForce());
+
            learnTheErrors(sepBoidError,1,observations.get(1));
-       // System.out.println("1");
+
             calculateNewParameter(1);
-           /*learnTheErrors(aliBoidError,2,observations.get(1));
-            calculateNewParameter(2);
-           learnTheErrors(cohBoidError,3,observations.get(1));
-            calculateNewParameter(3);*/
-           /*learnTheErrors(sepWBoidError,4,observations.get(1));
-            calculateNewParameter(4);
-           learnTheErrors(aliWBoidError,5,observations.get(1));
-            calculateNewParameter(5);
-           learnTheErrors(cohWBoidError,6,observations.get(1));
-            calculateNewParameter(6);
-           learnTheErrors(wayPointForceBoidError,7,observations.get(1));
-            calculateNewParameter(7);*/
+
          learningRate*=0.90 ;
          fastLearningRate*=0.90;
             clearMapping();
 
-        //System.out.println("I have finished with  " + currentAi.getSeparationForce() + " " + currentAi.getAlignForce() + " " + currentAi.getCohesionForce() + " " + currentAi.getSeparationForceWeight()  + " " + currentAi.getAlignmentForceWeight() + " " + currentAi.getCohesionForceWeight()+ " " + currentAi.getWayPointForce());
+
 
     }
 
@@ -124,17 +111,7 @@ public class ParameterSimulation extends Thread implements ParameterSimulator{
             scheme.getWaypoints().add(cord);
 //            fw.write(Arrays.toString(cord).replace(" ",""));
         }
-        // THIS WILL BE CONTINUOUSLY ADDING WAYPOINTS???
-        //            for (int[] cord : patternHandler) {
-//                scheme.getWaypoints().add(new PVector(cord[0], cord[1]));
-////
-//            }
-        //scheme.waypoints = new ArrayList<>();
-        //scheme.getWaypoints().add(new PVector(550,535));
-        // scheme.getWaypoints().add(new PVector(550,485));
 
-
-        //FOLLOW THE SIMILLAR WAYPOINT AS DEFENDERS
         float shortestDistanceSq = 3000 * 3000;
         int counter = 0;
         int positionInTheList = 0;
