@@ -1,4 +1,5 @@
 package pack_technical;
+
 import pack_1.Constants;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
@@ -11,20 +12,26 @@ import java.util.Random;
 
 //todo move maxTreeDepth to Constants
 
-public class EnviromentalSimulation extends Simulation implements Runnable,BoidsCloneable {
+public class EnviromentalSimulation extends Simulation implements Runnable, BoidsCloneable {
 
-    Tree MCT;
-    Random random = new Random();
-    double startTime;
-    AI_type ai_type;
-    int maxTreeDepth = 2147483647;
-    int actionCounter = 0;
-    final int maxSimulation = Constants.DEBUG_SIM_LIMIT;
-    int simulations = 0;
-    AI_type ai;
-    List<PVector> waypoints;
-    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler,List<PVector> waypoints) {
-        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler,waypoints);
+    private Tree MCT;
+    private Random random = new Random();
+    private double startTime;
+    private AI_type ai_type;
+    private int maxTreeDepth = 2147483647;
+    private int actionCounter = 0;
+
+
+    private final int maxSimulation = Constants.DEBUG_SIM_LIMIT;
+    private int simulations = 0;
+    private AI_type ai;
+    private List<PVector> waypoints;
+
+    private Thread thread;
+    private boolean isThreadRunning = false;
+
+    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints) {
+        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler, waypoints);
         defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
         this.waypoints = waypoints;
         for (BoidGeneric defenderBoid : defenderBoids) {
@@ -34,29 +41,37 @@ public class EnviromentalSimulation extends Simulation implements Runnable,Boids
 
         startTime = System.nanoTime();
         MCT = new Tree(maxTreeDepth, this.attackBoid);
-        new Thread(this).start();
+
     }
 
+    public void startExecution() {
+        isThreadRunning = true;
+        this.thread = new Thread(this);
+        this.thread.start();
+    }
+
+    public boolean isThreadFinished() {
+        return this.thread.isAlive();
+    }
 
     public AI_type getAi_type() {
         return simulation_ai;
     }
 
 
-    public boolean isSimulating() {
-        return true;
-    }
+
 
     /**
      * Replaces the current MCTS tree structure with an empty root node and returns
      * the best acceleration vector according to the simulations the MCTS performed
      * To prevent memory issues it also runs garbage collection every 10 calls.
      *
-     * @return
      * @param defenderBoids
      * @param attackBoid
+     * @return
      */
-    public PVector returnTargetVector(ArrayList<BoidGeneric> defenderBoids, BoidGeneric attackBoid) {
+    public PVector makeDecision(ArrayList<BoidGeneric> defenderBoids, BoidGeneric attackBoid) {
+        isThreadRunning=false;
         Node bestNode = MCT.bestAvgVal();
         PVector bestVector = bestNode.getAccelerationAction();
 
@@ -75,20 +90,28 @@ public class EnviromentalSimulation extends Simulation implements Runnable,Boids
     }
 
 
-    //do we need to store a CollisionHandler as a field?
     public void run() {
-        while (true) {
+        while (isThreadRunning) {
             Node node = MCT.UCT(MCT.getRoot(), -1);
-            InnerSimulation innerSimulation = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node,waypoints);
+            InnerSimulation innerSimulation = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node, waypoints);
             innerSimulation.run();
             if (!node.isExpanded()) {
                 node.expandAndStoreState(innerSimulation);
                 continue;
             }
-            double simVal =  innerSimulation.calcSimulationValue();
+            double simVal = innerSimulation.calcSimulationValue();
             Node childNode = MCT.addChild(node, innerSimulation);
             childNode.backPropagate(simVal);
             simulations++;
         }
+    }
+
+
+    public int getActionCounter() {
+        return actionCounter;
+    }
+
+    public int getMaxSimulation() {
+        return maxSimulation;
     }
 }

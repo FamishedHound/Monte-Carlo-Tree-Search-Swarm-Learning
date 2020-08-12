@@ -8,7 +8,6 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,7 +38,7 @@ public class ZoneDefence implements Cloneable {
     //TODO fix this hardcoded path
     //public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 
-    public ZoneDefence(PApplet parent , CollisionHandler collision, FlockManager flockManager, ParameterGatherAndSetter parameterGatherAndSetter) throws IOException {
+    public ZoneDefence(PApplet parent, CollisionHandler collision, FlockManager flockManager, ParameterGatherAndSetter parameterGatherAndSetter) throws IOException {
         this.flockManager = flockManager;
         this.collisionHandler = collision;
         this.parent = parent;
@@ -54,7 +53,7 @@ public class ZoneDefence implements Cloneable {
         waypoints.addAll(parameterGatherAndSetter.returnDifficulty());
         patrollingScheme.getWaypointsA().add(Constants.TARGET.copy());
         patrollingScheme.setup();
-        enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler,parameterGatherAndSetter.returnDifficulty());
+        enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler, parameterGatherAndSetter.returnDifficulty());
         this.ai = enviromentalSimulation.getAi_type();
         attack.set(true);
 
@@ -62,6 +61,7 @@ public class ZoneDefence implements Cloneable {
 
 
     public void run() {
+        enviromentalSimulation.startExecution();
         parameterGatherAndSetter.sendParameters(this.ai);
         updateAttacker();
         updateDefenders();
@@ -107,13 +107,21 @@ public class ZoneDefence implements Cloneable {
     }
 
     private void applyMCTSVector(BoidGeneric attackBoid) {
-        PVector attackVector = enviromentalSimulation.returnTargetVector(defenderBoids, attackBoids.get(0));
-        attackBoid.updateAttack(attackVector);
+        if (enviromentalSimulation.isThreadFinished()) {
+            PVector attackVector = enviromentalSimulation.makeDecision(defenderBoids, attackBoids.get(0));
+            attackBoid.updateAttack(attackVector);
+        } else {
+            try {
+                throw new Exception("Ya wanker forgot to kill me eh?");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void debugSimulationLimit() {
-        if(Constants.DEBUG_SIM_LIMIT != 0) {
-            while(enviromentalSimulation.simulations < enviromentalSimulation.maxSimulation) {
+        if (Constants.DEBUG_SIM_LIMIT != 0) {
+            while (enviromentalSimulation.getActionCounter() < enviromentalSimulation.getMaxSimulation()) {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
@@ -124,14 +132,14 @@ public class ZoneDefence implements Cloneable {
     }
 
     private void debugDrawMCTSVectors(BoidGeneric attackBoid) {
-        parent.fill(255,255,30);
+        parent.fill(255, 255, 30);
         PVector randomAcceleration1 = new PVector(new Random().nextFloat() * 2 - 1, new Random().nextFloat() * 2 - 1);
         PVector randomAcceleration2 = new PVector(new Random().nextFloat() * 2 - 1, new Random().nextFloat() * 2 - 1);
 
         PVector randomAcceleration3 = new PVector(new Random().nextFloat() * 2 - 1, new Random().nextFloat() * 2 - 1);
 
-        parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + attackBoid.getVelocity().x*100, attackBoid.getLocation().y + attackBoid.getVelocity().y*100);
-        parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + randomAcceleration1.x*100, attackBoid.getLocation().y + randomAcceleration1.y*100);
+        parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + attackBoid.getVelocity().x * 100, attackBoid.getLocation().y + attackBoid.getVelocity().y * 100);
+        parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + randomAcceleration1.x * 100, attackBoid.getLocation().y + randomAcceleration1.y * 100);
 //                for (Node n : enviromentalSimulation.getRoot().getChildren()){
 //                    parent.line(attackBoid.getLocation().x, attackBoid.getLocation().y, attackBoid.getLocation().x + attackBoid.getVelocity().x*100, attackBoid.getLocation().y + attackBoid.getVelocity().y*100);
 //                }
