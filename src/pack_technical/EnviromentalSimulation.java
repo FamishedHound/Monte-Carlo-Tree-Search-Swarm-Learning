@@ -4,6 +4,7 @@ import pack_1.Constants;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import pack_boids.BoidStandard;
+import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -29,8 +30,8 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
     private Thread thread;
     private boolean isThreadRunning = false;
-
-    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints , AI_type simulation_ai) {
+    PApplet parent;
+    public EnviromentalSimulation(PApplet parent,ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints , AI_type simulation_ai) {
         super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler, waypoints,simulation_ai);
         defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
         this.waypoints = waypoints;
@@ -38,7 +39,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
             defenderBoid.setAi(simulation_ai);
         }
         this.simulation_ai = simulation_ai;
-
+        this.parent= parent;
         startTime = System.nanoTime();
         MCT = new Tree(maxTreeDepth, this.attackBoid);
 
@@ -92,11 +93,12 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
 
     public void run() {
+        System.out.println("starting the Thread" + isThreadRunning);
         Node node = MCT.UCT(MCT.getRoot(), -1);
-        InnerSimulation innerSimulation = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node, waypoints,simulation_ai);
+        InnerSimulation innerSimulation = new InnerSimulation(parent,defenderBoids, waypointCoords, collisionHandler, node, waypoints,simulation_ai);
         while (isThreadRunning) {
 
-            innerSimulation.run();
+            innerSimulation.simulate();
             if (!node.isExpanded()) {
                 node.expandAndStoreState(innerSimulation);
                 continue;
