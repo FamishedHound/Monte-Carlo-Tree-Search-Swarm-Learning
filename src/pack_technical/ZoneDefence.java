@@ -2,6 +2,8 @@ package pack_technical;
 
 import pack_1.Constants;
 import pack_1.ParameterGatherAndSetter;
+import pack_1.Utility;
+import pack_AI.AI_manager;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import processing.core.PApplet;
@@ -34,7 +36,7 @@ public class ZoneDefence implements Cloneable {
     ParameterGatherAndSetter parameterGatherAndSetter;
     PApplet parent;
 
-    AI_type ai;
+    AI_type simulation_ai;
     //TODO fix this hardcoded path
     //public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
 
@@ -49,12 +51,15 @@ public class ZoneDefence implements Cloneable {
         } else {
             this.patternHandler = new PatternHandler();
         }
+        this.simulation_ai = Constants.PERFECT_AI ? Constants.CORRECT_AI_PARAMS :
+                new AI_type(Utility
+                        .randFloat(AI_manager.neighbourhoodSeparation_lower_bound, AI_manager.neighbourhoodSeparation_upper_bound), 70, 70, 2.0, 1.2, 0.9f, 0.04f, "Simulator2000");
         this.parameterGatherAndSetter = parameterGatherAndSetter;
         waypoints.addAll(parameterGatherAndSetter.returnDifficulty());
         patrollingScheme.getWaypointsA().add(Constants.TARGET.copy());
         patrollingScheme.setup();
-        enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler, parameterGatherAndSetter.returnDifficulty());
-        this.ai = enviromentalSimulation.getAi_type();
+        enviromentalSimulation = new EnviromentalSimulation(defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler, parameterGatherAndSetter.returnDifficulty(),simulation_ai);
+        this.simulation_ai = enviromentalSimulation.getAi_type();
         attack.set(true);
 
     }
@@ -62,7 +67,7 @@ public class ZoneDefence implements Cloneable {
 
     public void run() {
         enviromentalSimulation.startExecution();
-        parameterGatherAndSetter.sendParameters(this.ai);
+        parameterGatherAndSetter.sendParameters(this.simulation_ai);
         updateAttacker();
         updateDefenders();
         parameterGatherAndSetter.incrementIterations();
@@ -71,7 +76,7 @@ public class ZoneDefence implements Cloneable {
     private void updateAttacker() {
         for (BoidGeneric attackBoid : attackBoids) {
 
-            handleWarmup(attackBoid);
+            //handleWarmup(attackBoid);
             attackMode(attackBoid);
         }
     }

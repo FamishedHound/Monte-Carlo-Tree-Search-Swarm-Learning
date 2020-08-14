@@ -24,20 +24,20 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
     private final int maxSimulation = Constants.DEBUG_SIM_LIMIT;
     private int simulations = 0;
-    private AI_type ai;
+    private AI_type simulation_ai;
     private List<PVector> waypoints;
 
     private Thread thread;
     private boolean isThreadRunning = false;
 
-    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints) {
-        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler, waypoints);
+    public EnviromentalSimulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints , AI_type simulation_ai) {
+        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler, waypoints,simulation_ai);
         defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
         this.waypoints = waypoints;
         for (BoidGeneric defenderBoid : defenderBoids) {
             defenderBoid.setAi(simulation_ai);
         }
-        this.ai = simulation_ai;
+        this.simulation_ai = simulation_ai;
 
         startTime = System.nanoTime();
         MCT = new Tree(maxTreeDepth, this.attackBoid);
@@ -78,6 +78,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
         updateBoids(defenderBoids, attackBoid);
         MCT.resetRoot(attackBoid);
         simulations = 0;
+
         return bestVector;
 
     }
@@ -91,9 +92,10 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
 
     public void run() {
+        Node node = MCT.UCT(MCT.getRoot(), -1);
+        InnerSimulation innerSimulation = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node, waypoints,simulation_ai);
         while (isThreadRunning) {
-            Node node = MCT.UCT(MCT.getRoot(), -1);
-            InnerSimulation innerSimulation = new InnerSimulation(ai_type, defenderBoids, waypointCoords, collisionHandler, node, waypoints);
+
             innerSimulation.run();
             if (!node.isExpanded()) {
                 node.expandAndStoreState(innerSimulation);

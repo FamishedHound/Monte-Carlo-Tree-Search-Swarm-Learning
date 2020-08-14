@@ -28,6 +28,7 @@ public class InnerSimulation extends Simulation {
     public boolean isSimulating() {
         return simulating;
     }
+    AI_type simulation_ai;
 
     public void setSimulating(boolean simulating) {
         this.simulating = simulating;
@@ -48,9 +49,9 @@ public class InnerSimulation extends Simulation {
 
 
 
-    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, Node node,List<PVector> waypoints) {
-        super(defenderBoids, waypointCoords, node.getAttackBoidsForSimulation(), collisionHandler,waypoints);
-        this.simulation_ai = ai;
+    public InnerSimulation(AI_type ai, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, Node node,List<PVector> waypoints,AI_type simulation_ai) {
+        super(defenderBoids, waypointCoords, node.getAttackBoidsForSimulation(), collisionHandler,waypoints,simulation_ai);
+        this.simulation_ai = simulation_ai;
         this.nodeExpanded = node.isExpanded();
         this.nodeDepth = node.getDepth();
         accelerationAction = node.isExpanded() ? createRandomVector() : node.getAccelerationAction();
