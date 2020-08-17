@@ -28,6 +28,10 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
     private AI_type simulation_ai;
     private List<PVector> waypoints;
 
+    public Thread getThread() {
+        return thread;
+    }
+
     private Thread thread = null;
     private boolean isThreadRunning = false;
     PApplet parent;
@@ -45,6 +49,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
     }
     public void stopThread(){
+        System.out.println("stopping the Thread " + thread.getName());
         this.thread = null;
     }
     public void startExecution() {
@@ -95,11 +100,12 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
 
     public void run() {
+        MCT = new Tree(maxTreeDepth, this.attackBoid);
         System.out.println("starting the Thread" + Thread.currentThread().getName());
         Node node = MCT.UCT(MCT.getRoot(), -1);
         InnerSimulation innerSimulation = new InnerSimulation(parent,defenderBoids, waypointCoords, collisionHandler, node, waypoints,simulation_ai);
         while (this.thread == Thread.currentThread()) {
-
+            //System.out.println("I am in");
             innerSimulation.simulate();
             if (!node.isExpanded()) {
                 node.expandAndStoreState(innerSimulation);

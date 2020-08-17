@@ -11,7 +11,7 @@ import processing.core.PVector;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Simulation implements BoidsCloneable {
+public abstract class Simulation  implements BoidsCloneable {
 
     ArrayList<BoidGeneric> defenderBoids;
     BoidGeneric attackBoid;

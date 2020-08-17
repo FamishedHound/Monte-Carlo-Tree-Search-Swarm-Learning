@@ -68,8 +68,9 @@ public class ZoneDefence implements Cloneable {
     public void run() {
         enviromentalSimulation.startExecution();
         parameterGatherAndSetter.sendParameters(this.simulation_ai);
-        updateAttacker();
+
         updateDefenders();
+        updateAttacker();
         parameterGatherAndSetter.incrementIterations();
     }
 
@@ -82,16 +83,14 @@ public class ZoneDefence implements Cloneable {
     }
 
     private void attackMode(BoidGeneric attackBoid) {
-        if (attack.get()) {
-            attackBoid.setMovable(true);
-            debugSimulationLimit();
-            applyMCTSVector(attackBoid);
-            debugDrawMCTSVectors(attackBoid);
+
+        attackBoid.setMovable(true);
+        //debugSimulationLimit();
+        applyMCTSVector(attackBoid);
+        debugDrawMCTSVectors(attackBoid);
 
 
-        } else {
-            attackBoid.setStationary();
-        }
+
     }
 
     private void handleWarmup(BoidGeneric attackBoid) {
@@ -111,18 +110,24 @@ public class ZoneDefence implements Cloneable {
         }
     }
 
-    private void applyMCTSVector(BoidGeneric attackBoid) {
-        if (enviromentalSimulation.isThreadFinished()) {
-            PVector attackVector = enviromentalSimulation.makeDecision(defenderBoids, attackBoids.get(0));
-            enviromentalSimulation.stopThread();
-            attackBoid.updateAttack(attackVector);
-        } else {
+    private void  applyMCTSVector(BoidGeneric attackBoid) {
+
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        enviromentalSimulation.stopThread();
+        while (enviromentalSimulation.getThread()!=null) {
             try {
-                throw new Exception("Ya wanker forgot to kill me eh?");
-            } catch (Exception e) {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        PVector attackVector = enviromentalSimulation.makeDecision(defenderBoids, attackBoids.get(0));
+        attackBoid.updateAttack(attackVector);
+
     }
 
     private void debugSimulationLimit() {
