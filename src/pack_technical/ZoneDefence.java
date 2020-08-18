@@ -112,20 +112,17 @@ public class ZoneDefence implements Cloneable {
 
     private void  applyMCTSVector(BoidGeneric attackBoid) {
 
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        enviromentalSimulation.stopThread();
-        while (enviromentalSimulation.getThread()!=null) {
+
+        while (!enviromentalSimulation.stopThread()){
             try {
-                Thread.sleep(5);
+                Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println(enviromentalSimulation.stopThread());
         PVector attackVector = enviromentalSimulation.makeDecision(defenderBoids, attackBoids.get(0));
+
         attackBoid.updateAttack(attackVector);
 
     }

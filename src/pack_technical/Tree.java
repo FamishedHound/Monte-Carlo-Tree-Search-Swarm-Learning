@@ -2,7 +2,9 @@ package pack_technical;
 
 import pack_boids.BoidGeneric;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -78,20 +80,32 @@ public class Tree {
             return root;
         }
 
-        Optional<Node> successfulNode = root.getChildren()
-                .stream()
-                .filter(n -> n.getSimulationValue() == 1)
-                .max(Comparator.comparing(Node::calcUCT));
+        double highestUctWinner = 0;
+        double highestUctNeutral = 0;
+        List<Node> rootChildrenNodes = root.getChildren();
+        Node highestUctWinnerNode = rootChildrenNodes.get(0) ;
+        Node highestUctNeutralNode= rootChildrenNodes.get(0);
 
-        if (successfulNode.isPresent()) {
-            return successfulNode.get();
+
+        for (Node n : rootChildrenNodes){
+            if (n.getSimulationValue()==1){
+                double currentUctWinner = n.calcUCT();
+                if (currentUctWinner > highestUctWinner) {highestUctWinner=currentUctWinner;highestUctWinnerNode = n;}
+
+
+            } else if (n.getSimulationValue()!=-1){
+                double currentUctNeutral = n.calcUCT();
+                if (currentUctNeutral > highestUctNeutral){ highestUctNeutral=currentUctNeutral;highestUctNeutralNode=n;}
+            }
         }
 
-        successfulNode = root.getChildren()
-                .stream()
-                .filter(n -> n.getSimulationValue() != -1)
-                .max(Comparator.comparing(Node::calcUCT));
+        if (highestUctWinner!=0){
+            return highestUctWinnerNode;
+        } else if (highestUctNeutral!=0){
+            return highestUctNeutralNode;
+        }
 
-        return successfulNode.isPresent() ? successfulNode.get() : root;
+
+        return root;
     }
 }
