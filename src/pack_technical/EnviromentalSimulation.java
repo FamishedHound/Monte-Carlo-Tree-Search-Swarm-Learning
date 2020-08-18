@@ -49,12 +49,9 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
     }
     public boolean stopThread(){
-        System.out.println("checking +"+ finished + " "   );
-        System.out.println(simulations);
 
         if ( finished) {
             System.out.println("stopping the Thread " + thread.getName());
-            this.thread = null;
             finished=false;
             return true;
         }else{
