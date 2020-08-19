@@ -21,13 +21,13 @@ public abstract class Simulation  implements BoidsCloneable {
     List<PVector> waypointCoords;
     FlockManager flockManager;
 
-    public Simulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler,List<PVector> waypoints,AI_type simulation_ai)  {
+    public Simulation(ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler,AI_type simulation_ai)  {
         this.collisionHandler = collisionHandler;
         this.waypointCoords = waypointCoords;
         this.defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
         this.attackBoid = new BoidStandard(attackBoid);
         this.patrollingScheme = new PatrollingScheme(simulation_ai.getWayPointForce());
-        this.patrollingScheme.getWaypoints().addAll(waypoints);
+        this.patrollingScheme.getWaypoints().addAll(waypointCoords);
         this.flockManager = new FlockManager(false, true, this.defenderBoids);
     }
 

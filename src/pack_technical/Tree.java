@@ -1,111 +1,94 @@
 package pack_technical;
 
+import pack_1.Constants;
+import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
+import processing.core.PVector;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Tree {
     //root.depth is always 0
     private Node root;
     private int maxTreeDepth;
     private int maxNodeChildren = 12;
-
-
+    private Node rootNode;
+    private Random random = new Random();
     public Node getRoot() {
         return root;
     }
-
-    public int getMaxTreeDepth() {
-        return maxTreeDepth;
+    private BoidGeneric attackBoid;
+    private ArrayList<BoidGeneric> defenders;
+    private ArrayList<Node> children;
+    private List<PVector> waypoints;
+    AI_type simulation_ai;
+    CollisionHandler collisionHandler;
+    public Tree( BoidGeneric attackBoid, ArrayList<BoidGeneric> defenders, AI_type simulation_ai, List<PVector> waypoints, CollisionHandler collisionHandler) {
+        this.attackBoid = attackBoid;
+        this.defenders= defenders;
+        this.waypoints = waypoints;
+        this.simulation_ai=simulation_ai;
+        this.collisionHandler = collisionHandler;
+        rootNode=new Node(null,defenders,attackBoid,null);
+        generateChildren(rootNode);
     }
 
-    public void setMaxTreeDepth(int maxTreeDepth) {
-        this.maxTreeDepth = maxTreeDepth;
-    }
+    public PVector[] getPossibleActions(int noAction){
 
-    public int getMaxNodeChildren() {
-        return maxNodeChildren;
-    }
-
-    public void setMaxNodeChildren(int maxNodeChildren) {
-        this.maxNodeChildren = maxNodeChildren;
-    }
-
-
-    public Tree(int maxTreeDepth, BoidGeneric attackBoid) {
-        resetRoot(attackBoid);
-        this.maxTreeDepth = maxTreeDepth;
-    }
-
-    public void resetRoot(BoidGeneric attackBoid) {
-        this.root = new Node(0, "ROOT", 0, 0, attackBoid);
-        this.root.addPresetActionNode(Node.Action.TOWARDS_TARGET);
-    }
-
-    public Node addChild(Node node, InnerSimulation innerSimulation) {
-        Node childNode = node.addChild(innerSimulation);
-        childNode.addPresetActionNode(Node.Action.TOWARDS_TARGET);
-        return childNode;
-    }
-
-    public Node UCT(Node currentNode, double epsilon) {
-        do {
-            if(currentNode.getChildren().size() < maxNodeChildren){
-                return currentNode;
-            }
-
-            Node selectedNode = currentNode.getRandomChild();
-            //logic for epsilon greedy is slightly wrong,
-            //not used atm so doesnt matter but should be fixed at some point
-//            double randomNum = Math.random();
-            for(Node node : currentNode.getChildren()) {
-//                if(randomNum < epsilon) {
-//                    continue;
-//                }
-                if(node.getSimulationValue() != 1 && node.getSimulationValue() != -1) {
-                    selectedNode = node.calcUCT() > selectedNode.calcUCT() ? node : selectedNode;
-                }
-            }
-            currentNode = selectedNode;
-        } while(true);
-    }
-
-    public Node bestAvgVal() {
-        if(root.getChildren().size() == 0){
-            return root;
+        PVector[] possibleAction = new PVector[noAction];
+        for (int i=0 ; i<noAction-1;i++){
+            possibleAction[i] = createRandomVector();
         }
-
-        double highestUctWinner = 0;
-        double highestUctNeutral = 0;
-        List<Node> rootChildrenNodes = root.getChildren();
-        Node highestUctWinnerNode = rootChildrenNodes.get(0) ;
-        Node highestUctNeutralNode= rootChildrenNodes.get(0);
-
-
-        for (Node n : rootChildrenNodes){
-            if (n.getSimulationValue()==1){
-                double currentUctWinner = n.calcUCT();
-                if (currentUctWinner > highestUctWinner) {highestUctWinner=currentUctWinner;highestUctWinnerNode = n;}
-
-
-            } else if (n.getSimulationValue()!=-1){
-                double currentUctNeutral = n.calcUCT();
-                if (currentUctNeutral > highestUctNeutral){ highestUctNeutral=currentUctNeutral;highestUctNeutralNode=n;}
-            }
-        }
-
-        if (highestUctWinner!=0){
-            return highestUctWinnerNode;
-        } else if (highestUctNeutral!=0){
-            return highestUctNeutralNode;
-        }
-
-
-        return root;
+        possibleAction[noAction-1] = PVector.sub(Constants.TARGET, attackBoid.getLocation()).setMag(Constants.Boids.MAX_ACC_ATTACK);
+        return possibleAction;
     }
+    PVector createRandomVector() {
+        PVector randomAcceleration = new PVector(random.nextFloat() * 2 - 1, random.nextFloat() * 2 - 1);
+        return randomAcceleration.setMag(Constants.Boids.MAX_ACC_ATTACK);
+    }
+    public void generateChildren(Node n){
+        for (PVector action : getPossibleActions(12)){
+            n.addChild(new Node(action,n.getDefendersBoidState(),n.getAttackBoidState(),n));
+        }
+    }
+    public void iterateTree(){
+        Node selection = findNodeToRollout();
+        double value = selection.simulateRollout(waypoints,collisionHandler,simulation_ai);
+        selection.backPropagate(value);
+
+    }
+
+    public Node findNodeToRollout(){
+       Node selectedNode =  selectionForExpansion(rootNode);
+       while (!selectedNode.getChildren().isEmpty()){
+           selectedNode =  selectionForExpansion(selectedNode);
+       }
+       selectedNode = continueExpansion(selectedNode);
+       return selectedNode;
+    }
+
+    public Node selectionForExpansion(Node currentNode) {
+        Stream<Node> stream = currentNode.getChildren().stream();
+        Node nodeToConsider = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
+
+        return nodeToConsider;
+    }
+
+    public Node continueExpansion(Node n){
+        generateChildren(n);
+        return selectionForExpansion(n);
+    }
+
+    public Node selectOptimalAction() {
+        Stream<Node> stream = rootNode.getChildren().stream();
+
+        return stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
+    }
+
+
+
+
 }

@@ -31,21 +31,22 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
     public Thread getThread() {
         return thread;
     }
+    private final int howManySimulations = 50;
 
     private Thread thread = null;
     private boolean isThreadRunning = false;
     PApplet parent;
     public EnviromentalSimulation(PApplet parent,ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints , AI_type simulation_ai) {
-        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler, waypoints,simulation_ai);
+        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler,simulation_ai);
         defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
         this.waypoints = waypoints;
         for (BoidGeneric defenderBoid : defenderBoids) {
             defenderBoid.setAi(simulation_ai);
         }
-        this.simulation_ai = simulation_ai;
+        this.ai_type = simulation_ai;
         this.parent= parent;
         startTime = System.nanoTime();
-        MCT = new Tree(maxTreeDepth, this.attackBoid);
+
 
     }
     public boolean stopThread(){
@@ -59,11 +60,15 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
         }
     }
     public void startExecution() {
-
+        MCT = new Tree( this.attackBoid,this.defenderBoids,ai_type,waypoints,collisionHandler);
         this.thread = new Thread(this);
         this.thread.start();
     }
+    public void updateCurrentBoidPosition(ArrayList<BoidGeneric> defenderBoids,BoidGeneric attackBoid){
+        this.defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
+        this.attackBoid = new BoidStandard(attackBoid);
 
+    }
     public boolean isThreadFinished() {
         return this.thread.isAlive();
     }
@@ -80,21 +85,10 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
      * the best acceleration vector according to the simulations the MCTS performed
      * To prevent memory issues it also runs garbage collection every 10 calls.
      *
-     * @param defenderBoids
-     * @param attackBoid
      * @return
      */
-    public PVector makeDecision(ArrayList<BoidGeneric> defenderBoids, BoidGeneric attackBoid) {
-
-            Node bestNode = MCT.bestAvgVal();
-            PVector bestVector = bestNode.getAccelerationAction();
-
-            updateBoids(defenderBoids, attackBoid);
-            MCT.resetRoot(attackBoid);
-            simulations = 0;
-        System.out.println("i made a decision");
-            return bestVector;
-
+    public PVector makeDecision() {
+        return MCT.selectOptimalAction().getAction();
 
     }
 
@@ -107,20 +101,9 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
 
     public void run() {
-        MCT = new Tree(maxTreeDepth, this.attackBoid);
         System.out.println("starting the Thread" + Thread.currentThread().getName());
-        Node node = MCT.UCT(MCT.getRoot(), -1);
-        InnerSimulation innerSimulation = new InnerSimulation(parent,defenderBoids, waypointCoords, collisionHandler, node, waypoints,simulation_ai);
-        while (simulations<50) {
-            System.out.println("I am in");
-            innerSimulation.simulate();
-            if (!node.isExpanded()) {
-                node.expandAndStoreState(innerSimulation);
-                continue;
-            }
-            double simVal = innerSimulation.calcSimulationValue();
-            Node childNode = MCT.addChild(node, innerSimulation);
-            childNode.backPropagate(simVal);
+        while (simulations<howManySimulations) {
+            MCT.iterateTree();
             simulations++;
         }
         finished=true;
