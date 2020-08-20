@@ -48,10 +48,11 @@ public class InnerSimulation extends Simulation implements BoidsCloneable {
 
         for (int j = 0; j < 100; j++) {
 
+
+            attacker.updateAttack(action);
             if (CollisionHandler.doesReachTarget(attacker, 0)) {
                 return 1;
             }
-            attacker.updateAttack(action);
             for (BoidGeneric defenderBoid : defenderBoids) {
                 defenderBoid.move(defenderBoids);
                 defenderBoid.update();

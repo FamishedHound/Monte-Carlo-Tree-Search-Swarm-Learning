@@ -94,26 +94,6 @@ public class Node  {
 
 
 
-    public boolean isExpanded() {
-        return expanded;
-    }
-
-    public void setExpanded() {
-        this.expanded = true;
-    }
-
-
-
-
-    public double getRolloutReward() {
-        return rolloutReward;
-    }
-
-    public void setRolloutReward(double rolloutReward) {
-        this.rolloutReward = rolloutReward;
-    }
-
-
 
     public BoidGeneric getAttackBoidState() {
         return new BoidStandard(this.attackBoid);
@@ -156,7 +136,11 @@ public class Node  {
 
 
     public  double calcUCT() {
-        if (visits==0)  return Double.MAX_VALUE;
+        if (visits==0)  {
+            System.out.println(visits + " "  + Double.MAX_VALUE);
+            return Double.MAX_VALUE;
+        }
+        System.out.println(visits + " "  +cumuValue / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(parent.getVisits()) / visits));
         return cumuValue / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(parent.getVisits()) / visits);
     }
 

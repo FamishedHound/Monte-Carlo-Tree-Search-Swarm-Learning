@@ -115,7 +115,13 @@ public class ZoneDefence implements Cloneable {
 
 
 
-        System.out.println(enviromentalSimulation.stopThread());
+        while(!enviromentalSimulation.stopThread()){
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         PVector attackVector = enviromentalSimulation.makeDecision();
 
         attackBoid.updateAttack(attackVector);

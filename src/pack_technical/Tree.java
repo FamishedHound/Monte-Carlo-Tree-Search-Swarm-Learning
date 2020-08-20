@@ -72,9 +72,9 @@ public class Tree {
 
     public Node selectionForExpansion(Node currentNode) {
         Stream<Node> stream = currentNode.getChildren().stream();
-        Node nodeToConsider = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
+        Optional<Node> nodeToConsider = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT)));
 
-        return nodeToConsider;
+        return nodeToConsider.get();
     }
 
     public Node continueExpansion(Node n){
@@ -84,8 +84,8 @@ public class Tree {
 
     public Node selectOptimalAction() {
         Stream<Node> stream = rootNode.getChildren().stream();
-
-        return stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
+        Node toReturn  = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
+        return toReturn;
     }
 
 
