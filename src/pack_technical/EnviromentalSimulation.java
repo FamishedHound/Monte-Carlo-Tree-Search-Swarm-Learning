@@ -31,13 +31,13 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
     public Thread getThread() {
         return thread;
     }
-    private final int howManySimulations = 150;
+    private final int howManySimulations = 100;
 
     private Thread thread = null;
     private boolean isThreadRunning = false;
     PApplet parent;
-    public EnviromentalSimulation(PApplet parent,ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints , AI_type simulation_ai) {
-        super(BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler,simulation_ai);
+    public EnviromentalSimulation(PatrollingScheme patrollingScheme,ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, BoidGeneric attackBoid, CollisionHandler collisionHandler, List<PVector> waypoints , AI_type simulation_ai) {
+        super(patrollingScheme,BoidsCloneable.copyStateOfBoids(defenderBoids), waypointCoords, attackBoid, collisionHandler,simulation_ai);
         defenderBoids = BoidsCloneable.copyStateOfBoids(defenderBoids);
         this.waypoints = waypoints;
         for (BoidGeneric defenderBoid : defenderBoids) {
@@ -60,7 +60,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
         }
     }
     public void startExecution() {
-        MCT = new Tree( this.attackBoid,this.defenderBoids,ai_type,waypoints,collisionHandler);
+        MCT = new Tree(patrollingScheme, this.attackBoid,this.defenderBoids,ai_type,waypoints,collisionHandler);
         this.thread = new Thread(this);
         this.thread.start();
     }

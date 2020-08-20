@@ -58,7 +58,7 @@ public class ZoneDefence implements Cloneable {
         waypoints.addAll(parameterGatherAndSetter.returnDifficulty());
         patrollingScheme.getWaypointsA().add(Constants.TARGET.copy());
         patrollingScheme.setup();
-        enviromentalSimulation = new EnviromentalSimulation(parent,defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler, parameterGatherAndSetter.returnDifficulty(),simulation_ai);
+        enviromentalSimulation = new EnviromentalSimulation(patrollingScheme,defenderBoids, patternHandler.getNewpoints(), attackBoids.get(0), collisionHandler, parameterGatherAndSetter.returnDifficulty(),simulation_ai);
         this.simulation_ai = enviromentalSimulation.getAi_type();
         attack.set(true);
 
@@ -117,7 +117,7 @@ public class ZoneDefence implements Cloneable {
 
         while(!enviromentalSimulation.stopThread()){
             try {
-                Thread.sleep(50);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -50,9 +50,9 @@ public class Node  {
     public void addChild(Node e){
         this.children.add(e);
     }
-    public double simulateRollout(List<PVector> waypoints, CollisionHandler collisionHandler, AI_type ai){
-       innerSimulation = new InnerSimulation(this.attacker,this.defenders,waypoints,collisionHandler,action,ai);
-       double rolloutValue = innerSimulation.rollout();
+    public double simulateRollout(PatrollingScheme patrollingScheme,List<PVector> waypoints, CollisionHandler collisionHandler, AI_type ai){
+       innerSimulation = new InnerSimulation(patrollingScheme,this.attacker,this.defenders,waypoints,collisionHandler,action,ai);
+       double rolloutValue = innerSimulation.rollout(patrollingScheme);
        this.defenders = innerSimulation.getDefendersState();
        this.attackBoid = innerSimulation.getAttackerState();
        return rolloutValue;
@@ -62,7 +62,9 @@ public class Node  {
         return parent;
     }
 
-
+    public void setCumuValue(double c){
+        cumuValue = c;
+    }
 
     public Node getRandomChild() {
         return children.get((int) (Math.random()*children.size()));
@@ -131,16 +133,23 @@ public class Node  {
             node.addCumuValue(simVal);
             node = node.getParent();
         }
+        if (node.parent == null) {
+            node.incrementTimesVisited();
+            node.setCumuValue(node.getChildren()
+                    .stream()
+                    .mapToDouble(Node::getCumuValue)
+                    .sum());
+        }
 
     }
 
 
     public  double calcUCT() {
         if (visits==0)  {
-            System.out.println(visits + " "  + Double.MAX_VALUE);
+           // System.out.println(visits + " "  + Double.MAX_VALUE);
             return Double.MAX_VALUE;
         }
-        System.out.println(visits + " "  +cumuValue / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(parent.getVisits()) / visits));
+        //System.out.println(visits + " "  +cumuValue / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(parent.getVisits()) / visits));
         return cumuValue / visits + 2*Constants.SQRT2 * Math.sqrt(2 * Math.log(parent.getVisits()) / visits);
     }
 

@@ -33,8 +33,8 @@ public class InnerSimulation extends Simulation implements BoidsCloneable {
 
 
 
-    public InnerSimulation(BoidGeneric attacker, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, PVector action, AI_type simulation_ai) {
-        super(defenderBoids, waypointCoords, attacker, collisionHandler, simulation_ai);
+    public InnerSimulation(PatrollingScheme patrollingScheme,BoidGeneric attacker, ArrayList<BoidGeneric> defenderBoids, List<PVector> waypointCoords, CollisionHandler collisionHandler, PVector action, AI_type simulation_ai) {
+        super(patrollingScheme,defenderBoids, waypointCoords, attacker, collisionHandler, simulation_ai);
         this.simulation_ai = simulation_ai;
         this.attacker = attacker;
 
@@ -44,26 +44,25 @@ public class InnerSimulation extends Simulation implements BoidsCloneable {
 
 
 
-    public double rollout() {
+    public double rollout(PatrollingScheme patrollingSchemes) {
 
-        for (int j = 0; j < 100; j++) {
+        for (int j = 0; j < 1000; j++) {
 
 
             attacker.updateAttack(action);
-            if (CollisionHandler.doesReachTarget(attacker, 0)) {
-                return 1;
+            if (CollisionHandler.doesReachTarget(attacker, 10)) {
+                return 10;
             }
             for (BoidGeneric defenderBoid : defenderBoids) {
-                defenderBoid.move(defenderBoids);
-                defenderBoid.update();
+                defenderBoid.update(patrollingSchemes.patrol(defenderBoid.getLocation(), defenderBoid));
                 if (CollisionHandler.doesCollide(attacker, defenderBoid, 0)) {
-                    return -1;
+                    return -10;
                 }
 
             }
         }
         currentDistanceToTarget = PVector.dist(attacker.getLocation(), Constants.TARGET);
-        return 0.5 - (currentDistanceToTarget / 6000);
+        return 10 /currentDistanceToTarget ;
     }
 
     public BoidGeneric getAttackerState() {

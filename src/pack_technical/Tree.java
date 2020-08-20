@@ -26,7 +26,8 @@ public class Tree {
     private List<PVector> waypoints;
     AI_type simulation_ai;
     CollisionHandler collisionHandler;
-    public Tree( BoidGeneric attackBoid, ArrayList<BoidGeneric> defenders, AI_type simulation_ai, List<PVector> waypoints, CollisionHandler collisionHandler) {
+    PatrollingScheme patrollingScheme;
+    public Tree(PatrollingScheme patrollingScheme, BoidGeneric attackBoid, ArrayList<BoidGeneric> defenders, AI_type simulation_ai, List<PVector> waypoints, CollisionHandler collisionHandler) {
         this.attackBoid = attackBoid;
         this.defenders= defenders;
         this.waypoints = waypoints;
@@ -34,6 +35,7 @@ public class Tree {
         this.collisionHandler = collisionHandler;
         rootNode=new Node(null,defenders,attackBoid,null);
         generateChildren(rootNode);
+        this.patrollingScheme = patrollingScheme;
     }
 
     public PVector[] getPossibleActions(int noAction){
@@ -56,7 +58,7 @@ public class Tree {
     }
     public void iterateTree(){
         Node selection = findNodeToRollout();
-        double value = selection.simulateRollout(waypoints,collisionHandler,simulation_ai);
+        double value = selection.simulateRollout(patrollingScheme,waypoints,collisionHandler,simulation_ai);
         selection.backPropagate(value);
 
     }
