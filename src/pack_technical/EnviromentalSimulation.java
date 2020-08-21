@@ -52,7 +52,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
     public boolean stopThread(){
 
         if ( finished) {
-            System.out.println("stopping the Thread " + thread.getName());
+            //System.out.println("stopping the Thread " + thread.getName());
             finished=false;
             simulations=0;
             return true;
@@ -102,7 +102,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
 
 
     public void run() {
-        System.out.println("starting the Thread" + Thread.currentThread().getName());
+        //System.out.println("starting the Thread" + Thread.currentThread().getName());
         while (simulations<howManySimulations) {
             MCT.iterateTree();
             simulations++;

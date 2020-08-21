@@ -38,13 +38,13 @@ public class Tree {
         this.patrollingScheme = patrollingScheme;
     }
 
-    public PVector[] getPossibleActions(int noAction){
+    public PVector[] getPossibleActions(int noAction, Node n){
 
         PVector[] possibleAction = new PVector[noAction];
         for (int i=0 ; i<noAction-1;i++){
             possibleAction[i] = createRandomVector();
         }
-        possibleAction[noAction-1] = PVector.sub(Constants.TARGET, attackBoid.getLocation()).setMag(Constants.Boids.MAX_ACC_ATTACK);
+        possibleAction[noAction-1] = PVector.sub(Constants.TARGET, n.getAttackBoidState().getLocation()).setMag(Constants.Boids.MAX_ACC_ATTACK);
         return possibleAction;
     }
     PVector createRandomVector() {
@@ -52,15 +52,16 @@ public class Tree {
         return randomAcceleration.setMag(Constants.Boids.MAX_ACC_ATTACK);
     }
     public void generateChildren(Node n){
-        for (PVector action : getPossibleActions(2)){
+        for (PVector action : getPossibleActions(20,n)){
             n.addChild(new Node(action,n.getDefendersBoidState(),n.getAttackBoidState(),n));
         }
     }
     public void iterateTree(){
         Node selection = findNodeToRollout();
+        //System.out.println("current Node = " + selection);
         double value = selection.simulateRollout(patrollingScheme,waypoints,collisionHandler,simulation_ai,selection.getParent().getAttackBoidState(),selection.getParent().getDefendersBoidState());
         selection.backPropagate(value);
-
+        //System.out.println(selection + " done");
     }
 
     public Node findNodeToRollout(){
@@ -73,6 +74,8 @@ public class Tree {
                 return selectedNode;
            selectedNode =  selectionForExpansion(selectedNode);
        }
+        if (selectedNode.getVisits() == 0)
+            return selectedNode;
        selectedNode = continueExpansion(selectedNode);
        return selectedNode;
     }
@@ -92,12 +95,17 @@ public class Tree {
     public Node selectOptimalAction() {
 //        Stream<Node> stream = rootNode.getChildren().stream();
 //        Node toReturn  = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
-        double best = 0;
+        double best = rootNode.getChildren().get(0).calcUCT();
         Node nodeWin = rootNode.getChildren().get(0);
+
         for(Node n : rootNode.getChildren()){
-            if (n.calcUCT()>best){
-                best = n.calcUCT();
+            double currUTCT = n.calcUCT();
+            if (currUTCT>best){
+                System.out.println("Node 1 was better! N0: " + best + " N1: "+ currUTCT);
+                best = currUTCT;
                 nodeWin = n;
+            } else if (n != rootNode.getChildren().get(0) ){
+                System.out.println("Node 0 ! N0: " + best + " N1: "+ currUTCT);
             }
         }
         double heh = nodeWin.getCumuValue();

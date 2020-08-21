@@ -41,14 +41,14 @@ public class InnerSimulation  implements BoidsCloneable {
 
 
     public double rollout(PatrollingScheme patrollingSchemes) {
-
+        //System.out.println("Attacker Start" + attacker.getLocation());
         for (int i = 0; i < 500; i++) {
 
            // parent.fill(55,213,10);
             //action =  PVector.sub(Constants.TARGET, attacker.getLocation()).setMag(Constants.Boids.MAX_ACC_ATTACK);
             attacker.updateAttack(action);
             // parent.rect(attacker.getLocation().x, attacker.getLocation().y,10f,10f);
-            if (CollisionHandler.doesReachTarget(attacker, 0)) {
+            if (CollisionHandler.doesReachTarget(attacker, 20)) {
                 return 10;
             }
             for (BoidGeneric defenderBoid : defenderBoids) {
@@ -63,6 +63,7 @@ public class InnerSimulation  implements BoidsCloneable {
             }
 
         }
+        //System.out.println("Attacker End" + attacker.getLocation());
         currentDistanceToTarget = PVector.dist(attacker.getLocation(), Constants.TARGET);
         return 0.5 - (currentDistanceToTarget / 6000);
     }
