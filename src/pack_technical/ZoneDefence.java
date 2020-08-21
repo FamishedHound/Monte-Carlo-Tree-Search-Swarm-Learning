@@ -35,7 +35,9 @@ public class ZoneDefence implements Cloneable {
     ParameterSimulator parameterSimulation;
     ParameterGatherAndSetter parameterGatherAndSetter;
     PApplet parent;
-
+    int countero = 0;
+    PVector cache ;
+    boolean cached = false;
     AI_type simulation_ai;
     //TODO fix this hardcoded path
     //public PrintWriter writer14 = new PrintWriter("output/AttackingAndUpdatingTime.txt");
@@ -67,12 +69,14 @@ public class ZoneDefence implements Cloneable {
 
     public void run() {
 
-        enviromentalSimulation.startExecution();
+
         //parameterGatherAndSetter.sendParameters(this.simulation_ai);
 
         updateDefenders();
         updateAttacker();
         parameterGatherAndSetter.incrementIterations();
+        //System.out.println(new InnerSimulation(parent,patrollingScheme,attackBoids.get(0),defenderBoids,waypoints,collisionHandler,new PVector(0,0),simulation_ai).rollout(patrollingScheme));
+
     }
 
     private void updateAttacker() {
@@ -112,18 +116,28 @@ public class ZoneDefence implements Cloneable {
     }
 
     private void  applyMCTSVector(BoidGeneric attackBoid) {
+        PVector attackVector;
 
-
-
-        while(!enviromentalSimulation.stopThread()){
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        if(!cached) {
+            enviromentalSimulation.startExecution(this.attackBoids.get(0),defenderBoids);
+            while (!enviromentalSimulation.stopThread()) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            attackVector = enviromentalSimulation.makeDecision();
+            cache = attackVector;
+            cached = true;
+        } else {
+            attackVector = cache;
+            countero+=1;
+            if(countero==50){
+                cached=false;
+                countero=0;
             }
         }
-        PVector attackVector = enviromentalSimulation.makeDecision();
-
         attackBoid.updateAttack(attackVector);
 
     }

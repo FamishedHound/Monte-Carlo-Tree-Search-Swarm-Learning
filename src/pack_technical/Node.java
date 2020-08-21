@@ -4,6 +4,7 @@ import pack_1.Constants;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import pack_boids.BoidStandard;
+import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Random;
 
 public class Node  {
     private Node parent;
+    private PApplet parento;
     private List<Node> children;
     private int visits = 0;
 //    private int depth;
@@ -27,7 +29,7 @@ public class Node  {
 
     //    private String name; //debug only
     private PVector action;
-    private BoidGeneric attacker;
+
 
 
 
@@ -38,20 +40,20 @@ public class Node  {
     /**
      * Constructor of Node, assigns internal values and initialises storage for children. If not provided, stores a zeroed random acceleration action.
      */
-    public Node(PVector action, ArrayList<BoidGeneric> defenders, BoidGeneric attackBoids,Node parent) {
+    public Node(PVector action, ArrayList<BoidGeneric> defenders, BoidGeneric attackBoids, Node parent) {
         this.children = new ArrayList<>();
         this.defenders = defenders;
         this.parent=parent;
         this.setAttackBoids(attackBoids);
         this.expanded = true;
         this.action = action;
-        this.attacker = attackBoids;
+        this.attackBoid = attackBoids;
     }
     public void addChild(Node e){
         this.children.add(e);
     }
-    public double simulateRollout(PatrollingScheme patrollingScheme,List<PVector> waypoints, CollisionHandler collisionHandler, AI_type ai){
-       innerSimulation = new InnerSimulation(patrollingScheme,this.attacker,this.defenders,waypoints,collisionHandler,action,ai);
+    public double simulateRollout(PatrollingScheme patrollingScheme,List<PVector> waypoints, CollisionHandler collisionHandler, AI_type ai,BoidGeneric attacker , ArrayList<BoidGeneric> defenders){
+       innerSimulation = new InnerSimulation(parento,patrollingScheme,new BoidStandard(attacker),BoidsCloneable.copyStateOfBoids(defenders),waypoints,collisionHandler,action,ai);
        double rolloutValue = innerSimulation.rollout(patrollingScheme);
        this.defenders = innerSimulation.getDefendersState();
        this.attackBoid = innerSimulation.getAttackerState();

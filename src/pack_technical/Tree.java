@@ -34,7 +34,7 @@ public class Tree {
         this.simulation_ai=simulation_ai;
         this.collisionHandler = collisionHandler;
         rootNode=new Node(null,defenders,attackBoid,null);
-        generateChildren(rootNode);
+        //generateChildren(rootNode);
         this.patrollingScheme = patrollingScheme;
     }
 
@@ -52,18 +52,21 @@ public class Tree {
         return randomAcceleration.setMag(Constants.Boids.MAX_ACC_ATTACK);
     }
     public void generateChildren(Node n){
-        for (PVector action : getPossibleActions(12)){
+        for (PVector action : getPossibleActions(2)){
             n.addChild(new Node(action,n.getDefendersBoidState(),n.getAttackBoidState(),n));
         }
     }
     public void iterateTree(){
         Node selection = findNodeToRollout();
-        double value = selection.simulateRollout(patrollingScheme,waypoints,collisionHandler,simulation_ai);
+        double value = selection.simulateRollout(patrollingScheme,waypoints,collisionHandler,simulation_ai,selection.getParent().getAttackBoidState(),selection.getParent().getDefendersBoidState());
         selection.backPropagate(value);
 
     }
 
     public Node findNodeToRollout(){
+        if (rootNode.getChildren().isEmpty()){
+            return continueExpansion(rootNode);
+        }
        Node selectedNode =  selectionForExpansion(rootNode);
        while (!selectedNode.getChildren().isEmpty()){
            selectedNode =  selectionForExpansion(selectedNode);
@@ -85,9 +88,18 @@ public class Tree {
     }
 
     public Node selectOptimalAction() {
-        Stream<Node> stream = rootNode.getChildren().stream();
-        Node toReturn  = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
-        return toReturn;
+//        Stream<Node> stream = rootNode.getChildren().stream();
+//        Node toReturn  = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
+        double best = 0;
+        Node nodeWin = rootNode.getChildren().get(0);
+        for(Node n : rootNode.getChildren()){
+            if (n.calcUCT()>best){
+                best = n.calcUCT();
+                nodeWin = n;
+            }
+        }
+        double heh = nodeWin.getCumuValue();
+        return nodeWin;
     }
 
 

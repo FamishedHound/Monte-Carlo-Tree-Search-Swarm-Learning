@@ -31,7 +31,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
     public Thread getThread() {
         return thread;
     }
-    private final int howManySimulations = 100;
+    private final int howManySimulations = 50;
 
     private Thread thread = null;
     private boolean isThreadRunning = false;
@@ -54,13 +54,14 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
         if ( finished) {
             System.out.println("stopping the Thread " + thread.getName());
             finished=false;
+            simulations=0;
             return true;
         }else{
             return false;
         }
     }
-    public void startExecution() {
-        MCT = new Tree(patrollingScheme, this.attackBoid,this.defenderBoids,ai_type,waypoints,collisionHandler);
+    public void startExecution(BoidGeneric attacker,ArrayList<BoidGeneric> defenders) {
+        MCT = new Tree(patrollingScheme, attacker,defenders,ai_type,waypoints,collisionHandler);
         this.thread = new Thread(this);
         this.thread.start();
     }
