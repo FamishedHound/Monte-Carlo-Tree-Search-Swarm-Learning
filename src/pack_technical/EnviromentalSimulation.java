@@ -31,7 +31,7 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
     public Thread getThread() {
         return thread;
     }
-    private final int howManySimulations = 50;
+    private final int howManySimulations = 100;
 
     private Thread thread = null;
     private boolean isThreadRunning = false;

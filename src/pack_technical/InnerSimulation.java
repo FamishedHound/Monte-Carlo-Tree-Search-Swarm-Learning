@@ -42,7 +42,7 @@ public class InnerSimulation  implements BoidsCloneable {
 
     public double rollout(PatrollingScheme patrollingSchemes) {
         //System.out.println("Attacker Start" + attacker.getLocation());
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 200; i++) {
 
            // parent.fill(55,213,10);
             //action =  PVector.sub(Constants.TARGET, attacker.getLocation()).setMag(Constants.Boids.MAX_ACC_ATTACK);
