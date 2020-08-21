@@ -53,8 +53,7 @@ public class Node  {
         this.children.add(e);
     }
     public double simulateRollout(PatrollingScheme patrollingScheme,List<PVector> waypoints, CollisionHandler collisionHandler, AI_type ai,BoidGeneric attacker , ArrayList<BoidGeneric> defenders){
-       innerSimulation = new InnerSimulation(parento,patrollingScheme,new BoidStandard(attacker),
-           BoidsCloneable.copyStateOfBoids(defenders),waypoints,collisionHandler,action,ai);
+       innerSimulation = new InnerSimulation(parento,patrollingScheme,new BoidStandard(attacker),BoidsCloneable.copyStateOfBoids(defenders),waypoints,collisionHandler,action,ai);
        double rolloutValue = innerSimulation.rollout(patrollingScheme);
        this.defenders = innerSimulation.getDefendersState();
        this.attackBoid = innerSimulation.getAttackerState();

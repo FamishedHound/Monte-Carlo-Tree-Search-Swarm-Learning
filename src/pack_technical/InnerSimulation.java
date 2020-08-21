@@ -1,6 +1,5 @@
 package pack_technical;
 
-import javax.swing.SpringLayout;
 import pack_AI.AI_type;
 import pack_boids.BoidGeneric;
 import pack_boids.BoidStandard;

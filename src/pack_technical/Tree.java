@@ -58,9 +58,7 @@ public class Tree {
     }
     public void iterateTree(){
         Node selection = findNodeToRollout();
-        double value = selection.simulateRollout(patrollingScheme,waypoints,collisionHandler,simulation_ai,
-               selection.getParent().getAttackBoidState(),selection.getParent().getDefendersBoidState());
-        System.out.println(selection + " value = " + value);
+        double value = selection.simulateRollout(patrollingScheme,waypoints,collisionHandler,simulation_ai,selection.getParent().getAttackBoidState(),selection.getParent().getDefendersBoidState());
         selection.backPropagate(value);
 
     }
