@@ -69,6 +69,8 @@ public class Tree {
         }
        Node selectedNode =  selectionForExpansion(rootNode);
        while (!selectedNode.getChildren().isEmpty()){
+            if (selectedNode.getVisits() == 0)
+                return selectedNode;
            selectedNode =  selectionForExpansion(selectedNode);
        }
        selectedNode = continueExpansion(selectedNode);
