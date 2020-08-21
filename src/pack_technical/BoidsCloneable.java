@@ -11,9 +11,6 @@ public interface BoidsCloneable {
 
         for (BoidGeneric boid : boids) {
             BoidGeneric bi = new BoidStandard(boid);
-            bi.setAcceleration(boid.getAcceleration());
-            bi.setVelocity(boid.getVelocity());
-            bi.setLocation(boid.getLocation());
             boidListClone.add(bi);
         }
         return boidListClone;
