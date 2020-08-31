@@ -52,7 +52,7 @@ public class Tree {
         return randomAcceleration.setMag(Constants.Boids.MAX_ACC_ATTACK);
     }
     public void generateChildren(Node n){
-        for (PVector action : getPossibleActions(20,n)){
+        for (PVector action : getPossibleActions(40,n)){
             n.addChild(new Node(action,n.getDefendersBoidState(),n.getAttackBoidState(),n));
         }
     }
@@ -95,17 +95,17 @@ public class Tree {
     public Node selectOptimalAction() {
 //        Stream<Node> stream = rootNode.getChildren().stream();
 //        Node toReturn  = stream.collect(Collectors.maxBy(Comparator.comparing(Node::calcUCT))).get();
-        double best = rootNode.getChildren().get(0).calcUCT();
+        double best = rootNode.getChildren().get(0).getVisits();
         Node nodeWin = rootNode.getChildren().get(0);
 
         for(Node n : rootNode.getChildren()){
-            double currUTCT = n.calcUCT();
+            double currUTCT = n.getVisits();
             if (currUTCT>best){
-                System.out.println("Node 1 was better! N0: " + best + " N1: "+ currUTCT);
+                //System.out.println("Node 1 was better! N0: " + best + " N1: "+ currUTCT);
                 best = currUTCT;
                 nodeWin = n;
             } else if (n != rootNode.getChildren().get(0) ){
-                System.out.println("Node 0 ! N0: " + best + " N1: "+ currUTCT);
+                //System.out.println("Node 0 ! N0: " + best + " N1: "+ currUTCT);
             }
         }
         double heh = nodeWin.getCumuValue();

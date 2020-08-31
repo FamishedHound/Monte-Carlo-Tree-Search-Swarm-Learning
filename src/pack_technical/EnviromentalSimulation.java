@@ -27,11 +27,16 @@ public class EnviromentalSimulation extends Simulation implements Runnable, Boid
     private int simulations = 0;
     private AI_type simulation_ai;
     private List<PVector> waypoints;
+
+    public boolean isFinished() {
+        return finished;
+    }
+
     private boolean finished = false;
     public Thread getThread() {
         return thread;
     }
-    private final int howManySimulations = 100;
+    private final int howManySimulations = 200;
 
     private Thread thread = null;
     private boolean isThreadRunning = false;

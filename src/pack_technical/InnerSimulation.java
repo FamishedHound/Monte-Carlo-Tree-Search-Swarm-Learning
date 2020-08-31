@@ -43,24 +43,25 @@ public class InnerSimulation  implements BoidsCloneable {
     public double rollout(PatrollingScheme patrollingSchemes) {
         //System.out.println("Attacker Start" + attacker.getLocation());
         for (int i = 0; i < 200; i++) {
-
-           // parent.fill(55,213,10);
-            //action =  PVector.sub(Constants.TARGET, attacker.getLocation()).setMag(Constants.Boids.MAX_ACC_ATTACK);
             attacker.updateAttack(action);
-            // parent.rect(attacker.getLocation().x, attacker.getLocation().y,10f,10f);
-            if (CollisionHandler.doesReachTarget(attacker, 20)) {
-                return 10;
-            }
             for (BoidGeneric defenderBoid : defenderBoids) {
                 defenderBoid.update(patrollingSchemes.patrol(defenderBoid.getLocation(), defenderBoid));
 
-              //  parent.fill(255,213,10);
-              //  parent.rect(defenderBoid.getLocation().x, defenderBoid.getLocation().y,10f,10f);
-                if (CollisionHandler.doesCollide(attacker, defenderBoid, 0)) {
-                    return -10;
+                //  parent.fill(255,213,10);
+                //  parent.rect(defenderBoid.getLocation().x, defenderBoid.getLocation().y,10f,10f);
+                if (CollisionHandler.doesCollide(attacker, defenderBoid, 20)) {
+                    return -1;
                 }
 
             }
+           // parent.fill(55,213,10);
+            //action =  PVector.sub(Constants.TARGET, attacker.getLocation()).setMag(Constants.Boids.MAX_ACC_ATTACK);
+
+            // parent.rect(attacker.getLocation().x, attacker.getLocation().y,10f,10f);
+            if (CollisionHandler.doesReachTarget(attacker, 20)) {
+                return 1;
+            }
+
 
         }
         //System.out.println("Attacker End" + attacker.getLocation());

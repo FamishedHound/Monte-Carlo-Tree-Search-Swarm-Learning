@@ -92,7 +92,7 @@ public class ZoneDefence implements Cloneable {
         attackBoid.setMovable(true);
         //debugSimulationLimit();
         applyMCTSVector(attackBoid);
-        debugDrawMCTSVectors(attackBoid);
+        //debugDrawMCTSVectors(attackBoid);
 
 
 
@@ -133,7 +133,7 @@ public class ZoneDefence implements Cloneable {
         } else {
             attackVector = cache;
             countero+=1;
-            if(countero==50){
+            if(countero==20){
                 cached=false;
                 countero=0;
             }
